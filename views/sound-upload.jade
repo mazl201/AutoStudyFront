@@ -1,0 +1,11 @@
+extends layout
+
+block content
+    h1= title
+    p now you use #{title}
+    textarea(style="width:200px;height:200px;")
+
+    section.container
+        ul.home.post-list
+            each index in content
+                p #{index}
