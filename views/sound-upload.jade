@@ -1,11 +1,13 @@
 extends layout
 
+
 block content
     h1= title
     p now you use #{title}
-    textarea(style="width:200px;height:200px;")
+    textarea(style="width:800px;height:400px;" class="upload-content")
+    a(href="javascript:void(0)" class='button submitButton') 提交
 
-    section.container
-        ul.home.post-list
-            each index in content
-                p #{index}
+
+block append scripts
+    script(type="text/javascript" src='https://code.jquery.com/jquery-3.4.1.min.js')
+    script(type="text/javascript" src='/js/business/sound/sound-upload.js')
