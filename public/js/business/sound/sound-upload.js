@@ -4,7 +4,7 @@ $(".submitButton").on("click",function(){
     debugger;
     var data = $(".upload-content").html();
     $.ajax({
-        url:"/sound/upload-content",
+        url:"/sound/baidu_api_down",
         data:data,
         // context:null,
         success:function(res){

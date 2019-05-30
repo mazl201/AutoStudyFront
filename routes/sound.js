@@ -21,14 +21,23 @@ HttpClient.setRequestInterceptor(function(requestOptions){
     return requestOptions;
 })
 
-client.text2audio("百度语音测试").then(function(result){
-    if(result.data){
-        fs.writeFileSync("tts.mpVoice.mp3",result.data);
-    }else{
-        console.log(result);
-    }
-},function(e){
-    console.log(e);
+
+
+
+router.get("/baidu_api_down",function(req,res,next){
+    var response = res;
+    client.text2audio("百度语音测试").then(function(result){
+        if(result.data){
+            fs.writeFileSync("tts.mpVoice.mp3",result.data);
+            return "tts.mpVoice.mp3";
+        }else{
+            console.log(result);
+        }
+    },function(e){
+        console.log(e);
+    }).then(function(path){
+        console.log("test log chain")
+    })
 })
 
 
@@ -37,7 +46,7 @@ client.text2audio("百度语音测试").then(function(result){
 router.get('/mp3_list', function (req, res, next) {
     var content = new Array("1", "2", "3", "4", "5")
 
-    mongoClient.connect("mongodb://106.12.30.238:27017", function (err, connect) {
+    mongoClient.connect("mongodb://172.16.3.247:27017", function (err, connect) {
         if (err) {
             console.log("mongodb connect failed");
         } else {
