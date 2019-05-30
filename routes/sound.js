@@ -139,7 +139,7 @@ router.get('/mp3_list', function (req, res, next) {
 });
 
 /* GET home page. */
-router.post('/mp3_download', function (req, res, next) {
+router.get('/mp3_download', function (req, res, next) {
     var request = req;
     var response = res;
     // var id = req.body.id;
