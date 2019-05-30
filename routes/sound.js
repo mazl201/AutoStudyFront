@@ -157,13 +157,23 @@ router.post('/mp3_download', function (req, res, next) {
                 }else{
                     var downloadStream = bucket.openDownloadStream(id);
 
+                    // res.writeHead(200, {
+                    //     'Content-Type': 'application/force-download',
+                    //     'Content-Disposition': 'attachment; filename=' + "alternative.mp3",
+                    //     'Content-Length':ret[0].length
+                    // });
+                    // var writeStream = fs.createWriteStream("test_feasible.mp3");
+                    // downloadStream.pipe(writeStream);
+
+                    var fileName = 'test_feasible.mp3';
+                    var size = fs.statSync(fileName).size;
+                    var f = fs.createReadStream(fileName);
                     res.writeHead(200, {
-                        'Content-Type': 'application/force-download',
-                        'Content-Disposition': 'attachment; filename=' + "alternative.mp3",
-                        'Content-Length':ret[0].length
+                        'Content-Type': 'audio/mpeg',
+                        'Content-Disposition': 'attachment; filename=' + fileName,
+                        'Content-Length': size
                     });
-                    var writeStream = fs.createWriteStream("test_feasible.mp3");
-                    downloadStream.pipe(writeStream);
+                    f.pipe(res);
                     // downloadStream.pipe(res);
                 }
             })
