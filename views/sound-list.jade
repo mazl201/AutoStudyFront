@@ -4,4 +4,10 @@ block content
     section.container
         ul.home.post-list
             each index in content
-                p #{index}
+                a(href="javascript:void(0)" class='button submitButton')  #{index.filename}  #{index._id}  #{index.length}
+                p mp3 #{index.filename}
+                p(class='ids') #{index._id}
+
+block append scripts
+    script(type="text/javascript" src='https://code.jquery.com/jquery-3.4.1.min.js')
+    script(type="text/javascript" src='/js/business/sound/sound-download.js')
