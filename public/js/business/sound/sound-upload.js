@@ -8,6 +8,11 @@ $(".submitButton").on("click",function(){
         data:data,
         // context:null,
         success:function(res){
+            var blob = new Blob([res]);
+            var a = document.createElement('a');
+            a.download = "data.mp3";
+            a.href = window.URL.createObjectURL(blob);
+            a.click();
             debugger;
         }
     })

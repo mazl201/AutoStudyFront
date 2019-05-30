@@ -5,7 +5,33 @@ var urlencode = require("urlencode");
 var fs = require("fs");
 
 var mongoClient = require("mongodb").MongoClient;
+var AipSpeechClient = require("baidu-aip-sdk").speech;
+var HttpClient = require("baidu-aip-sdk").HttpClient;
 var router = express.Router();
+
+//设置 client
+var client = new AipSpeechClient("16329044","um4CpIw5abD8si05UUU7bGOg","TumiW2FDLxCIEv2Gv2Eq9rVa0VEBG36w");
+//设置 百度 访问 request
+HttpClient.setRequestInterceptor(function(requestOptions){
+
+    console.log(requestOptions);
+
+    requestOptions.timeout = 5000;
+
+    return requestOptions;
+})
+
+client.text2audio("百度语音测试").then(function(result){
+    if(result.data){
+        fs.writeFileSync("tts.mpVoice.mp3",result.data);
+    }else{
+        console.log(result);
+    }
+},function(e){
+    console.log(e);
+})
+
+
 
 /* GET home page. */
 router.get('/mp3_list', function (req, res, next) {
@@ -51,28 +77,42 @@ router.get('/upload-content', function (req, res, next) {
         body: "tex="+ secondUrl +"&lan=zh&cuid=fe80514e2b609fbde162%7&ctp=1&aue=3&tok=24.4b5f49ced7e8431c6494adcf71b5bda6.2592000.1561210241.282335-16329044"
     }, function (err, res, body) {
         if (err) {
-            console("baidu voice assemble failed")
+            console.log("baidu voice assemble failed")
         } else {
             console.log("start receive data");
         }
 
     });
-    var fileData = "";
+    var fileData;
     request2.on('data', function (chunk) {
-        fileData += chunk;
+        // if(fileData){
+        //     fileData += chunk;
+        // }else{
+        //     fileData = chunk
+        // }
+        fileData = chunk;
     });
     request2.on('end', function () {
         // var name = url.slice(url.lastIndexOf("/"));
         var fileName = "baidu_text_test.mp3";
-
-        fs.writeFile(fileName, fileData, "binary", function (err) {
-            if (err) {
-                console.log("[downloadPic]文件   " + fileName + "  下载失败.");
-                console.log(err);
-            } else {
-                console.log("文件" + fileName + "下载成功");
-            }
+        fs.writeFileSync(fileName,fileData);
+        // fs.writeFile(fileName, fileData, "binary", function (err) {
+        //     if (err) {
+        //         console.log("[downloadPic]文件   " + fileName + "  下载失败.");
+        //         console.log(err);
+        //     } else {
+        //         console.log("文件" + fileName + "下载成功");
+        //     }
+        // });
+        // var path = './' + name;
+        var size = fs.statSync(fileName).size;
+        var f = fs.createReadStream(fileName);
+        res.writeHead(200, {
+            'Content-Type': 'application/force-download',
+            'Content-Disposition': 'attachment; filename=' + fileName,
+            'Content-Length': size
         });
+        f.pipe(res);
     });
     request2.on("error", function (err) {
         console.log(err);
@@ -81,7 +121,7 @@ router.get('/upload-content', function (req, res, next) {
     //     console.log("http connect failed")
     // })
     // request.write("tex=我是哪个&lan=zh&cuid=fe80514e2b609fbde162%7&ctp=1&aue=3&tok=24.4b5f49ced7e8431c6494adcf71b5bda6.2592000.1561210241.282335-16329044");
-    res.send("success")
+    // res.send("success")
 })
 
 module.exports = router;
