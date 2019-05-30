@@ -2,10 +2,11 @@ debugger;
 
 $(".submitButton").on("click",function(){
     debugger;
-    var data = $(".upload-content").html();
+    var data = {content:$(".upload-content").val()};
     $.ajax({
         url:"/sound/baidu_api_down",
         data:data,
+        type:"POST",
         // context:null,
         success:function(res){
             var blob = new Blob([res]);
