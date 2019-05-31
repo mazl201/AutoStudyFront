@@ -145,9 +145,9 @@ router.post("/baidu_api_down", function (req, res, next) {
                 })
             })
         });
-        res.write("success")
+        res.end("success")
     }
-    res.write("failed")
+    res.end("failed")
 });
 
 /* GET home page. */
