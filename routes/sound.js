@@ -6,10 +6,11 @@ var fs = require("fs");
 var mongoClient = require("mongodb").MongoClient;
 var GridFSBucket = require("mongodb").GridFSBucket;
 var ObjectId = require("mongodb").ObjectId;
+var uuid = require("uuid");
 
 
 // var mongoose = require("mongoose");
-// var conn = mongoose.createConnection("mongodb://172.16.3.247:27017/baidu_voice");
+// var conn = mongoose.createConnection("mongodb://106.12.28.10:27017/baidu_voice");
 // conn.on("error",function(error){
 //     console.log("数据库连接失败:"+error);
 // });
@@ -39,94 +40,126 @@ HttpClient.setRequestInterceptor(function (requestOptions) {
 })
 
 
-router.get("/baidu_api_down", function (req, res, next) {
+router.post("/baidu_api_down", function (req, res, next) {
     var response = res;
-    client.text2audio("百度语音测试").then(function (result) {
-        if (result.data) {
-            fs.writeFileSync("tts.mpVoice.mp3", result.data);
-            return "tts.mpVoice.mp3";
+    if (req.body.content) {
+        var length = req.body.content.length;
+        var splits = new Array();
+        if (length > 2048) {
+            //0 2048
+            for (var index = 0; index < length; index += 2048) {
+                if ((index + 2048) < length) {
+                    var str = req.body.content.substring(index, index + 2048);
+                    splits.push(str)
+                } else {
+                    var str = req.body.content.substring(index, length);
+                    splits.push(str);
+                }
+            }
         } else {
-            console.log(result);
+            splits.push(req.body.content);
         }
-    }, function (e) {
-        console.log(e);
-    }).then(function (path) {
-        console.log("test log chain")
-        mongoClient.connect("mongodb://172.16.3.247:27017", function (err, conn) {
-            var db = conn.db("baidu_voice");
-            var gridFSdb = new GridFSBucket(db);
-            var fileReadStream = fs.createReadStream(path);
+        splits.forEach(function (splitConten, index) {
+            client.text2audio(splitConten).then(function (result) {
+                if (result.data) {
+                    var uuid1 = uuid()+".mp3";
+                    fs.writeFileSync(uuid1, result.data);
+                    return uuid1;
+                } else {
+                    console.log(result);
+                }
+            }, function (e) {
+                console.log(e);
+            }).then(function (path) {
+                var path = path;
+                console.log("test log chain")
+                mongoClient.connect("mongodb://106.12.28.10:27017", function (err, conn) {
+                    if(path){
+                        var db = conn.db("baidu_voice");
+                        var gridFSdb = new GridFSBucket(db);
+                        var fileReadStream = fs.createReadStream(path);
 
-            var openUploadStream = gridFSdb.openUploadStream(path);
+                        var openUploadStream = gridFSdb.openUploadStream(path);
 
-            var license = fs.readFileSync(path);
-            var id = openUploadStream.id;
+                        var license = fs.readFileSync(path);
+                        var id = openUploadStream.id;
 
 
-            openUploadStream.once('finish', function () {
-                var chunksColl = db.collection('fs.files');
-                var chunksQuery = chunksColl.find({_id: id});
+                        openUploadStream.once('finish', function () {
 
-                var gridFSBucketReadStream = gridFSdb.openDownloadStream(id);
-                var testDat = gridFSdb.openUploadStream("testid.dat");
-                gridFSBucketReadStream.pipe(testDat);
+                            var chunksColl = db.collection('fs.files');
+                            var chunksQuery = chunksColl.find({_id: id});
 
-                chunksQuery.toArray(function(err,ret){
-                    if(err){
-                        console.log("can't find file")
-                    }else{
+                            // var gridFSBucketReadStream = gridFSdb.openDownloadStream(id);
+                            // var testDat = gridFSdb.openUploadStream("testid.dat");
+                            // gridFSBucketReadStream.pipe(testDat);
 
+                            chunksQuery.toArray(function (err, ret) {
+                                if (err) {
+                                    console.log("can't find file")
+                                } else {
+                                    fs.unlink(path,function(err){
+                                        if(!err){
+                                            console.log("删除临时文件成功");
+                                        }
+                                    })
+                                }
+                            })
+                            console.log("mp3 ")
+
+                            // Get all the chunks
+                            // chunksQuery.toArray(function (error, docs) {
+                            //     test.equal(error, null);
+                            //     test.equal(docs.length, 1);
+                            //     test.equal(docs[0].data.toString('hex'), license.toString('hex'));
+                            //
+                            //     var filesColl = db.collection('fs.files');
+                            //     var filesQuery = filesColl.find({_id: id});
+                            //     filesQuery.toArray(function (error, docs) {
+                            //         test.equal(error, null);
+                            //         test.equal(docs.length, 1);
+                            //
+                            //         var hash = crypto.createHash('md5');
+                            //         hash.update(license);
+                            //         test.equal(docs[0].md5, hash.digest('hex'));
+                            //
+                            //         // make sure we created indexes
+                            //         filesColl.listIndexes().toArray(function (error, indexes) {
+                            //             test.equal(error, null);
+                            //             test.equal(indexes.length, 2);
+                            //             test.equal(indexes[1].name, 'filename_1_uploadDate_1');
+                            //
+                            //             chunksColl.listIndexes().toArray(function (error, indexes) {
+                            //                 test.equal(error, null);
+                            //                 test.equal(indexes.length, 2);
+                            //                 test.equal(indexes[1].name, 'files_id_1_n_1');
+                            //             });
+                            //         });
+                            //     });
+                            // });
+                        })
+
+                        fileReadStream.pipe(openUploadStream);
                     }
+
                 })
-                console.log("mp3 ")
-
-                // Get all the chunks
-                // chunksQuery.toArray(function (error, docs) {
-                //     test.equal(error, null);
-                //     test.equal(docs.length, 1);
-                //     test.equal(docs[0].data.toString('hex'), license.toString('hex'));
-                //
-                //     var filesColl = db.collection('fs.files');
-                //     var filesQuery = filesColl.find({_id: id});
-                //     filesQuery.toArray(function (error, docs) {
-                //         test.equal(error, null);
-                //         test.equal(docs.length, 1);
-                //
-                //         var hash = crypto.createHash('md5');
-                //         hash.update(license);
-                //         test.equal(docs[0].md5, hash.digest('hex'));
-                //
-                //         // make sure we created indexes
-                //         filesColl.listIndexes().toArray(function (error, indexes) {
-                //             test.equal(error, null);
-                //             test.equal(indexes.length, 2);
-                //             test.equal(indexes[1].name, 'filename_1_uploadDate_1');
-                //
-                //             chunksColl.listIndexes().toArray(function (error, indexes) {
-                //                 test.equal(error, null);
-                //                 test.equal(indexes.length, 2);
-                //                 test.equal(indexes[1].name, 'files_id_1_n_1');
-                //             });
-                //         });
-                //     });
-                // });
             })
+        });
+        res.write("success")
+    }
+    res.write("failed")
+});
 
-            fileReadStream.pipe(openUploadStream);
-        })
-    })
-
-})
 /* GET home page. */
 router.get('/mp3_list', function (req, res, next) {
     var content = new Array("1", "2", "3", "4", "5")
 
-    mongoClient.connect("mongodb://172.16.3.247:27017", function (err, connect) {
+    mongoClient.connect("mongodb://106.12.28.10:27017", function (err, connect) {
         if (err) {
             console.log("mongodb connect failed");
         } else {
             var collection = connect.db("baidu_voice").collection("fs.files");
-            collection.find({}).sort({time: -1}).toArray(function (err, ret) {
+            collection.find({}).sort({uploadDate: -1}).toArray(function (err, ret) {
                 if (err) {
                     console.log("query mongodb baidu_voice.mp3_list failed");
                 } else {
@@ -142,38 +175,38 @@ router.get('/mp3_list', function (req, res, next) {
 router.get('/mp3_download', function (req, res, next) {
     var request = req;
     var response = res;
-    // var id = req.body.id;
-    var id = ObjectId('5cefbbd27a2d803bd0cbeb5f');
-    mongoClient.connect("mongodb://172.16.3.247:27017",function(err,connect){
-        if(err){
+    var id = ObjectId(req.query.id);
+    // var id = ObjectId('5cefbbd27a2d803bd0cbeb5f');
+    mongoClient.connect("mongodb://106.12.28.10:27017", function (err, connect) {
+        if (err) {
             console.log("mongodb connect failed");
-        }else{
+        } else {
 
             var db = connect.db("baidu_voice");
             var bucket = new GridFSBucket(db);
-            db.collection("fs.files").find({_id: id}).toArray(function(err,ret){
-                if(err){
+            db.collection("fs.files").find({_id: id}).toArray(function (err, ret) {
+                if (err) {
                     console.log("mp3 file does not exist");
-                }else{
+                } else {
                     var downloadStream = bucket.openDownloadStream(id);
 
-                    // res.writeHead(200, {
-                    //     'Content-Type': 'application/force-download',
-                    //     'Content-Disposition': 'attachment; filename=' + "alternative.mp3",
-                    //     'Content-Length':ret[0].length
-                    // });
-                    // var writeStream = fs.createWriteStream("test_feasible.mp3");
-                    // downloadStream.pipe(writeStream);
-
-                    var fileName = 'test_feasible.mp3';
-                    var size = fs.statSync(fileName).size;
-                    var f = fs.createReadStream(fileName);
                     res.writeHead(200, {
-                        'Content-Type': 'audio/mpeg',
-                        'Content-Disposition': 'attachment; filename=' + fileName,
-                        'Content-Length': size
+                        'Content-Type': 'application/force-download',
+                        'Content-Disposition': 'attachment; filename=' + "alternative.mp3",
+                        'Content-Length': ret[0].length
                     });
-                    f.pipe(res);
+                    // var writeStream = fs.createWriteStream("test_feasible.mp3");
+                    downloadStream.pipe(res);
+
+                    // var fileName = 'test_feasible.mp3';
+                    // var size = fs.statSync(fileName).size;
+                    // var f = fs.createReadStream(fileName);
+                    // res.writeHead(200, {
+                    //     'Content-Type': 'audio/mpeg',
+                    //     'Content-Disposition': 'attachment; filename=' + fileName,
+                    //     'Content-Length': size
+                    // });
+                    // f.pipe(res);
                     // downloadStream.pipe(res);
                 }
             })
