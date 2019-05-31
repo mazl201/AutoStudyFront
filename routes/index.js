@@ -5,7 +5,8 @@ var path = require('path');
 /* GET home page. */
 router.get('/', function (req, res, next) {
     // res.render('index', { title: 'Express' });
-    res.sendFile(path.join('./utf8-php/index.html'));
+    res.sendFile(path.join(__dirname,'../public/ueditor/index.html'));
 });
+
 
 module.exports = router;
