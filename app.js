@@ -30,7 +30,7 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/sound', soundRouter);
 var ueditor = require("ueditor");
-app.use("/ueditor/getImg",ueditor(path.join(__dirname,"../public"),function(req,res,next){
+app.use("/ueditor/getImg",ueditor(path.join(__dirname,"./public"),function(req,res,next){
     //客户端上传文件设置
     var imgDir = '/images/ueditor/'
     var ActionType = req.query.action;
