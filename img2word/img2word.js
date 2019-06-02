@@ -10,6 +10,7 @@ var SECRET_KEY = 'TumiW2FDLxCIEv2Gv2Eq9rVa0VEBG36w';
 var client = new ocr(APP_ID,API_KEY,SECRET_KEY);
 
 
+
 httpClient.setRequestInterceptor(function (requestOptions) {
 
     console.log(requestOptions);
