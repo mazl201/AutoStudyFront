@@ -1,4 +1,3 @@
-
 var mongoClient = require("mongodb").MongoClient;
 var GridFSBucket = require("mongodb").GridFSBucket;
 var AipSpeechClient = require("baidu-aip-sdk").speech;
@@ -19,7 +18,7 @@ HttpClient.setRequestInterceptor(function (requestOptions) {
     return requestOptions;
 })
 
-function word2voice(content){
+function word2voice(content) {
     var length = content.length;
     var splits = new Array();
     if (length > 2048) {
@@ -37,9 +36,16 @@ function word2voice(content){
         splits.push(content);
     }
     splits.forEach(function (splitConten, index) {
+        var uuid2 = uuid();
+        var updateFileName = splitConten;
+        if (splitConten.length > 10) {
+            updateFileName = splitConten.substring(0, 10);
+        }
+        splitConten = splitConten + new Date().getDate()
         client.text2audio(splitConten).then(function (result) {
             if (result.data) {
-                var uuid1 = uuid()+".mp3";
+
+                var uuid1 = uuid2 + ".mp3";
                 fs.writeFileSync(uuid1, result.data);
                 return uuid1;
             } else {
@@ -51,7 +57,7 @@ function word2voice(content){
             var path = path;
             console.log("test log chain")
             mongoClient.connect("mongodb://106.12.28.10:27017", function (err, conn) {
-                if(path){
+                if (path) {
                     var db = conn.db("baidu_voice");
                     var gridFSdb = new GridFSBucket(db);
                     var fileReadStream = fs.createReadStream(path);
@@ -65,6 +71,9 @@ function word2voice(content){
                     openUploadStream.once('finish', function () {
 
                         var chunksColl = db.collection('fs.files');
+                        chunksColl.update({_id:id},{$set:{filename:updateFileName}},function(err,result){
+                            console.log(result);
+                        })
                         var chunksQuery = chunksColl.find({_id: id});
 
                         // var gridFSBucketReadStream = gridFSdb.openDownloadStream(id);
@@ -72,11 +81,12 @@ function word2voice(content){
                         // gridFSBucketReadStream.pipe(testDat);
 
                         chunksQuery.toArray(function (err, ret) {
+
                             if (err) {
                                 console.log("can't find file")
                             } else {
-                                fs.unlink(path,function(err){
-                                    if(!err){
+                                fs.unlink(path, function (err) {
+                                    if (!err) {
                                         console.log("删除临时文件成功");
                                     }
                                 })
