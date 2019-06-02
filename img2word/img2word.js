@@ -1,7 +1,7 @@
 var httpClient = require("baidu-aip-sdk").HttpClient;
 var ocr = require("baidu-aip-sdk").ocr;
 var fs = require("fs");
-
+var paths = require("path");
 //"16329044", "um4CpIw5abD8si05UUU7bGOg", "TumiW2FDLxCIEv2Gv2Eq9rVa0VEBG36w"
 
 var APP_ID = '16329044'
@@ -9,7 +9,7 @@ var API_KEY = 'um4CpIw5abD8si05UUU7bGOg';
 var SECRET_KEY = 'TumiW2FDLxCIEv2Gv2Eq9rVa0VEBG36w';
 var client = new ocr(APP_ID,API_KEY,SECRET_KEY);
 
-
+var word2voice = require("../word2voice/word2voice");
 
 httpClient.setRequestInterceptor(function (requestOptions) {
 
@@ -20,14 +20,37 @@ httpClient.setRequestInterceptor(function (requestOptions) {
     return requestOptions;
 })
 
-var image = fs.readFileSync("public/images/ueditor/1135029736288948224.jpg").toString("base64");
 
 
-client.generalBasic(image).then(function(result){
-    console.log(JSON.stringify(result))
-}).catch(function(err){
-    console.log(err);
-})
+// var image = fs.readFileSync().toString("base64");
+//
+//
+// client.generalBasic(image).then(function(result){
+//     console.log(JSON.stringify(result));
+//     // word2voice
+// }).catch(function(err){
+//     console.log(err);
+// })
 
-module.exports = client
+function scanDirectory(path){
+    var strings = fs.readdirSync(path);
+    if(strings && strings.length > 0){
+        strings.forEach(function(fileName){
+            var image = fs.readFileSync(paths.join(path,fileName)).toString("base64");
+            client.generalBasic(image).then(function(result){
+                console.log(JSON.stringify(result));
+                var content = "";
+                result.words_result.forEach(function(data){
+                    content += data.words;
+                })
+                word2voice(content);
+                // word2voice
+            }).catch(function(err){
+                console.log(err);
+            })
+        })
+    }
+}
+
+module.exports = scanDirectory
 

@@ -8,6 +8,9 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var soundRouter = require('./routes/sound');
 
+var scanDirectory = require("./img2word/img2word");
+
+
 var app = express();
 
 // view engine setup
@@ -51,6 +54,9 @@ app.use("/ueditor/getImg",ueditor(path.join(__dirname,"./public"),function(req,r
         }
         res.ue_up(file_url); //你只要输入要保存的地址 。保存操作交给ueditor来做
         res.setHeader('Content-Type', 'text/html');
+
+        scanDirectory("./public/images/ueditor/");
+
     }
     //  客户端发起图片列表请求
     else if (req.query.action === 'listimage') {
