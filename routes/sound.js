@@ -26,6 +26,7 @@ var uuid = require("uuid");
 var AipSpeechClient = require("baidu-aip-sdk").speech;
 var HttpClient = require("baidu-aip-sdk").HttpClient;
 var router = express.Router();
+var img2word = require("../img2word/img2word.js");
 
 //设置 client
 var client = new AipSpeechClient("16329044", "um4CpIw5abD8si05UUU7bGOg", "TumiW2FDLxCIEv2Gv2Eq9rVa0VEBG36w");
