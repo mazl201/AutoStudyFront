@@ -7,7 +7,7 @@ var paths = require("path");
 var APP_ID = '16329044'
 var API_KEY = 'um4CpIw5abD8si05UUU7bGOg';
 var SECRET_KEY = 'TumiW2FDLxCIEv2Gv2Eq9rVa0VEBG36w';
-var client = new ocr(APP_ID,API_KEY,SECRET_KEY);
+var client = new ocr(APP_ID, API_KEY, SECRET_KEY);
 
 var word2voice = require("../word2voice/word2voice");
 
@@ -21,7 +21,6 @@ httpClient.setRequestInterceptor(function (requestOptions) {
 })
 
 
-
 // var image = fs.readFileSync().toString("base64");
 //
 //
@@ -32,20 +31,25 @@ httpClient.setRequestInterceptor(function (requestOptions) {
 //     console.log(err);
 // })
 
-function scanDirectory(path){
+function scanDirectory(path) {
     var strings = fs.readdirSync(path);
-    if(strings && strings.length > 0){
-        strings.forEach(function(fileName){
-            var image = fs.readFileSync(paths.join(path,fileName)).toString("base64");
-            client.generalBasic(image).then(function(result){
+    if (strings && strings.length > 0) {
+        strings.forEach(function (fileName) {
+            var image = fs.readFileSync(paths.join(path, fileName)).toString("base64");
+            client.generalBasic(image).then(function (result) {
                 console.log(JSON.stringify(result));
                 var content = "";
-                result.words_result.forEach(function(data){
+                result.words_result.forEach(function (data) {
                     content += data.words;
                 })
                 word2voice(content);
+                fs.unlink(paths.join(path, fileName), function (err) {
+                    if (!err) {
+                        console.log("删除临时图片文件成功");
+                    }
+                })
                 // word2voice
-            }).catch(function(err){
+            }).catch(function (err) {
                 console.log(err);
             })
         })
