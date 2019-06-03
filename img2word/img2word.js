@@ -10,6 +10,7 @@ var SECRET_KEY = 'TumiW2FDLxCIEv2Gv2Eq9rVa0VEBG36w';
 var client = new ocr(APP_ID, API_KEY, SECRET_KEY);
 
 var word2voice = require("../word2voice/word2voice");
+var producer = require("../kafkautils/kafka-producer");
 
 httpClient.setRequestInterceptor(function (requestOptions) {
 
@@ -35,13 +36,16 @@ function scanDirectory(path) {
     var strings = fs.readdirSync(path);
     if (strings && strings.length > 0) {
         strings.forEach(function (fileName) {
+            producer.sendMsg("开始图像转文字");
             var image = fs.readFileSync(paths.join(path, fileName)).toString("base64");
             client.generalBasic(image).then(function (result) {
                 console.log(JSON.stringify(result));
                 var content = "";
+                producer.sendMsg("进入图像转文字cb");
                 result.words_result.forEach(function (data) {
                     content += data.words;
                 })
+                producer.sendMsg("开始，文字转语音");
                 word2voice(content);
                 fs.unlink(paths.join(path, fileName), function (err) {
                     if (!err) {

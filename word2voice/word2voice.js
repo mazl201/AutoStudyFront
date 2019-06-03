@@ -4,6 +4,8 @@ var AipSpeechClient = require("baidu-aip-sdk").speech;
 var HttpClient = require("baidu-aip-sdk").HttpClient;
 var uuid = require("uuid");
 var fs = require("fs");
+var producer = require("../kafkautils/kafka-producer");
+var require1 = require("../kafkautils/kafka-consumer");
 
 
 //设置 client
@@ -23,6 +25,7 @@ function word2voice(content) {
     var splits = new Array();
     if (length > 2048) {
         //0 2048
+        producer.send("文字转语音，开始拆分");
         for (var index = 0; index < length; index += 2048) {
             if ((index + 2048) < length) {
                 var str = content.substring(index, index + 2048);
@@ -35,6 +38,7 @@ function word2voice(content) {
     } else {
         splits.push(content);
     }
+    producer.send("文字转语音,开始foreach")
     splits.forEach(function (splitConten, index) {
         var uuid2 = uuid();
         var updateFileName = splitConten;
@@ -44,8 +48,8 @@ function word2voice(content) {
         splitConten = splitConten + new Date().getDate()
         client.text2audio(splitConten).then(function (result) {
             if (result.data) {
-
                 var uuid1 = uuid2 + ".mp3";
+                producer.sendMsg("文字转语音，百度接口返回，文件名"+uuid1);
                 fs.writeFileSync(uuid1, result.data);
                 return uuid1;
             } else {
@@ -81,7 +85,7 @@ function word2voice(content) {
                         // gridFSBucketReadStream.pipe(testDat);
 
                         chunksQuery.toArray(function (err, ret) {
-
+                            producer.sendMsg("文字转语音，存入mongodb数据库,文件名"+ret[0].filename)
                             if (err) {
                                 console.log("can't find file")
                             } else {
