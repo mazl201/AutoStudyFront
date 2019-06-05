@@ -32,7 +32,12 @@ $(function(){
                 console.log(audioName + "目前字数"+parseInt(contentLength*number))
                 var startIndex = 0;
                 var endIndex = 30;
-
+                if(startIndex < 0){
+                    startIndex = 0;
+                }
+                if(endIndex > contentLength){
+                    endIndex = contentLength;
+                }
 
             })
             $(audios[i]).on("playing",function(){
