@@ -10,7 +10,7 @@ block content
                     br
                     a(href="javascript:void(0)" class='button submitButton')  #{index.filename}
                     p(class='ids') #{index._id}
-                    audio(src='mp3_download?id=#{index._id}' name='#{index.filename}'  hidden controls) #{index.filename}
+                    audio(src='mp3_download?id=#{index._id}' name='#{index.filename}' controls) #{index.filename}
                     br
 block append scripts
     script(type="text/javascript" src='https://code.jquery.com/jquery-3.4.1.min.js')
