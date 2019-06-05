@@ -4,21 +4,38 @@ $(function(){
     debugger;
     var audios = $("audio");
     for(var i in audios){
-        $(audios[i]).on("canplay",function(){
-            $(this).show();
-        })
-        $(audios[i]).on("play",function(){
-            var audioName = $(this).attr("name");
-            console.log(audioName+"开始播放")
-            console.log(audioName + "当前播放进度"+this.currentTime)
-            console.log(audioName + "总长度"+this.duration)
-        })
-        $(audios[i]).on("pause",function(){
-            var audioName = $(this).attr("name");
-            console.log(audioName+"暂停播放")
-            console.log(audioName + "当前播放进度"+this.currentTime)
-            console.log(audioName + "总长度"+this.duration)
-        })
+        if($(audios[i])){
+            $(audios[i]).on("canplay",function(){
+                var audioName = $(this).attr("name");
+                console.log(audioName+"可以开始播放")
+                $(this).show();
+            })
+            $(audios[i]).on("play",function(){
+                var audioName = $(this).attr("name");
+                console.log(audioName+"开始播放")
+                console.log(audioName + "当前播放进度"+this.currentTime)
+                console.log(audioName + "总长度"+this.duration)
+                var number = this.currentTime/this.duration;
+                console.log(audioName + "百分比"+ number*100)
+                var contentLength = $(this).parent().find(".content").val().length;
+                console.log(audioName + "目前字数"+parseInt(contentLength*number))
+
+            })
+            $(audios[i]).on("pause",function(){
+                var audioName = $(this).attr("name");
+                console.log(audioName+"暂停播放")
+                console.log(audioName + "当前播放进度"+this.currentTime)
+                console.log(audioName + "总长度"+this.duration)
+                var number = this.currentTime/this.duration;
+                console.log(audioName + "百分比"+ number*100)
+                var contentLength = $(this).parent().find(".content").val().length;
+                console.log(audioName + "目前字数"+parseInt(contentLength*number))
+            })
+            $(audios[i]).on("playing",function(){
+
+            })
+        }
+
     }
 })
 
