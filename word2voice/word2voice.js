@@ -43,7 +43,6 @@ function word2voice(content) {
         splitConten = splitConten + new Date().getDate()
         client.text2audio(splitConten.replace(/\s+/g,"")).then(function (result) {
             if (result.data) {
-
                 var uuid1 = uuid2 + ".mp3";
                 fs.writeFileSync(uuid1, result.data);
                 return uuid1;
@@ -60,12 +59,10 @@ function word2voice(content) {
                     var db = conn.db("baidu_voice");
                     var gridFSdb = new GridFSBucket(db);
                     var fileReadStream = fs.createReadStream(path);
-
                     var openUploadStream = gridFSdb.openUploadStream(path);
 
                     var license = fs.readFileSync(path);
                     var id = openUploadStream.id;
-
 
                     openUploadStream.once('finish', function () {
 
@@ -74,10 +71,6 @@ function word2voice(content) {
                             console.log(result);
                         })
                         var chunksQuery = chunksColl.find({_id: id});
-
-                        // var gridFSBucketReadStream = gridFSdb.openDownloadStream(id);
-                        // var testDat = gridFSdb.openUploadStream("testid.dat");
-                        // gridFSBucketReadStream.pipe(testDat);
 
                         chunksQuery.toArray(function (err, ret) {
 
