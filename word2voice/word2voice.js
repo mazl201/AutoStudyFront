@@ -38,6 +38,7 @@ function word2voice(content) {
     splits.forEach(function (splitConten, index) {
         var uuid2 = uuid();
         var updateFileName = splitConten;
+        var content = splitConten;
         if (splitConten.length > 10) {
             updateFileName = splitConten.substring(0, 10);
         }
@@ -71,7 +72,7 @@ function word2voice(content) {
                     openUploadStream.once('finish', function () {
 
                         var chunksColl = db.collection('fs.files');
-                        chunksColl.update({_id:id},{$set:{filename:updateFileName}},function(err,result){
+                        chunksColl.update({_id:id},{$set:{filename:updateFileName,"content":content}},function(err,result){
                             console.log(result);
                         })
                         var chunksQuery = chunksColl.find({_id: id});
