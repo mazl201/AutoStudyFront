@@ -17,7 +17,7 @@ $(function(){
                 console.log(audioName + "总长度"+this.duration)
                 var number = this.currentTime/this.duration;
                 console.log(audioName + "百分比"+ number*100)
-                var contentLength = $(this).parent().find(".content").val().length;
+                var contentLength = $($(this).parent().find(".content")[0]).html().length;
                 console.log(audioName + "目前字数"+parseInt(contentLength*number))
 
             })
@@ -28,8 +28,12 @@ $(function(){
                 console.log(audioName + "总长度"+this.duration)
                 var number = this.currentTime/this.duration;
                 console.log(audioName + "百分比"+ number*100)
-                var contentLength = $(this).parent().find(".content").val().length;
+                var contentLength = $($(this).parent().find(".content")[0]).html().length;
                 console.log(audioName + "目前字数"+parseInt(contentLength*number))
+                var startIndex = 0;
+                var endIndex = 30;
+
+
             })
             $(audios[i]).on("playing",function(){
 
