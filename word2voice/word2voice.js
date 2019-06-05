@@ -25,11 +25,9 @@ function word2voice(content) {
         //0 2048
         for (var index = 0; index < length; index += 2048) {
             if ((index + 2048) < length) {
-                var str = content.substring(index, index + 2048);
-                splits.push(str)
+                splits.push(content.substring(index, index + 2048))
             } else {
-                var str = content.substring(index, length);
-                splits.push(str);
+                splits.push(content.substring(index, length));
             }
         }
     } else {
@@ -43,7 +41,7 @@ function word2voice(content) {
             updateFileName = splitConten.substring(0, 10);
         }
         splitConten = splitConten + new Date().getDate()
-        client.text2audio(splitConten).then(function (result) {
+        client.text2audio(splitConten.replace(/\s+/g,"")).then(function (result) {
             if (result.data) {
 
                 var uuid1 = uuid2 + ".mp3";
