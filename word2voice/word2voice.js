@@ -28,11 +28,9 @@ function word2voice(content) {
         producer.send("文字转语音，开始拆分");
         for (var index = 0; index < length; index += 2048) {
             if ((index + 2048) < length) {
-                var str = content.substring(index, index + 2048);
-                splits.push(str)
+                splits.push(content.substring(index, index + 2048))
             } else {
-                var str = content.substring(index, length);
-                splits.push(str);
+                splits.push(content.substring(index, length));
             }
         }
     } else {
@@ -42,11 +40,12 @@ function word2voice(content) {
     splits.forEach(function (splitConten, index) {
         var uuid2 = uuid();
         var updateFileName = splitConten;
+        var content = splitConten;
         if (splitConten.length > 10) {
             updateFileName = splitConten.substring(0, 10);
         }
         splitConten = splitConten + new Date().getDate()
-        client.text2audio(splitConten).then(function (result) {
+        client.text2audio(splitConten.replace(/\s+/g,"")).then(function (result) {
             if (result.data) {
                 var uuid1 = uuid2 + ".mp3";
                 producer.sendMsg("文字转语音，百度接口返回，文件名"+uuid1);
@@ -65,24 +64,18 @@ function word2voice(content) {
                     var db = conn.db("baidu_voice");
                     var gridFSdb = new GridFSBucket(db);
                     var fileReadStream = fs.createReadStream(path);
-
                     var openUploadStream = gridFSdb.openUploadStream(path);
 
                     var license = fs.readFileSync(path);
                     var id = openUploadStream.id;
 
-
                     openUploadStream.once('finish', function () {
 
                         var chunksColl = db.collection('fs.files');
-                        chunksColl.update({_id:id},{$set:{filename:updateFileName}},function(err,result){
+                        chunksColl.update({_id:id},{$set:{filename:updateFileName,"content":content}},function(err,result){
                             console.log(result);
                         })
                         var chunksQuery = chunksColl.find({_id: id});
-
-                        // var gridFSBucketReadStream = gridFSdb.openDownloadStream(id);
-                        // var testDat = gridFSdb.openUploadStream("testid.dat");
-                        // gridFSBucketReadStream.pipe(testDat);
 
                         chunksQuery.toArray(function (err, ret) {
                             producer.sendMsg("文字转语音，存入mongodb数据库,文件名"+ret[0].filename)
