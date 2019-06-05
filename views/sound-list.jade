@@ -4,9 +4,9 @@ block content
     section.container
         ul.home.post-list
             each index in content
-                a(href="javascript:void(0)" class='button submitButton')  #{index.filename}
+
                 font(size="2") #{index.content}
-                p mp3 #{index.filename}
+                a(href="javascript:void(0)" class='button submitButton')  #{index.filename}
                 p(class='ids') #{index._id}
 
 block append scripts
