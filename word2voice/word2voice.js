@@ -25,7 +25,7 @@ function word2voice(content) {
     var splits = new Array();
     if (length > 2048) {
         //0 2048
-        producer.send("文字转语音，开始拆分");
+        producer.sendMsg("文字转语音，开始拆分");
         for (var index = 0; index < length; index += 2048) {
             if ((index + 2048) < length) {
                 splits.push(content.substring(index, index + 2048))
@@ -36,7 +36,7 @@ function word2voice(content) {
     } else {
         splits.push(content);
     }
-    producer.send("文字转语音,开始foreach")
+    producer.sendMsg("文字转语音,开始foreach")
     splits.forEach(function (splitConten, index) {
         var uuid2 = uuid();
         var updateFileName = splitConten;

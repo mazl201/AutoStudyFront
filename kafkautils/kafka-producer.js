@@ -6,7 +6,7 @@ var producer = new Producer(Client);
 
 producer.on('ready', function() {
      var payloads = [{
-    topic: 'auto-study-1',
+    topic: 'auto-study-2',
         messages: ['start kafka 106.12.10.241:9092'], // multi messages should be a array, single message can be just a string or a KeyedMessage instance
         // key: 'theKey', // string or buffer, only needed when using keyed partitioner
         partition: 0, // default 0
@@ -29,7 +29,7 @@ producer.on('ready', function() {
 
 producer.sendMsg = function(msg){
     var payloads = [{
-        topic: 'auto-study-1',
+        topic: 'auto-study-2',
         messages: [msg], // multi messages should be a array, single message can be just a string or a KeyedMessage instance
         // key: 'theKey', // string or buffer, only needed when using keyed partitioner
         partition: 0, // default 0

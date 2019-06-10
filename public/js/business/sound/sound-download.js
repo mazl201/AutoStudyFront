@@ -14,7 +14,7 @@ function freshAudioContent(){
     console.log("现在时间"+new Date());
     var content = $($(nowAudio).parent().find(".content")[0]).html();
     var contentLength = content.length;
-    var calucIndex = parseInt((nowAudio.currentTime/nowAudio.duration)*contentLength)-5;
+    var calucIndex = parseInt((nowAudio.currentTime/nowAudio.duration)*contentLength)-10;
     var calucEnd = (calucIndex + 40)
     if(calucIndex < 0){
         calucIndex = 0;
