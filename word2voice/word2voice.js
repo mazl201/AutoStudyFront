@@ -45,7 +45,8 @@ function word2voice(content) {
             updateFileName = splitConten.substring(0, 10);
         }
         splitConten = splitConten + new Date().getDate()
-        client.text2audio(splitConten.replace(/\s+/g,"")).then(function (result) {
+        var options = {spd:4,per:4}
+        client.text2audio(splitConten.replace(/\s+/g,""),options).then(function (result) {
             if (result.data) {
                 var uuid1 = uuid2 + ".mp3";
                 producer.sendMsg("文字转语音，百度接口返回，文件名"+uuid1);
