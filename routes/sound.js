@@ -31,6 +31,25 @@ var img2word = require("../img2word/img2word.js");
 var word2voice = require("../word2voice/word2voice");
 
 
+router.get("/deleteMongoDB",function(req,res,next){
+    var id = ObjectId(req.query.id);
+    mongoClient.connect("mongodb://106.12.28.10:27017", function (err, connect) {
+        if (err) {
+            console.log("mongodb connect failed");
+        } else {
+            var collection = connect.db("baidu_voice").collection("fs.files");
+            collection.remove({_id:id},function(err,ret){
+                if(err){
+                    console.log("语音mongodb删除失败");
+                    res.end("failed")
+                }
+                res.end("success");
+            })
+        }
+
+    })
+})
+
 router.post("/baidu_api_down", function (req, res, next) {
     var response = res;
     if (req.body.content) {

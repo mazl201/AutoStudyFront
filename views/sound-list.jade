@@ -9,6 +9,7 @@ block content
                     font(size="3",font-family:"STKaiti" hidden class="content") #{index.content}
                     br
                     a(href="javascript:void(0)" class='button submitButton')  #{index.filename}
+                    a(href="javascript:void(0)" class='button deleteButton')  删除
                     p(class='ids') #{index._id}
                     audio(src='mp3_download?id=#{index._id}' name='#{index.filename}' controls) #{index.filename}
                     br
