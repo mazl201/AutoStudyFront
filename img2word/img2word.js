@@ -8,6 +8,7 @@ var APP_ID = '16329044'
 var API_KEY = 'um4CpIw5abD8si05UUU7bGOg';
 var SECRET_KEY = 'TumiW2FDLxCIEv2Gv2Eq9rVa0VEBG36w';
 var client = new ocr(APP_ID, API_KEY, SECRET_KEY);
+var images = require("images");
 
 var word2voice = require("../word2voice/word2voice");
 var producer = require("../kafkautils/kafka-producer");
@@ -38,7 +39,13 @@ function scanDirectory(path) {
         strings.forEach(function (fileName) {
             producer.sendMsg("开始图像转文字");
             var image = fs.readFileSync(paths.join(path, fileName)).toString("base64");
-            client.generalBasic(image).then(function (result) {
+            // 如果有可选参数
+            var options = {};
+            options["language_type"] = "CHN_ENG";
+            options["detect_direction"] = "true";
+            options["detect_language"] = "true";
+            options["probability"] = "true";
+            client.generalBasic(image,options).then(function (result) {
                 console.log(JSON.stringify(result));
                 var content = "";
                 producer.sendMsg("进入图像转文字cb");
@@ -60,5 +67,36 @@ function scanDirectory(path) {
     }
 }
 
-module.exports = scanDirectory
+function scanCompression(path) {
+   fs.readdir(path,function(err,files){
+       if(err){
+           console.log('error:\n' + err);
+           return;
+       }
+       files.forEach(function(file){
+           fs.stat(path+file,function(err,stat){
+               if(err){console.log(err); return;}
+               if(stat.isDirectory()){
+                   // 如果是文件夹遍历
+                   explorer(path + file);
+               }else{
+                   // 读出所有的文件
+                   console.log('文件名:' + path + file);
+                   images(path + file)
+                       .size(1000)
+                       .save("./public/images/compress/"+file, {               //Save the image to a file,whih quality 50
+                           quality : 60                    //保存图片到文件,图片质量为50
+                       });
+               }
+           })
+       })
+       scanDirectory("./public/images/compress/")
+   })
+}
+
+var func = {
+    scanDirectory : scanDirectory,
+    scanCompression : scanCompression
+}
+module.exports = func
 

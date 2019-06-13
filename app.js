@@ -7,8 +7,9 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var soundRouter = require('./routes/sound');
+var images = require("images");
 
-var scanDirectory = require("./img2word/img2word");
+var func = require("./img2word/img2word");
 
 
 var app = express();
@@ -55,7 +56,9 @@ app.use("/ueditor/getImg",ueditor(path.join(__dirname,"./public"),function(req,r
         res.ue_up(file_url); //你只要输入要保存的地址 。保存操作交给ueditor来做
         res.setHeader('Content-Type', 'text/html');
 
-        scanDirectory("./public/images/ueditor/");
+        //压缩 文件
+        func.scanCompression("./public/images/ueditor/");
+        // func.scanDirectory("./public/images/compress/");
 
     }
     //  客户端发起图片列表请求
