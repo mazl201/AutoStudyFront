@@ -59,6 +59,11 @@ function scanDirectory(path) {
                         console.log("删除临时图片文件成功");
                     }
                 })
+                fs.unlink(paths.join("./public/images/compress/", fileName), function (err) {
+                    if (!err) {
+                        console.log("删除原文件图片文件成功");
+                    }
+                })
                 // word2voice
             }).catch(function (err) {
                 console.log(err);
