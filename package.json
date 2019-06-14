@@ -13,6 +13,7 @@
     "dateformat": "^3.0.3",
     "debug": "~2.6.9",
     "express": "~4.16.0",
+    "formidable": "^1.2.1",
     "fs-extra": "^8.0.1",
     "gm": "^1.23.1",
     "gridform": "^0.1.7",
