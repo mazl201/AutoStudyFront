@@ -6,6 +6,7 @@ var uuid = require("uuid");
 var fs = require("fs");
 var producer = require("../kafkautils/kafka-producer");
 var require1 = require("../kafkautils/kafka-consumer");
+var dateformat = require("dateformat");
 
 
 //设置 client
@@ -44,7 +45,8 @@ function word2voice(content) {
         if (splitConten.length > 10) {
             updateFileName = splitConten.substring(0, 10);
         }
-        splitConten = splitConten + new Date().getDate()
+        // splitConten = splitConten;
+        updateFileName = updateFileName + dateFormat(new Date(), "dddd, mmmm dS, yyyy, h:MM:ss TT");
         var options = {spd:4,per:4}
         client.text2audio(splitConten.replace(/\s+/g,""),options).then(function (result) {
             if (result.data) {
