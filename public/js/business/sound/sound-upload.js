@@ -26,5 +26,19 @@ $(".submitButton").on("click",function(){
 })
 
 $(".uploadFileButton").on("click",function(){
-
+    var form = new FormData();
+    var file = document.getElementById("fileId").files[0];
+    form.append('file', file);
+    if (file && file.size > 0) {
+        form.append('file', file);
+        $.ajax({
+            url:"http://localhost:3005",
+            data:form,
+            type:"POST",
+            processData: false,
+            contentType: false,
+            success:function(res){
+                alert(res);
+            }})
+    }
 })
