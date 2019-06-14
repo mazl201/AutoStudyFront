@@ -96,8 +96,9 @@ function scanCompression(path) {
                     gm(path + file).resize(500,500).write("./public/images/compress/" + file,function(err){
                         if(err){
                             console.log(err);
+                            return;
                         }
-                        fs.unlink(paths.join(path, fileName), function (err) {
+                        fs.unlink(paths.join(path, file), function (err) {
                             if (!err) {
                                 console.log("删除临时图片文件成功");
                             }
