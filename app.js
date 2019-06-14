@@ -7,7 +7,7 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var soundRouter = require('./routes/sound');
-var images = require("images");
+// var images = require("images");
 
 var func = require("./img2word/img2word");
 
