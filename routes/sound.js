@@ -7,6 +7,7 @@ var mongoClient = require("mongodb").MongoClient;
 var GridFSBucket = require("mongodb").GridFSBucket;
 var ObjectId = require("mongodb").ObjectId;
 var uuid = require("uuid");
+var multer = require("multer");
 
 
 // var mongoose = require("mongoose");
@@ -30,16 +31,68 @@ var img2word = require("../img2word/img2word.js");
 
 var word2voice = require("../word2voice/word2voice");
 
+var iconv = require('iconv-lite');
+var upload = multer({dest: './public/filetext'});//设置上传文件存储地址
+router.post('/uploadFile', upload.single('file'), function (req, res, next) {
 
-router.get("/deleteMongoDB",function(req,res,next){
+    var ret = {};
+    ret['code'] = 200;
+    var file = req.file;
+    if (file) {
+        var fileNameArr = file.originalname.split('.');
+        var suffix = fileNameArr[fileNameArr.length - 1];
+        //文件重命名
+        fs.renameSync('./public/filetext/' + file.filename,'./public/filetext/' + file.filename+"."+suffix);
+        fs.readFile('./public/filetext/' + file.filename+"."+suffix,"binary",function(err,data){
+            if(err){
+                console.log("has error")
+                return;
+            }
+            var buf = new Buffer(data, 'binary');
+            var str = iconv.decode(buf, 'GBK');
+            word2voice(str)
+            fs.unlink('./public/filetext/' + file.filename,function(err,ret){
+                if(err){
+                    console.log("delete file failed")
+                    return;
+                }
+                return "delete txt file success";
+            })
+        })
+        file['newfilename'] = '${file.filename}.${suffix}';
+    }
+    ret['file'] = file;
+    res.send(ret);
+})
+
+router.get("/clearAll", function (req, res, next) {
     var id = ObjectId(req.query.id);
     mongoClient.connect("mongodb://106.12.28.10:27017", function (err, connect) {
         if (err) {
             console.log("mongodb connect failed");
         } else {
             var collection = connect.db("baidu_voice").collection("fs.files");
-            collection.remove({_id:id},function(err,ret){
-                if(err){
+            collection.remove({}, function (err, ret) {
+                if (err) {
+                    console.log("语音mongodb删除失败");
+                    res.end("failed")
+                }
+                res.end("success");
+            })
+        }
+
+    })
+})
+
+router.get("/deleteMongoDB", function (req, res, next) {
+    var id = ObjectId(req.query.id);
+    mongoClient.connect("mongodb://106.12.28.10:27017", function (err, connect) {
+        if (err) {
+            console.log("mongodb connect failed");
+        } else {
+            var collection = connect.db("baidu_voice").collection("fs.files");
+            collection.remove({_id: id}, function (err, ret) {
+                if (err) {
                     console.log("语音mongodb删除失败");
                     res.end("failed")
                 }

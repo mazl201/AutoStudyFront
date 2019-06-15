@@ -46,7 +46,7 @@ function word2voice(content) {
             updateFileName = splitConten.substring(0, 10);
         }
         // splitConten = splitConten;
-        updateFileName = updateFileName + dateFormat(new Date(), "dddd, mmmm dS, yyyy, h:MM:ss TT");
+        updateFileName = updateFileName + dateformat(new Date(), "dddd, mmmm dS, yyyy, h:MM:ss TT");
         var options = {spd:4,per:4}
         client.text2audio(splitConten.replace(/\s+/g,""),options).then(function (result) {
             if (result.data) {

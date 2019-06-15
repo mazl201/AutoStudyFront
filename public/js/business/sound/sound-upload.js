@@ -28,11 +28,12 @@ $(".submitButton").on("click",function(){
 $(".uploadFileButton").on("click",function(){
     var form = new FormData();
     var file = document.getElementById("fileId").files[0];
-    form.append('file', file);
     if (file && file.size > 0) {
         form.append('file', file);
+        // form.append('file', file);
         $.ajax({
-            url:"http://localhost:3005",
+            // url:"http://localhost:3005",
+             url:"/sound/uploadFile",
             data:form,
             type:"POST",
             processData: false,

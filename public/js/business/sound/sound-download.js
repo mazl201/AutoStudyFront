@@ -109,3 +109,32 @@ $(".deleteButton").on("click",function(){
         }
     })
 })
+
+
+$(".clearAllButton").on("click",function(){
+
+    var confirmMsg = confirm("确认清空 吗？");
+
+    if(confirmMsg == true){
+        var data = {id : $(this).parent().find(".ids").html()};
+        // window.location.href="/sound/deleteMongoDB?id="+$(this).parent().find(".ids").html();
+
+        $.ajax({
+            url:"/sound/clearAll",
+            data:{id:$(this).parent().find(".ids").html()},
+            // type:"GET",
+            // context:null,
+            success:function(res){
+                debugger;
+                if(res == "success"){
+                    window.location.reload();
+                }else if(res == "failed"){
+                    alert("删除报错");
+                }
+            }
+        })
+    }else{
+
+    }
+
+})
