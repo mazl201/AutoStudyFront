@@ -25,6 +25,19 @@ $(".submitButton").on("click",function(){
     })
 })
 
+$(".voiceButton").on("click",function(){
+    debugger;
+    var speech = new SpeechSynthesisUtterance();
+
+    //设置朗读内容和属性
+    speech.text = $(".upload-content").val();
+    speech.volume = 1;
+    speech.rate = 1;
+    speech.pitch = 1;
+
+    window.speechSynthesis.speak(speech);
+})
+
 $(".uploadFileButton").on("click",function(){
     var form = new FormData();
     var file = document.getElementById("fileId").files[0];
