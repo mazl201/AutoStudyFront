@@ -1,7 +1,7 @@
-debugger;
+
 
 $(".submitButton").on("click",function(){
-    debugger;
+
     var data = {content:$(".upload-content").val()};
     $(".upload-content").attr("disabled",true);
     $(".submitButton").attr("disabled",true);
@@ -26,7 +26,7 @@ $(".submitButton").on("click",function(){
 })
 
 $(".voiceButton").on("click",function(){
-    debugger;
+
     var speech = new SpeechSynthesisUtterance();
 
     //设置朗读内容和属性

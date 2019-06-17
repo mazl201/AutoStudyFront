@@ -1,4 +1,4 @@
-debugger;
+
 var startTime;
 var totalTime;
 var currentTime;
@@ -22,13 +22,61 @@ function freshAudioContent(){
     if(calucEnd > contentLength){
         calucEnd = contentLength;
     }
-    debugger;
+
     $($(nowAudio).parent().find(".contentDis")[0]).html(content.substring(calucIndex,calucEnd));
 }
 
 
 $(function(){
-    debugger;
+
+    $.ajax({
+        url:"/sound/mp3_list_count",
+        data:{},
+        type:"GET",
+        // context:null,
+        success:function(res){
+
+            if(res){
+                if($("#pagination")) {
+                    var pagecount = res.total;
+                    var pagesize = 5;
+                    var currentpage = res.page;
+                    var counts, pagehtml = "";
+                    if (pagecount % pagesize == 0) {
+                        counts = parseInt(pagecount / pagesize);
+                    } else {
+                        counts = parseInt(pagecount / pagesize) + 1;
+                    }
+                    //只有一页内容
+                    if (pagecount <= pagesize) {
+                        pagehtml = "";
+                    }
+                    //大于一页内容
+                    if (pagecount > pagesize) {
+                        if (currentpage > 1) {
+                            pagehtml += '<li><a href="/sound/mp3_list?index=' + (currentpage - 1) + '">上一页</a></li>';
+                        }
+                        for (var i = 0; i < counts; i++) {
+                            if (i >= (currentpage - 3) && i < (currentpage + 3)) {
+                                if (i == currentpage - 1) {
+                                    pagehtml += '<li class="active"><a href="/sound/mp3_list?index=' + (i + 1) + '">' + (i + 1) + '</a></li>';
+                                } else {
+                                    pagehtml += '<li><a href="/sound/mp3_list?index=' + (i + 1) + '">' + (i + 1) + '</a></li>';
+                                }
+
+                            }
+                        }
+                        if (currentpage < counts) {
+                            pagehtml += '<li><a href="/sound/mp3_list?index=' + (currentpage + 1) + '">下一页</a></li>';
+                        }
+                    }
+                    $("#pagination").html(pagehtml);
+                }
+            }
+        }
+    })
+
+
     var audios = $("audio");
     for(var i in audios){
         if($(audios[i])){
@@ -82,7 +130,7 @@ $(function(){
 })
 
 $(".submitButton").on("click",function(){
-    debugger;
+
     var data = {id : $(this).parent().find(".ids").html()};
 
     window.location.href="/sound/mp3_download?id="+$(this).parent().find(".ids").html();
@@ -90,7 +138,7 @@ $(".submitButton").on("click",function(){
 
 
 $(".deleteButton").on("click",function(){
-    debugger;
+
     var data = {id : $(this).parent().find(".ids").html()};
     // window.location.href="/sound/deleteMongoDB?id="+$(this).parent().find(".ids").html();
 
@@ -100,7 +148,7 @@ $(".deleteButton").on("click",function(){
         // type:"GET",
         // context:null,
         success:function(res){
-            debugger;
+
             if(res == "success"){
                 window.location.reload();
             }else if(res == "failed"){
@@ -125,7 +173,7 @@ $(".clearAllButton").on("click",function(){
             // type:"GET",
             // context:null,
             success:function(res){
-                debugger;
+
                 if(res == "success"){
                     window.location.reload();
                 }else if(res == "failed"){

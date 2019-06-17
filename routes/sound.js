@@ -115,13 +115,18 @@ router.post("/baidu_api_down", function (req, res, next) {
 /* GET home page. */
 router.get('/mp3_list', function (req, res, next) {
     var content = new Array("1", "2", "3", "4", "5")
-
+    var page;
+    if(req.query && req.query.index){
+        page = parseInt(req.query.index);
+    }else{
+        page = 1
+    }
     mongoClient.connect("mongodb://106.12.28.10:27017", function (err, connect) {
         if (err) {
             console.log("mongodb connect failed");
         } else {
             var collection = connect.db("baidu_voice").collection("fs.files");
-            collection.find({}).sort({uploadDate: -1}).toArray(function (err, ret) {
+            collection.find({}).sort({uploadDate: -1}).skip((page-1)*5).limit(5).toArray(function (err, ret) {
                 if (err) {
                     console.log("query mongodb baidu_voice.mp3_list failed");
                 } else {
@@ -130,6 +135,33 @@ router.get('/mp3_list', function (req, res, next) {
             })
         }
 
+    })
+});
+
+/* GET home page. */
+router.get('/mp3_list_count', function (req, res, next) {
+    var content = new Array("1", "2", "3", "4", "5")
+    if(req.query && req.query.index){
+        page = parseInt(req.query.index);
+    }else{
+        page = 1
+    }
+    mongoClient.connect("mongodb://106.12.28.10:27017", function (err, connect) {
+        if (err) {
+            console.log("mongodb connect failed");
+        } else {
+            var collection = connect.db("baidu_voice").collection("fs.files");
+            collection.count({},function(err,ret){
+                if(err){
+                    console.log("query count failed")
+                }else{
+                    res.json({
+                        page:page,
+                        total:ret
+                    });
+                }
+            });
+        }
     })
 });
 

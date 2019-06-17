@@ -1,0 +1,22 @@
+{
+  "name": "autostudyfront",
+  "description": "a n d",
+  "main": "init.bowerrc",
+  "authors": [
+    "mazl2010@qq.com"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/mazl201/AutoStudyFront",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "^4.3.1",
+    "jquery": "^3.4.1"
+  }
+}

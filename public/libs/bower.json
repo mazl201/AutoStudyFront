@@ -1,0 +1,21 @@
+{
+  "name": "libs",
+  "homepage": "https://github.com/mazl201/AutoStudyFront",
+  "authors": [
+    "mazl201"
+  ],
+  "description": "libs",
+  "main": "",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^3.4.1",
+    "bootstrap": "^4.3.1"
+  }
+}

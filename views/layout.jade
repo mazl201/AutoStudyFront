@@ -1,12 +1,15 @@
 doctype html
 html
-  head
-    title= title
-    link(rel='stylesheet', href='/stylesheets/style.css')
-  body
-    block content
+    head
+        title= title
+        link(rel='stylesheet', href='/stylesheets/style.css')
+        link(rel='stylesheet', href='/libs/bower_components/bootstrap/dist/css/bootstrap.min.css')
+        script(src='/libs/bower_components/jquery/dist/jquery.min.js')
+        script(src='/libs/bower_components/bootstrap/dist/js/bootstrap.min.js')
+    body
+        block content
 
-  block append scripts
+    block append scripts
 
-  footer
-    p Copyright (c) mazl
+    footer
+        p Copyright (c) mazl
