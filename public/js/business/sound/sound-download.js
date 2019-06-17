@@ -85,6 +85,10 @@ $(function(){
             //     console.log(audioName+"可以开始播放")
             //     $(this).show();
             // })
+            $(audios[i]).on("canplaythrough",function(){
+
+            })
+            console.log("加载第"+i+"个")
             $(audios[i]).on("play",function(){
                 var audioName = $(this).attr("name");
                 console.log(audioName+"开始播放")
@@ -100,7 +104,7 @@ $(function(){
                 nowAudio =this;
                 nowInterval = setInterval(freshAudioContent,1000);
             })
-
+            console.log("加载第"+i+"个，完成")
             $(audios[i]).on("pause",function(){
                 var audioName = $(this).attr("name");
                 console.log(audioName+"暂停播放")
@@ -124,6 +128,7 @@ $(function(){
             $(audios[i]).on("playing",function(){
 
             })
+
         }
 
     }
