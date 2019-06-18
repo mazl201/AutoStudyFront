@@ -6,7 +6,7 @@ var nowAudio;
 var nowInterval;
 
 function freshAudioContent(){
-    console.log( "当前播放进度(实时)"+nowAudio.currentTime);
+    layer.msg( "当前播放进度(实时)"+nowAudio.currentTime);
     console.log( "总长度（实时）"+nowAudio.duration);
     console.log("总时间"+totalTime);
     console.log("当前进度"+currentTime);
