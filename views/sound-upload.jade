@@ -1,14 +1,25 @@
 extends layout
 
 
+
 block content
+    - var spdSelect = {"慢":"1","稍慢":"2","正常":"3","快":"4","加快":"5"}
+    - var perSelect = {"女声":"0","男声":"1","度逍遥":"3","度丫丫":"4"}
     h1= title
     p now you use #{title}
+    select.bootstrap-select(name="myselectionspd")
+        each name,key in spdSelect
+            option(value="#{name}") #{key}
+
+    select.bootstrap-select(name="myselectionper")
+        each name,key in perSelect
+            option(value="#{name}") #{key}
+    br
     textarea(style="width:800px;height:400px;" class="upload-content")
+    br
     a(href="javascript:void(0)" class='button submitButton') 提交
     br
     a(href="javascript:void(0)" class='button voiceButton') 朗读
-
     br
     br
     br

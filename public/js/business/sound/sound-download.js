@@ -30,7 +30,7 @@ function freshAudioContent(){
 $(function(){
 
     $.ajax({
-        url:"/sound/mp3_list_count",
+        url:"/sound/mp3_list_count"+location.search,
         data:{},
         type:"GET",
         // context:null,
@@ -38,9 +38,10 @@ $(function(){
 
             if(res){
                 if($("#pagination")) {
+                    debugger;
                     var pagecount = res.total;
                     var pagesize = 5;
-                    var currentpage = res.page;
+                    var currentpage = parseInt(res.page);
                     var counts, pagehtml = "";
                     if (pagecount % pagesize == 0) {
                         counts = parseInt(pagecount / pagesize);
@@ -54,20 +55,20 @@ $(function(){
                     //大于一页内容
                     if (pagecount > pagesize) {
                         if (currentpage > 1) {
-                            pagehtml += '<li><a href="/sound/mp3_list?index=' + (currentpage - 1) + '">上一页</a></li>';
+                            pagehtml += '<li class="page-item"><a class="page-link" href="/sound/mp3_list?index=' + (currentpage - 1) + '">上一页</a></li>';
                         }
                         for (var i = 0; i < counts; i++) {
                             if (i >= (currentpage - 3) && i < (currentpage + 3)) {
                                 if (i == currentpage - 1) {
-                                    pagehtml += '<li class="active"><a href="/sound/mp3_list?index=' + (i + 1) + '">' + (i + 1) + '</a></li>';
+                                    pagehtml += '<li class="active page-item"><a class="page-link" href="/sound/mp3_list?index=' + (i + 1) + '">' + (i + 1) + '</a></li>';
                                 } else {
-                                    pagehtml += '<li><a href="/sound/mp3_list?index=' + (i + 1) + '">' + (i + 1) + '</a></li>';
+                                    pagehtml += '<li class="page-item"><a class="page-link" href="/sound/mp3_list?index=' + (i + 1) + '">' + (i + 1) + '</a></li>';
                                 }
 
                             }
                         }
                         if (currentpage < counts) {
-                            pagehtml += '<li><a href="/sound/mp3_list?index=' + (currentpage + 1) + '">下一页</a></li>';
+                            pagehtml += '<li class="page-item"><a class="page-link" href="/sound/mp3_list?index=' + (currentpage + 1) + '">下一页</a></li>';
                         }
                     }
                     $("#pagination").html(pagehtml);

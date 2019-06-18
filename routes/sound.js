@@ -139,6 +139,11 @@ router.get('/mp3_list', function (req, res, next) {
 });
 
 /* GET home page. */
+router.get('/', function (req, res, next) {
+    res.render('tabView', {title: 'sound-upload-transferword-to-mp3', content: {}});
+});
+
+/* GET home page. */
 router.get('/mp3_list_count', function (req, res, next) {
     var content = new Array("1", "2", "3", "4", "5")
     if(req.query && req.query.index){
