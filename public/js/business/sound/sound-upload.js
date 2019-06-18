@@ -2,7 +2,9 @@
 
 $(".submitButton").on("click",function(){
 
-    var data = {content:$(".upload-content").val()};
+    var data = {content:$(".upload-content").val(),
+        spd:$(".myselectionspd").val(),
+        per:$(".myselectionper").val()};
     $(".upload-content").attr("disabled",true);
     $(".submitButton").attr("disabled",true);
     $.ajax({

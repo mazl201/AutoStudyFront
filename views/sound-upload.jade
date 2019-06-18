@@ -7,11 +7,11 @@ block content
     - var perSelect = {"女声":"0","男声":"1","度逍遥":"3","度丫丫":"4"}
     h1= title
     p now you use #{title}
-    select.bootstrap-select(name="myselectionspd")
+    select.bootstrap-select(class="myselectionspd")
         each name,key in spdSelect
             option(value="#{name}") #{key}
 
-    select.bootstrap-select(name="myselectionper")
+    select.bootstrap-select(class="myselectionper")
         each name,key in perSelect
             option(value="#{name}") #{key}
     br

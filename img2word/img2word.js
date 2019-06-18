@@ -70,45 +70,45 @@ function scanDirectory(path) {
 }
 
 function scanCompression(path) {
-    fs.readdir(path, function (err, files) {
-        if (err) {
-            console.log('error:\n' + err);
-            return;
-        }
-        files.forEach(function (file) {
-            fs.stat(path + file, function (err, stat) {
-                if (err) {
-                    console.log(err);
-                    return;
-                }
-                if (stat.isDirectory()) {
-                    // 如果是文件夹遍历
-                    explorer(path + file);
-                } else {
-                    // 读出所有的文件
-                    console.log('文件名:' + path + file);
-                    // images(path + file)
-                    //     .size(1000)
-                    //     .save("./public/images/compress/" + file, {               //Save the image to a file,whih quality 50
-                    //         quality: 60                    //保存图片到文件,图片质量为50
-                    //     });
+    try{
+        fs.readdir(path, function (err, files) {
+            if (err) {
+                console.log('error:\n' + err);
+                return;
+            }
+            files.forEach(function (file) {
+                fs.stat(path + file, function (err, stat) {
+                    if (err) {
+                        console.log(err);
+                        return;
+                    }
+                    if (stat.isDirectory()) {
+                        // 如果是文件夹遍历
+                        explorer(path + file);
+                    } else {
+                        // 读出所有的文件
+                        console.log('文件名:' + path + file);
 
-                    gm(path + file).resize(500,500).write("./public/images/compress/" + file,function(err){
-                        if(err){
-                            console.log(err);
-                            return;
-                        }
-                        fs.unlink(paths.join(path, file), function (err) {
-                            if (!err) {
-                                console.log("删除临时图片文件成功");
+                        gm(path + file).resize(500,500).write("./public/images/compress/" + file,function(err){
+                            if(err){
+                                console.log(err);
+                                return;
                             }
+                            fs.unlink(paths.join(path, file), function (err) {
+                                if (!err) {
+                                    console.log("删除临时图片文件成功");
+                                }
+                            })
                         })
-                    })
-                }
+                    }
+                })
             })
+            scanDirectory("./public/images/compress/")
         })
-        scanDirectory("./public/images/compress/")
-    })
+    }catch(e){
+        console.log(e);
+    }
+
 }
 
 var func = {

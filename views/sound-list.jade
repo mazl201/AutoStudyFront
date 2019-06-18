@@ -2,7 +2,10 @@ extends layout
 
 block content
     section.container
-        a(href="javascript:void(0)" class='button clearAllButton')  清空所有
+        a(href="javascript:void(0)" class='button clearAllButton')  清空当前页
+        br
+        br
+        a(href="javascript:void(0)" class='button flushAllButton')  刷新
 
         ul.home.post-list
             each index in content

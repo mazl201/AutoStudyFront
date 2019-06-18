@@ -1,43 +1,42 @@
-
 var startTime;
 var totalTime;
 var currentTime;
 var nowAudio;
 var nowInterval;
 
-function freshAudioContent(){
-    layer.msg( "当前播放进度(实时)"+nowAudio.currentTime);
-    console.log( "总长度（实时）"+nowAudio.duration);
-    console.log("总时间"+totalTime);
-    console.log("当前进度"+currentTime);
-    console.log("开始时间"+startTime);
-    console.log("现在时间"+new Date());
+function freshAudioContent() {
+    layer.msg("当前播放进度(实时)" + nowAudio.currentTime);
+    console.log("总长度（实时）" + nowAudio.duration);
+    console.log("总时间" + totalTime);
+    console.log("当前进度" + currentTime);
+    console.log("开始时间" + startTime);
+    console.log("现在时间" + new Date());
     var content = $($(nowAudio).parent().find(".content")[0]).html();
     var contentLength = content.length;
-    var calucIndex = parseInt((nowAudio.currentTime/nowAudio.duration)*contentLength)-10;
+    var calucIndex = parseInt((nowAudio.currentTime / nowAudio.duration) * contentLength) - 10;
     var calucEnd = (calucIndex + 40)
-    if(calucIndex < 0){
+    if (calucIndex < 0) {
         calucIndex = 0;
     }
-    if(calucEnd > contentLength){
+    if (calucEnd > contentLength) {
         calucEnd = contentLength;
     }
 
-    $($(nowAudio).parent().find(".contentDis")[0]).html(content.substring(calucIndex,calucEnd));
+    $($(nowAudio).parent().find(".contentDis")[0]).html(content.substring(calucIndex, calucEnd));
 }
 
 
-$(function(){
+$(function () {
 
     $.ajax({
-        url:"/sound/mp3_list_count"+location.search,
-        data:{},
-        type:"GET",
+        url: "/sound/mp3_list_count" + location.search,
+        data: {},
+        type: "GET",
         // context:null,
-        success:function(res){
+        success: function (res) {
 
-            if(res){
-                if($("#pagination")) {
+            if (res) {
+                if ($("#pagination")) {
                     debugger;
                     var pagecount = res.total;
                     var pagesize = 5;
@@ -79,54 +78,54 @@ $(function(){
 
 
     var audios = $("audio");
-    for(var i in audios){
-        if($(audios[i])){
+    for (var i in audios) {
+        if ($(audios[i])) {
             // $(audios[i]).on("canplay",function(){
             //     var audioName = $(this).attr("name");
             //     console.log(audioName+"可以开始播放")
             //     $(this).show();
             // })
-            $(audios[i]).on("canplaythrough",function(){
+            $(audios[i]).on("canplaythrough", function () {
 
             })
-            console.log("加载第"+i+"个")
-            $(audios[i]).on("play",function(){
+            console.log("加载第" + i + "个")
+            $(audios[i]).on("play", function () {
                 var audioName = $(this).attr("name");
-                console.log(audioName+"开始播放")
-                console.log(audioName + "当前播放进度"+this.currentTime)
-                console.log(audioName + "总长度"+this.duration)
-                var number = this.currentTime/this.duration;
-                console.log(audioName + "百分比"+ number*100)
+                console.log(audioName + "开始播放")
+                console.log(audioName + "当前播放进度" + this.currentTime)
+                console.log(audioName + "总长度" + this.duration)
+                var number = this.currentTime / this.duration;
+                console.log(audioName + "百分比" + number * 100)
                 var contentLength = $($(this).parent().find(".content")[0]).html().length;
-                console.log(audioName + "目前字数"+parseInt(contentLength*number))
+                console.log(audioName + "目前字数" + parseInt(contentLength * number))
                 currentTime = this.currentTime;
                 totalTime = this.duration;
                 startTime = new Date();
-                nowAudio =this;
-                nowInterval = setInterval(freshAudioContent,1000);
+                nowAudio = this;
+                nowInterval = setInterval(freshAudioContent, 1000);
             })
-            console.log("加载第"+i+"个，完成")
-            $(audios[i]).on("pause",function(){
+            console.log("加载第" + i + "个，完成")
+            $(audios[i]).on("pause", function () {
                 var audioName = $(this).attr("name");
-                console.log(audioName+"暂停播放")
-                console.log(audioName + "当前播放进度"+this.currentTime)
-                console.log(audioName + "总长度"+this.duration)
-                var number = this.currentTime/this.duration;
-                console.log(audioName + "百分比"+ number*100)
+                console.log(audioName + "暂停播放")
+                console.log(audioName + "当前播放进度" + this.currentTime)
+                console.log(audioName + "总长度" + this.duration)
+                var number = this.currentTime / this.duration;
+                console.log(audioName + "百分比" + number * 100)
                 var contentLength = $($(this).parent().find(".content")[0]).html().length;
-                console.log(audioName + "目前字数"+parseInt(contentLength*number))
+                console.log(audioName + "目前字数" + parseInt(contentLength * number))
                 var startIndex = 0;
                 var endIndex = 30;
                 clearInterval(nowInterval);
-                if(startIndex < 0){
+                if (startIndex < 0) {
                     startIndex = 0;
                 }
-                if(endIndex > contentLength){
+                if (endIndex > contentLength) {
                     endIndex = contentLength;
                 }
 
             })
-            $(audios[i]).on("playing",function(){
+            $(audios[i]).on("playing", function () {
 
             })
 
@@ -135,60 +134,69 @@ $(function(){
     }
 })
 
-$(".submitButton").on("click",function(){
+$(".submitButton").on("click", function () {
 
-    var data = {id : $(this).parent().find(".ids").html()};
+    var data = {id: $(this).parent().find(".ids").html()};
 
-    window.location.href="/sound/mp3_download?id="+$(this).parent().find(".ids").html();
+    window.location.href = "/sound/mp3_download?id=" + $(this).parent().find(".ids").html();
 })
 
 
-$(".deleteButton").on("click",function(){
+$(".deleteButton").on("click", function () {
 
-    var data = {id : $(this).parent().find(".ids").html()};
+    var data = {id: $(this).parent().find(".ids").html()};
     // window.location.href="/sound/deleteMongoDB?id="+$(this).parent().find(".ids").html();
 
     $.ajax({
-        url:"/sound/deleteMongoDB",
-        data:{id:$(this).parent().find(".ids").html()},
+        url: "/sound/deleteMongoDB",
+        data: {id: $(this).parent().find(".ids").html()},
         // type:"GET",
         // context:null,
-        success:function(res){
+        success: function (res) {
 
-            if(res == "success"){
+            if (res == "success") {
                 window.location.reload();
-            }else if(res == "failed"){
+            } else if (res == "failed") {
                 alert("删除报错");
             }
         }
     })
 })
 
-
-$(".clearAllButton").on("click",function(){
+$(".clearAllButton").on("click", function () {
 
     var confirmMsg = confirm("确认清空 吗？");
 
-    if(confirmMsg == true){
-        var data = {id : $(this).parent().find(".ids").html()};
-        // window.location.href="/sound/deleteMongoDB?id="+$(this).parent().find(".ids").html();
-
+    if (confirmMsg == true) {
+        var idss = "";
+        debugger;
+        for (var i = 0;i < $(".ids").length;i++) {
+            if($(".ids")[i]){
+                idss += $($(".ids")[i]).html()+","
+            }
+        }
+        // var data = {id: idss};
+        debugger;
         $.ajax({
-            url:"/sound/clearAll",
-            data:{id:$(this).parent().find(".ids").html()},
-            // type:"GET",
+            url: "/sound/clearAll",
+            data: {id: idss},
+            type:"GET",
             // context:null,
-            success:function(res){
+            success: function (res) {
 
-                if(res == "success"){
+                if (res == "success") {
                     window.location.reload();
-                }else if(res == "failed"){
+                } else if (res == "failed") {
                     alert("删除报错");
                 }
             }
         })
-    }else{
-
     }
+})
 
+
+
+$(".flushAllButton").on("click", function () {
+
+    location.reload()
 })

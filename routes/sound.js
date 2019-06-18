@@ -66,22 +66,32 @@ router.post('/uploadFile', upload.single('file'), function (req, res, next) {
 })
 
 router.get("/clearAll", function (req, res, next) {
-    var id = ObjectId(req.query.id);
-    mongoClient.connect("mongodb://106.12.28.10:27017", function (err, connect) {
-        if (err) {
-            console.log("mongodb connect failed");
-        } else {
-            var collection = connect.db("baidu_voice").collection("fs.files");
-            collection.remove({}, function (err, ret) {
-                if (err) {
-                    console.log("语音mongodb删除失败");
-                    res.end("failed")
-                }
-                res.end("success");
-            })
-        }
+    if(req.query.id){
+        var arrIds = new Array();
+        var splits = req.query.id.split(",");
+        for(var jj in splits){
+            var split = splits[jj];
+            var objectId = ObjectId(split);
+            arrIds.push(objectId);
 
-    })
+        }
+        mongoClient.connect("mongodb://106.12.28.10:27017", function (err, connect) {
+            if (err) {
+                console.log("mongodb connect failed");
+            } else {
+                var collection = connect.db("baidu_voice").collection("fs.files");
+                collection.remove({_id:{$in:arrIds}}, function (err, ret) {
+                    if (err) {
+                        console.log("语音mongodb删除失败");
+                        res.end("failed")
+                    }
+                    res.end("success");
+                })
+            }
+
+        })
+    }
+
 })
 
 router.get("/deleteMongoDB", function (req, res, next) {
@@ -106,7 +116,7 @@ router.get("/deleteMongoDB", function (req, res, next) {
 router.post("/baidu_api_down", function (req, res, next) {
     var response = res;
     if (req.body.content) {
-        word2voice(req.body.content);
+        word2voice(req.body.content,req.body.spd,req.body.per);
         res.end("success")
     }
     res.end("failed")
@@ -184,29 +194,23 @@ router.get('/mp3_download', function (req, res, next) {
             var db = connect.db("baidu_voice");
             var bucket = new GridFSBucket(db);
             db.collection("fs.files").find({_id: id}).toArray(function (err, ret) {
-                if (err) {
-                    console.log("mp3 file does not exist");
-                } else {
-                    var downloadStream = bucket.openDownloadStream(id);
+                try{
+                    if (err) {
+                        console.log("mp3 file does not exist");
+                    } else {
+                        var downloadStream = bucket.openDownloadStream(id);
 
-                    res.writeHead(200, {
-                        'Content-Type': 'application/force-download',
-                        'Content-Disposition': 'attachment; filename=' + "alternative.mp3",
-                        'Content-Length': ret[0].length
-                    });
-                    // var writeStream = fs.createWriteStream("test_feasible.mp3");
-                    downloadStream.pipe(res);
+                        res.writeHead(200, {
+                            'Content-Type': 'application/force-download',
+                            'Content-Disposition': 'attachment; filename=' + "alternative.mp3",
+                            'Content-Length': ret[0].length
+                        });
+                        downloadStream.pipe(res);
 
-                    // var fileName = 'test_feasible.mp3';
-                    // var size = fs.statSync(fileName).size;
-                    // var f = fs.createReadStream(fileName);
-                    // res.writeHead(200, {
-                    //     'Content-Type': 'audio/mpeg',
-                    //     'Content-Disposition': 'attachment; filename=' + fileName,
-                    //     'Content-Length': size
-                    // });
-                    // f.pipe(res);
-                    // downloadStream.pipe(res);
+
+                    }
+                }catch(e){
+                    console.log(e);
                 }
             })
 
