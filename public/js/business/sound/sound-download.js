@@ -37,6 +37,9 @@ $(function () {
     $(".vertical").on("click",function(){
         $(this).parent().find("img").css("transform","rotate(180deg)")
     })
+    $(".origin").on("click",function(){
+        $(this).parent().find("img").css("transform","rotate(0deg)")
+    })
 
     $.ajax({
         url: "/sound/mp3_list_count" + location.search,
