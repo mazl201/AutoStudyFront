@@ -19,12 +19,17 @@ block content
                     audio(src='mp3_download?id=#{index._id}' name='#{index.filename}' controls) #{index.filename}
                     br
                     -if(index.fileImgPathId)
+                        a(href="javascript:void(0)" class='button left')  左翻转
+                        a(href="javascript:void(0)" class='button right')  右翻转
+                        a(href="javascript:void(0)" class='button vertical')  翻转
                         img(class="imgCamera" src='mp3_download?id=#{index.fileImgPathId}' onmouseover="this.style.cursor='pointer';this.style.cursor='hand'" onmouseout="this.style.cursor='default'"   onclick="javascript:showimage('mp3_download?id=#{index.fileImgPathId}');")
+
                         div(id="ShowImage_Form" class="modal hide")
                             div.modal-header
                                 button(class="close" data-dismiss="modal" type="button")
                             div.modal-body
                             div(id="img_show")
+
                     br
 
         ul.pagination( id="pagination")

@@ -27,8 +27,16 @@ function freshAudioContent() {
 
 
 $(function () {
-    debugger;
-    $($(".imgCamera")[0]).css("transform:rotate(90deg)");
+
+    $(".left").on("click",function(){
+        $(this).parent().find("img").css("transform","rotate(270deg)")
+    })
+    $(".right").on("click",function(){
+        $(this).parent().find("img").css("transform","rotate(90deg)")
+    })
+    $(".vertical").on("click",function(){
+        $(this).parent().find("img").css("transform","rotate(180deg)")
+    })
 
     $.ajax({
         url: "/sound/mp3_list_count" + location.search,
