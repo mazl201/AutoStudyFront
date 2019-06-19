@@ -21,8 +21,11 @@ HttpClient.setRequestInterceptor(function (requestOptions) {
     return requestOptions;
 })
 
-function word2voice(originContent,spd,per,filename,retrys) {
+function word2voice(originContent,spd,per,filename,retrys,pathImg) {
     try{
+        var spd = spd;
+        var per = per;
+        var pathImg = pathImg;
         var length = originContent.length;
         var splits = new Array();
         var splitNum = 1024;
@@ -76,7 +79,7 @@ function word2voice(originContent,spd,per,filename,retrys) {
                     if(!retrys){
                         retrys = 0;
                     }
-                    word2voice(splitConten,spd,per,updateFileName,retrys+1);
+                    word2voice(splitConten,spd,per,updateFileName,retrys+1,pathImg);
                 }).then(function (path) {
                     var path = path;
                     console.log("test log chain")
@@ -93,9 +96,35 @@ function word2voice(originContent,spd,per,filename,retrys) {
                             openUploadStream.once('finish', function () {
 
                                 var chunksColl = db.collection('fs.files');
+                                //插入 上传图片
+                                if(path){
+                                    var gridFSdb1 = new GridFSBucket(db);
+                                    var fileReadStream1 = fs.createReadStream(pathImg);
+                                    var openUploadStream1 = gridFSdb1.openUploadStream(pathImg);
+
+                                    var license = fs.readFileSync(pathImg);
+                                    var idImg = openUploadStream1.id;
+                                    openUploadStream1.once('finish',function(){
+                                        chunksColl.update({_id:id},{$set:{fileImgPathId:idImg,path:pathImg}},function(err,result){
+                                            console.log(result);
+                                        })
+                                        fs.unlink(pathImg,function(err,result){
+                                            if(err){
+                                                console.log("delete compress image file failed")
+                                                return;
+                                            }
+                                            return "delete  compress image file success";
+                                        })
+                                    })
+                                    fileReadStream1.pipe(openUploadStream1)
+                                }
+
                                 chunksColl.update({_id:id},{$set:{filename:updateFileName,"content":content}},function(err,result){
                                     console.log(result);
                                 })
+
+
+
                                 var chunksQuery = chunksColl.find({_id: id});
 
                                 chunksQuery.toArray(function (err, ret) {

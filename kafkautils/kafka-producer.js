@@ -36,13 +36,17 @@ producer.sendMsg = function(msg){
         attributes: 0, // default: 0
         timestamp: Date.now() // <-- defaults to Date.now() (only available with kafka v0.10+)
     }]
+    try{
+        producer.send(payloads,function(err,ret){
+            if(err){
+                console.log("error from kafka"+err);
+            }
+            console.log(ret);
+        });
+    }catch(e){
+        console.log("ask local"+e)
+    }
 
-    producer.send(payloads,function(err,ret){
-        if(err){
-            console.log(err);
-        }
-        console.log(ret);
-    });
 }
 
 module.exports = producer;

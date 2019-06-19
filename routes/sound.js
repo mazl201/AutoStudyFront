@@ -73,8 +73,10 @@ router.get("/clearAll", function (req, res, next) {
         var splits = req.query.id.split(",");
         for(var jj in splits){
             var split = splits[jj];
-            var objectId = ObjectId(split);
-            arrIds.push(objectId);
+            if(split){
+                var objectId = ObjectId(split);
+                arrIds.push(objectId);
+            }
 
         }
         mongoClient.connect("mongodb://106.12.28.10:27017", function (err, connect) {
@@ -82,13 +84,50 @@ router.get("/clearAll", function (req, res, next) {
                 console.log("mongodb connect failed");
             } else {
                 var collection = connect.db("baidu_voice").collection("fs.files");
-                collection.remove({_id:{$in:arrIds}}, function (err, ret) {
-                    if (err) {
-                        console.log("语音mongodb删除失败");
-                        res.end("failed")
+                collection.find({_id:{$in:arrIds}}).toArray(function(err,ret){
+                    if(err){
+                        return
+                    }else{
+                        ret.forEach(function(retMp3){
+                            if(retMp3.fileImgPathId){
+                                collection.find({_id:retMp3.fileImgPathId}).toArray(function(err,retImg){
+                                    try{
+                                        if (err) {
+                                            console.log("can't find fs.files")
+                                        } else {
+                                            fs.unlink(retImg[0].path,function(err,result){
+                                                if(err){
+                                                    console.log("delete compress file again")
+                                                }else{
+                                                    console.log("delete compress file again success")
+                                                }
+                                            })
+                                            collection.remove({_id:retImg[0]._id},function (err, ret) {
+                                                if (err) {
+                                                    console.log("删除图片 文件 失败");
+                                                    res.end("failed")
+                                                }
+                                                res.end("success");
+                                            })
+                                        }
+                                    }catch(e){
+                                        console.log(e)
+                                    }
+                                })
+                            }
+                        })
                     }
-                    res.end("success");
+                    if(arrIds.length == ret.length){
+                        collection.remove({_id:{$in:arrIds}}, function (err, ret) {
+                            if (err) {
+                                console.log("语音mongodb删除失败");
+                                res.end("failed")
+                            }
+                            res.end("success");
+                        })
+                    }
                 })
+
             }
 
         })
@@ -103,13 +142,49 @@ router.get("/deleteMongoDB", function (req, res, next) {
             console.log("mongodb connect failed");
         } else {
             var collection = connect.db("baidu_voice").collection("fs.files");
-            collection.remove({_id: id}, function (err, ret) {
+            collection.find({_id:id}).toArray(function (err, ret) {
                 if (err) {
-                    console.log("语音mongodb删除失败");
-                    res.end("failed")
+                    console.log("can't find fs.files")
+                } else {
+                    if(ret[0].fileImgPathId){
+                        collection.find({_id:ret[0].fileImgPathId}).toArray(function(err,retImg){
+                            try{
+                                if (err) {
+                                    console.log("can't find fs.files")
+                                } else {
+                                    fs.unlink(retImg[0].path,function(err,result){
+                                        if(err){
+                                            console.log("delete compress file again")
+                                        }else{
+                                            console.log("delete compress file again success")
+                                        }
+                                    })
+                                    collection.remove({_id:retImg[0]._id},function (err, ret) {
+                                        if (err) {
+                                            console.log("删除图片 文件 失败");
+                                            res.end("failed")
+                                        }
+                                        res.end("success");
+                                    })
+                                }
+                            }catch(e){
+                                console.log(e)
+                            }
+                        })
+                    }
+
+
+
+                    collection.remove({_id: id}, function (err, ret) {
+                        if (err) {
+                            console.log("语音mongodb删除失败");
+                            res.end("failed")
+                        }
+                        res.end("success");
+                    })
                 }
-                res.end("success");
             })
+
         }
 
     })
@@ -131,14 +206,14 @@ router.get('/mp3_list', function (req, res, next) {
     if(req.query && req.query.index){
         page = parseInt(req.query.index);
     }else{
-        page = 1
+        page = 10
     }
     mongoClient.connect("mongodb://106.12.28.10:27017", function (err, connect) {
         if (err) {
             console.log("mongodb connect failed");
         } else {
             var collection = connect.db("baidu_voice").collection("fs.files");
-            collection.find({}).sort({uploadDate: -1}).skip((page-1)*5).limit(5).toArray(function (err, ret) {
+            collection.find({content:{$ne:null}}).sort({uploadDate: -1}).skip((page-1)*5).limit(5).toArray(function (err, ret) {
                 if (err) {
                     console.log("query mongodb baidu_voice.mp3_list failed");
                 } else {
@@ -217,7 +292,6 @@ router.get('/mp3_download', function (req, res, next) {
             })
 
         }
-
     })
 });
 

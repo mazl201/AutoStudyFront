@@ -27,6 +27,8 @@ function freshAudioContent() {
 
 
 $(function () {
+    debugger;
+    $($(".imgCamera")[0]).css("transform:rotate(90deg)");
 
     $.ajax({
         url: "/sound/mp3_list_count" + location.search,
@@ -133,6 +135,13 @@ $(function () {
 
     }
 })
+
+//显示大图
+function showimage(source)
+{
+    $("#ShowImage_Form").find("#img_show").html("<image src='"+source+"' class='carousel-inner img-responsive img-rounded' />");
+    $("#ShowImage_Form").modal();
+}
 
 $(".submitButton").on("click", function () {
 

@@ -10,7 +10,7 @@ var SECRET_KEY = 'TumiW2FDLxCIEv2Gv2Eq9rVa0VEBG36w';
 var client = new ocr(APP_ID, API_KEY, SECRET_KEY);
 // var images = require("images");
 var gm = require("gm");
-
+var dateformat = require("dateformat");
 var word2voice = require("../word2voice/word2voice");
 var producer = require("../kafkautils/kafka-producer");
 
@@ -50,17 +50,21 @@ function scanDirectory(path) {
                 console.log(JSON.stringify(result));
                 var content = "";
                 producer.sendMsg("进入图像转文字cb");
-                result.words_result.forEach(function (data) {
-                    content += data.words;
-                })
-                producer.sendMsg("开始，文字转语音");
-                word2voice(content);
+                if(result.words_result){
+                    result.words_result.forEach(function (data) {
+                        content += data.words;
+                    })
+                    producer.sendMsg("开始，文字转语音");
+                    var path = "./public/images/compress/"+fileName;
+                    word2voice(content,3,3,dateformat(new Date(), "yyyy-MM-dd HH:mm:ss"),0,path);
+                }
 
-                fs.unlink(paths.join("./public/images/compress/", fileName), function (err) {
-                    if (!err) {
-                        console.log("删除原文件图片文件成功");
-                    }
-                })
+
+                // fs.unlink(paths.join("./public/images/compress/", fileName), function (err) {
+                //     if (!err) {
+                //         console.log("删除原文件图片文件成功");
+                //     }
+                // })
                 // word2voice
             }).catch(function (err) {
                 console.log(err);
@@ -89,7 +93,7 @@ function scanCompression(path) {
                         // 读出所有的文件
                         console.log('文件名:' + path + file);
 
-                        gm(path + file).resize(500,500).write("./public/images/compress/" + file,function(err){
+                        gm(path + file).resize(800,800).write("./public/images/compress/" + file,function(err){
                             if(err){
                                 console.log(err);
                                 return;
