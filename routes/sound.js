@@ -41,6 +41,7 @@ router.post('/uploadFile', upload.single('file'), function (req, res, next) {
     if (file) {
         var fileNameArr = file.originalname.split('.');
         var suffix = fileNameArr[fileNameArr.length - 1];
+
         //文件重命名
         fs.renameSync('./public/filetext/' + file.filename,'./public/filetext/' + file.filename+"."+suffix);
         fs.readFile('./public/filetext/' + file.filename+"."+suffix,"binary",function(err,data){
@@ -50,7 +51,8 @@ router.post('/uploadFile', upload.single('file'), function (req, res, next) {
             }
             var buf = new Buffer(data, 'binary');
             var str = iconv.decode(buf, 'GBK');
-            word2voice(str)
+            var originName =  file.originalname.replace("."+suffix,"");
+            word2voice(str,3,3,originName)
             fs.unlink('./public/filetext/' + file.filename,function(err,ret){
                 if(err){
                     console.log("delete file failed")
