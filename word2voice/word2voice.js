@@ -21,6 +21,76 @@ HttpClient.setRequestInterceptor(function (requestOptions) {
     return requestOptions;
 })
 
+function word2pdf(){
+
+}
+
+function pathImgFailedTxtUpload(pathTxt,fileName,pathImg,originContent) {
+    if (pathTxt) {
+        mongoClient.connect("mongodb://106.12.28.10:27017", function (err, conn) {
+            var db = conn.db("baidu_voice");
+            var gridFSdb = new GridFSBucket(db);
+            var fileReadStream = fs.createReadStream(pathTxt);
+            var openUploadStream = gridFSdb.openUploadStream(pathTxt);
+
+            var license = fs.readFileSync(pathTxt);
+            var id = openUploadStream.id;
+
+            openUploadStream.on("finish",function(err, conn){
+                var chunksColl = db.collection('fs.files');
+
+                var chunksColl = db.collection('fs.files');
+
+                var chunksQuery = chunksColl.find({_id: id});
+                chunksQuery.toArray(function (err, ret) {
+                    if(!err){
+                        chunksColl.update({_id:id},{$set:{filename:fileName,"content":originContent}},function(err,result){
+                            console.log(result);
+                        })
+                        //插入 上传图片
+                        if(pathImg){
+                            fs.stat(pathImg,function(err,res){
+                                if(err){
+                                    console.log(err);
+                                    return;
+                                }
+                                var gridFSdb1 = new GridFSBucket(db);
+                                var fileReadStream1 = fs.createReadStream(pathImg);
+                                var openUploadStream1 = gridFSdb1.openUploadStream(pathImg);
+
+                                var license = fs.readFileSync(pathImg);
+                                var idImg = openUploadStream1.id;
+                                openUploadStream1.once('finish',function(){
+                                    chunksColl.update({_id:id},{$set:{fileImgPathId:idImg,path:pathImg}},function(err,result){
+                                        console.log(result);
+                                    })
+                                    fs.unlink(pathTxt,function(err,result){
+                                        if(err){
+                                            console.log("delete compress txt file failed")
+                                            return;
+                                        }
+                                        return "delete  compress txt file success";
+                                    })
+                                    fs.unlink(pathImg,function(err,result){
+                                        if(err){
+                                            console.log("delete compress image file failed")
+                                            return;
+                                        }
+                                        return "delete  compress image file success";
+                                    })
+                                })
+                                fileReadStream1.pipe(openUploadStream1)
+                            })
+                        }
+                    }
+                })
+
+            })
+
+            fileReadStream.pipe(openUploadStream);
+        })
+    }
+}
 function word2voice(originContent,spd,per,filename,retrys,pathImg) {
     try{
         var spd = spd;
@@ -31,7 +101,17 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg) {
         var splitNum = 1024;
         if(retrys > 5){
             console.log("已经重试5次"+filename)
-            console.log(originContent);
+            // console.log(originContent);
+            var fileName = uuid()+".txt";
+            var path2 = "./public/images/failedTxt/"+fileName;
+            fs.writeFile(path2,originContent,function(err, ret){
+                if(err){
+                    console.log(err)
+                }else{
+                    pathImgFailedTxtUpload(path2,fileName,pathImg,originContent);
+                }
+            })
+
             return;
         }
         if (length > splitNum) {
@@ -59,7 +139,7 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg) {
                     updateFileName = filename;
                 }else{
                     updateFileName = filename+"@@"+index;
-                    updateFileName = updateFileName + dateformat(new Date(), "dddd, mmmm dS, yyyy, h:MM:ss TT");
+                    updateFileName = updateFileName +"  "+ dateformat(new Date(), "dddd, mmmm dS, yyyy, h:MM:ss TT");
                 }
                 var content = splitConten;
                 var options = {spd:spd,per:per}
@@ -68,8 +148,76 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg) {
                         var uuid1 = uuid2 + ".mp3";
                         producer.sendMsg("文字转语音，百度接口返回，文件名"+uuid1);
                         console.log("文字转语音,成功收到返回"+updateFileName)
-                        fs.writeFileSync(uuid1, result.data);
-                        return uuid1;
+                        fs.writeFile(uuid1, result.data,function(err,ret){
+                            var path = uuid1;
+                            console.log("test log chain")
+                            mongoClient.connect("mongodb://106.12.28.10:27017", function (err, conn) {
+
+                                if (path) {
+                                    var db = conn.db("baidu_voice");
+                                    var gridFSdb = new GridFSBucket(db);
+                                    var fileReadStream = fs.createReadStream(path);
+                                    var openUploadStream = gridFSdb.openUploadStream(path);
+
+                                    var license = fs.readFileSync(path);
+                                    var id = openUploadStream.id;
+
+                                    openUploadStream.once('finish', function () {
+
+                                        var chunksColl = db.collection('fs.files');
+
+                                        var chunksQuery = chunksColl.find({_id: id});
+                                        chunksQuery.toArray(function (err, ret) {
+                                            producer.sendMsg("文字转语音，存入mongodb数据库,文件名"+ret[0].filename)
+                                            if (err) {
+                                                console.log("can't find file")
+                                            } else {
+                                                //插入 上传图片
+                                                if(pathImg){
+                                                    fs.stat(pathImg,function(err,res){
+                                                        if(err){
+                                                            console.log(err);
+                                                            return;
+                                                        }
+                                                        var gridFSdb1 = new GridFSBucket(db);
+                                                        var fileReadStream1 = fs.createReadStream(pathImg);
+                                                        var openUploadStream1 = gridFSdb1.openUploadStream(pathImg);
+
+                                                        var license = fs.readFileSync(pathImg);
+                                                        var idImg = openUploadStream1.id;
+                                                        openUploadStream1.once('finish',function(){
+                                                            chunksColl.update({_id:id},{$set:{fileImgPathId:idImg,path:pathImg}},function(err,result){
+                                                                console.log(result);
+                                                            })
+                                                            fs.unlink(pathImg,function(err,result){
+                                                                if(err){
+                                                                    console.log("delete compress image file failed")
+                                                                    return;
+                                                                }
+                                                                return "delete  compress image file success";
+                                                            })
+                                                        })
+                                                        fileReadStream1.pipe(openUploadStream1)
+                                                    })
+                                                }
+                                                chunksColl.update({_id:id},{$set:{filename:updateFileName,"content":content}},function(err,result){
+                                                    console.log(result);
+                                                })
+
+                                                fs.unlink(path, function (err) {
+                                                    if (!err) {
+                                                        console.log("删除临时文件成功");
+                                                    }
+                                                })
+                                            }
+                                        })
+                                        console.log("mp3 ")
+                                    })
+                                    fileReadStream.pipe(openUploadStream);
+                                }
+                            })
+                        })
+                        // return uuid1;
                     } else {
                         console.log(result);
                     }
@@ -80,71 +228,11 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg) {
                         retrys = 0;
                     }
                     word2voice(splitConten,spd,per,updateFileName,retrys+1,pathImg);
-                }).then(function (path) {
-                    var path = path;
-                    console.log("test log chain")
-                    mongoClient.connect("mongodb://106.12.28.10:27017", function (err, conn) {
-                        if (path) {
-                            var db = conn.db("baidu_voice");
-                            var gridFSdb = new GridFSBucket(db);
-                            var fileReadStream = fs.createReadStream(path);
-                            var openUploadStream = gridFSdb.openUploadStream(path);
-
-                            var license = fs.readFileSync(path);
-                            var id = openUploadStream.id;
-
-                            openUploadStream.once('finish', function () {
-
-                                var chunksColl = db.collection('fs.files');
-                                //插入 上传图片
-                                if(path){
-                                    var gridFSdb1 = new GridFSBucket(db);
-                                    var fileReadStream1 = fs.createReadStream(pathImg);
-                                    var openUploadStream1 = gridFSdb1.openUploadStream(pathImg);
-
-                                    var license = fs.readFileSync(pathImg);
-                                    var idImg = openUploadStream1.id;
-                                    openUploadStream1.once('finish',function(){
-                                        chunksColl.update({_id:id},{$set:{fileImgPathId:idImg,path:pathImg}},function(err,result){
-                                            console.log(result);
-                                        })
-                                        fs.unlink(pathImg,function(err,result){
-                                            if(err){
-                                                console.log("delete compress image file failed")
-                                                return;
-                                            }
-                                            return "delete  compress image file success";
-                                        })
-                                    })
-                                    fileReadStream1.pipe(openUploadStream1)
-                                }
-
-                                chunksColl.update({_id:id},{$set:{filename:updateFileName,"content":content}},function(err,result){
-                                    console.log(result);
-                                })
-
-
-
-                                var chunksQuery = chunksColl.find({_id: id});
-
-                                chunksQuery.toArray(function (err, ret) {
-                                    producer.sendMsg("文字转语音，存入mongodb数据库,文件名"+ret[0].filename)
-                                    if (err) {
-                                        console.log("can't find file")
-                                    } else {
-                                        fs.unlink(path, function (err) {
-                                            if (!err) {
-                                                console.log("删除临时文件成功");
-                                            }
-                                        })
-                                    }
-                                })
-                                console.log("mp3 ")
-                            })
-                            fileReadStream.pipe(openUploadStream);
-                        }
-                    })
                 })
+                //     .
+                // then(function (path) {
+                //
+                // })
             },5000);
 
         });

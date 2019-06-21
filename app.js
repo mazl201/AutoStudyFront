@@ -12,6 +12,20 @@ var soundRouter = require('./routes/sound');
 var func = require("./img2word/img2word");
 
 
+// var childProcess = require("child_process");
+// var child = childProcess.fork("./word2voice/word2voicetest.js");
+//
+// child.on('message', function(m){
+//     console.log('message from child: ' + JSON.stringify(m));
+// });
+//
+// child.on("error",function(error){
+//     console.log(error);
+// })
+
+// child.send({from: 'parent'});
+
+
 var app = express();
 
 // view engine setup
