@@ -38,7 +38,7 @@ httpClient.setRequestInterceptor(function (requestOptions) {
 //     console.log(err);
 // })
 try {
-    schedule.scheduleJob('10 * * * * *', function () {
+    schedule.scheduleJob('05 * * * * *', function () {
         console.log('scheduleCronstyle:' + new Date());
         var path = "./public/images/compress/"
         var strings = fs.readdirSync(path);

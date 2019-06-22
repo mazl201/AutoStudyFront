@@ -43,6 +43,12 @@ function pathImgFailedTxtUpload(pathTxt,fileName,pathImg,originContent) {
 
                 var chunksQuery = chunksColl.find({_id: id});
                 chunksQuery.toArray(function (err, ret) {
+                    if(err){
+                        console.log("未能成功保存到数据库");
+                        fs.unlink("pathTxt",function(err,ret){
+                            console.log("未能成功保存到数据库,删除txt文件");
+                        })
+                    }
                     if(!err){
                         chunksColl.update({_id:id},{$set:{filename:fileName,"content":originContent}},function(err,result){
                             console.log(result);
@@ -104,6 +110,15 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg) {
             // console.log(originContent);
             var fileName = uuid()+".txt";
             var path2 = "./public/images/failedTxt/"+fileName;
+
+            // $pattern =($encoding=='utf8')?'/[\x{4e00}-\x{9fa5}a-zA-Z0-9]/u':'/[\x80-\xFF]/';
+            //
+            // preg_match_all($pattern,$chars,$result);
+            //
+            // $temp =join('',$result[0]);
+
+            originContent=originContent.replace(/^[A-Za-z0-9\u4e00-\u9fa5]+$/g,'')
+
             fs.writeFile(path2,originContent,function(err, ret){
                 if(err){
                     console.log(err)
@@ -111,7 +126,6 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg) {
                     pathImgFailedTxtUpload(path2,fileName,pathImg,originContent);
                 }
             })
-
             return;
         }
         if (length > splitNum) {
@@ -163,13 +177,15 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg) {
                                     var id = openUploadStream.id;
 
                                     openUploadStream.once('finish', function () {
-
                                         var chunksColl = db.collection('fs.files');
-
                                         var chunksQuery = chunksColl.find({_id: id});
                                         chunksQuery.toArray(function (err, ret) {
-                                            producer.sendMsg("文字转语音，存入mongodb数据库,文件名"+ret[0].filename)
                                             if (err) {
+                                                fs.unlink(path, function (err) {
+                                                    if (!err) {
+                                                        console.log("删除临时文件成功,且没有成功保存到数据库。");
+                                                    }
+                                                })
                                                 console.log("can't find file")
                                             } else {
                                                 //插入 上传图片
@@ -209,6 +225,8 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg) {
                                                         console.log("删除临时文件成功");
                                                     }
                                                 })
+
+                                                producer.sendMsg("文字转语音，存入mongodb数据库,文件名"+ret[0].filename)
                                             }
                                         })
                                         console.log("mp3 ")

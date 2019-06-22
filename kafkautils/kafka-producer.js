@@ -28,24 +28,29 @@ producer.on('ready', function() {
 });
 
 producer.sendMsg = function(msg){
-    var payloads = [{
-        topic: 'auto-study-2',
-        messages: [msg], // multi messages should be a array, single message can be just a string or a KeyedMessage instance
-        // key: 'theKey', // string or buffer, only needed when using keyed partitioner
-        partition: 0, // default 0
-        attributes: 0, // default: 0
-        timestamp: Date.now() // <-- defaults to Date.now() (only available with kafka v0.10+)
-    }]
-    try{
-        producer.send(payloads,function(err,ret){
-            if(err){
-                console.log("error from kafka"+err);
+    var Client =new kafka.KafkaClient({kafkaHost:'106.12.10.241:9092'});
+    var producerInner = new Producer(Client);
+    producerInner.on("ready",function(){
+        var payloads = [{
+            topic: 'auto-study-2',
+            messages: [msg], // multi messages should be a array, single message can be just a string or a KeyedMessage instance
+            // key: 'theKey', // string or buffer, only needed when using keyed partitioner
+            partition: 0, // default 0
+            attributes: 0, // default: 0
+            timestamp: Date.now() // <-- defaults to Date.now() (only available with kafka v0.10+)
+        }]
+        try{
+            producer.send(payloads,function(err,ret){
+                if(err){
+                    console.log("error from kafka"+err);
             }
             console.log(ret);
-        });
-    }catch(e){
-        console.log("ask local"+e)
-    }
+            });
+        }catch(e){
+            console.log("ask local"+e)
+        }
+    })
+
 
 }
 
