@@ -157,6 +157,16 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg) {
                 }
                 var content = splitConten;
                 var options = {spd:spd,per:per}
+                //正则表达式
+                // var reg = new regexp("^[a-za-z0-9\u4e00-\u9fa5]+$");
+                // //判断输入框中有内容
+                // if(!reg.test(splitConten))
+                // {
+                //     alert("请输入中文、数字和英文！");
+                //     //输入非法字符，清空输入框
+                //     $("#username").val("");
+                // }
+                splitConten=splitConten.replace(/^[A-Za-z0-9\u4e00-\u9fa5]+$/g,'')
                 client.text2audio(splitConten.replace(/\s+/g,""),options).then(function (result) {
                     if (result.data) {
                         var uuid1 = uuid2 + ".mp3";
