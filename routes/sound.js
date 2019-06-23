@@ -66,6 +66,100 @@ router.post('/uploadFile', upload.single('file'), function (req, res, next) {
     ret['file'] = file;
     res.send(ret);
 })
+router.get("/clearAllImg", function (req, res, next) {
+    if(req.query.id){
+        var arrIds = new Array();
+        var splits = req.query.id.split(",");
+        for(var jj in splits){
+            var split = splits[jj];
+            if(split){
+                var objectId = ObjectId(split);
+                arrIds.push(objectId);
+            }
+
+        }
+        mongoClient.connect("mongodb://106.12.28.10:27017", function (err, connect) {
+            if (err) {
+                console.log("mongodb connect failed");
+            } else {
+                var collection = connect.db("baidu_split_file").collection("fs.files");
+                collection.find({_id:{$in:arrIds}}).toArray(function(err,ret){
+                    if(err){
+                        return
+                    }else{
+                        ret.forEach(function(retMp3){
+                            if(retMp3.fileImgPathId){
+                                collection.find({_id:retMp3.fileImgPathId}).toArray(function(err,retImg){
+                                    try{
+                                        if (err) {
+                                            console.log("can't find fs.files")
+                                        } else {
+                                            fs.unlink(retImg[0].path,function(err,result){
+                                                if(err){
+                                                    console.log("delete compress file again")
+                                                }else{
+                                                    console.log("delete compress file again success")
+                                                }
+                                            })
+                                            collection.remove({_id:retImg[0]._id},function (err, ret) {
+                                                if (err) {
+                                                    console.log("删除图片 文件 失败");
+                                                    res.end("failed")
+                                                }
+                                                res.end("success");
+                                            })
+                                        }
+                                    }catch(e){
+                                        console.log(e)
+                                    }
+                                })
+                            }
+                        })
+                    }
+                    if(arrIds.length == ret.length){
+                        collection.remove({_id:{$in:arrIds}}, function (err, ret) {
+                            if (err) {
+                                console.log("语音mongodb删除失败");
+                                res.end("failed")
+                            }
+                            res.end("success");
+                        })
+                    }
+                })
+
+            }
+
+        })
+    }
+
+})
+
+router.get("/deleteMongoDBImg", function (req, res, next) {
+    var id = ObjectId(req.query.id);
+    mongoClient.connect("mongodb://106.12.28.10:27017", function (err, connect) {
+        if (err) {
+            console.log("mongodb connect failed");
+        } else {
+            var collection = connect.db("baidu_split_file").collection("fs.files");
+            collection.find({_id:id}).toArray(function (err, ret) {
+                if (err) {
+                    console.log("can't find fs.files")
+                } else {
+
+                    collection.remove({_id: id}, function (err, ret) {
+                        if (err) {
+                            console.log("语音mongodb删除失败");
+                            res.end("failed")
+                        }
+                        res.end("success");
+                    })
+                }
+            })
+
+        }
+
+    })
+})
 
 router.get("/clearAll", function (req, res, next) {
     if(req.query.id){
@@ -197,6 +291,97 @@ router.post("/baidu_api_down", function (req, res, next) {
         res.end("success")
     }
     res.end("failed")
+});
+
+/* GET home page. */
+router.get('/img_list', function (req, res, next) {
+    var content = new Array("1", "2", "3", "4", "5")
+    var page;
+    if(req.query && req.query.index){
+        page = parseInt(req.query.index);
+    }else{
+        page = 10
+    }
+    mongoClient.connect("mongodb://106.12.28.10:27017", function (err, connect) {
+        if (err) {
+            console.log("mongodb connect failed");
+        } else {
+            var collection = connect.db("baidu_split_file").collection("fs.files");
+            collection.find({}).sort({filename: -1}).skip((page-1)*10).limit(10).toArray(function (err, ret) {
+                if (err) {
+                    console.log("query mongodb baidu_voice.mp3_list failed");
+                } else {
+                    res.render('img-list', {title: 'sound-upload-transferword-to-mp3', content: ret});
+                }
+            })
+        }
+
+    })
+});
+
+/* GET home page. */
+router.get('/img_download', function (req, res, next) {
+    var request = req;
+    var response = res;
+    var id = ObjectId(req.query.id);
+    // var id = ObjectId('5cefbbd27a2d803bd0cbeb5f');
+    mongoClient.connect("mongodb://106.12.28.10:27017", function (err, connect) {
+        if (err) {
+            console.log("mongodb connect failed");
+        } else {
+
+            var db = connect.db("baidu_split_file");
+            var bucket = new GridFSBucket(db);
+            db.collection("fs.files").find({_id: id}).toArray(function (err, ret) {
+                try{
+                    if (err) {
+                        console.log("mp3 file does not exist");
+                    } else {
+                        var downloadStream = bucket.openDownloadStream(id);
+
+                        res.writeHead(200, {
+                            'Content-Type': 'application/force-download',
+                            'Content-Disposition': 'attachment; filename=' + "alternative.mp3",
+                            'Content-Length': ret[0].length
+                        });
+                        downloadStream.pipe(res);
+
+
+                    }
+                }catch(e){
+                    console.log(e);
+                }
+            })
+
+        }
+    })
+});
+
+/* GET home page. */
+router.get('/img_list_count', function (req, res, next) {
+    var content = new Array("1", "2", "3", "4", "5")
+    if(req.query && req.query.index){
+        page = parseInt(req.query.index);
+    }else{
+        page = 1
+    }
+    mongoClient.connect("mongodb://106.12.28.10:27017", function (err, connect) {
+        if (err) {
+            console.log("mongodb connect failed");
+        } else {
+            var collection = connect.db("baidu_split_file").collection("fs.files");
+            collection.count({},function(err,ret){
+                if(err){
+                    console.log("query count failed")
+                }else{
+                    res.json({
+                        page:page,
+                        total:ret
+                    });
+                }
+            });
+        }
+    })
 });
 
 /* GET home page. */
