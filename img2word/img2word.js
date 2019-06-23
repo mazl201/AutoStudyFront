@@ -136,9 +136,9 @@ function splitImgByPath(fileName, type, fileDirectory, splitDirectory) {
             if (err) {
                 console.log(size.width > size.height ? 'wider' : 'taller than you');
             }else{
-                val width = size.width;
-                val height = size.height;
-                val stride = 100;
+                var width = size.width;
+                var height = size.height;
+                var stride = 100;
                 if(width > height){
                     for(var index = 0;index<width;index += stride){
                         var newSplitFileName = dateformat(new Date(), "dddd, mmmm dS, yyyy, h:MM:ss TT")+"-"+index+"."+type;
