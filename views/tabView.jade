@@ -10,6 +10,7 @@ block content
             a(href="#upload" role="tab" data-toggle="tab") 上传
             a(href="#mp3_list" role="tab" data-toggle="tab") 列表
             a(href="#pic_upload" role="tab" data-toggle="tab") 图片
+            a(href="#split_img" role="tab" data-toggle="tab") 图片
     div.tab-content(height="100%" width="100%")
         div(div role="tabpanel" class="tab-pane active" id="upload")
             iframe(src="/sound/upload" height="80%" width="90%" style="position: absolute" )
@@ -17,6 +18,8 @@ block content
             iframe(src="/sound/mp3_list" height="80%" width="90%" style="position: absolute" )
         div(div role="tabpanel" class="tab-pane" id="pic_upload")
             iframe(src="http://localhost:3000" height="80%" width="90%" style="position: absolute" )
+        div(div role="tabpanel" class="tab-pane" id="split_img")
+            iframe(src="/sound/mp3_list" height="80%" width="90%" style="position: absolute" )
 
 
 block append scripts
