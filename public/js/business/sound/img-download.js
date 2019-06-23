@@ -42,7 +42,7 @@ $(function () {
     })
 
     $.ajax({
-        url: "/sound/mp3_list_count" + location.search,
+        url: "/sound/img_list_count" + location.search,
         data: {},
         type: "GET",
         // context:null,
@@ -67,20 +67,20 @@ $(function () {
                     //大于一页内容
                     if (pagecount > pagesize) {
                         if (currentpage > 1) {
-                            pagehtml += '<li class="page-item"><a class="page-link" href="/sound/mp3_list?index=' + (currentpage - 1) + '">上一页</a></li>';
+                            pagehtml += '<li class="page-item"><a class="page-link" href="/sound/img_list?index=' + (currentpage - 1) + '">上一页</a></li>';
                         }
                         for (var i = 0; i < counts; i++) {
                             if (i >= (currentpage - 3) && i < (currentpage + 3)) {
                                 if (i == currentpage - 1) {
-                                    pagehtml += '<li class="active page-item"><a class="page-link" href="/sound/mp3_list?index=' + (i + 1) + '">' + (i + 1) + '</a></li>';
+                                    pagehtml += '<li class="active page-item"><a class="page-link" href="/sound/img_list?index=' + (i + 1) + '">' + (i + 1) + '</a></li>';
                                 } else {
-                                    pagehtml += '<li class="page-item"><a class="page-link" href="/sound/mp3_list?index=' + (i + 1) + '">' + (i + 1) + '</a></li>';
+                                    pagehtml += '<li class="page-item"><a class="page-link" href="/sound/img_list?index=' + (i + 1) + '">' + (i + 1) + '</a></li>';
                                 }
 
                             }
                         }
                         if (currentpage < counts) {
-                            pagehtml += '<li class="page-item"><a class="page-link" href="/sound/mp3_list?index=' + (currentpage + 1) + '">下一页</a></li>';
+                            pagehtml += '<li class="page-item"><a class="page-link" href="/sound/img_list?index=' + (currentpage + 1) + '">下一页</a></li>';
                         }
                     }
                     $("#pagination").html(pagehtml);
@@ -158,7 +158,7 @@ $(".submitButton").on("click", function () {
 
     var data = {id: $(this).parent().find(".ids").html()};
 
-    window.location.href = "/sound/mp3_download?id=" + $(this).parent().find(".ids").html();
+    window.location.href = "/sound/img_download?id=" + $(this).parent().find(".ids").html();
 })
 
 

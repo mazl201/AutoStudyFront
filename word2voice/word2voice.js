@@ -9,6 +9,7 @@ var require1 = require("../kafkautils/kafka-consumer");
 var dateformat = require("dateformat");
 
 
+
 //设置 client
 var client = new AipSpeechClient("16329044", "um4CpIw5abD8si05UUU7bGOg", "TumiW2FDLxCIEv2Gv2Eq9rVa0VEBG36w");
 //设置 百度 访问 request
@@ -37,7 +38,7 @@ function pathImgFailedTxtUpload(pathTxt,fileName,pathImg,originContent) {
             var id = openUploadStream.id;
 
             openUploadStream.on("finish",function(err, conn){
-                var chunksColl = db.collection('fs.files');
+                // var chunksColl = db.collection('fs.files');
 
                 var chunksColl = db.collection('fs.files');
 
