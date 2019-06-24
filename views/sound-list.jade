@@ -16,10 +16,10 @@ block content
                     a(href="javascript:void(0)" class='button submitButton')  #{index.filename}
                     a(href="javascript:void(0)" class='button deleteButton')  删除
                     p(class='ids') #{index._id}
-                    -if(index.filename)
-                        audio(src='mp3_download?id=#{index._id}' name='#{index.filename}' controls) #{index.filename}
+                    if index.filename
+                        audio(src="mp3_download?id=#{index._id}" name='#{index.filename}' controls ) #{index.filename}
                     br
-                    -if(index.fileImgPathId)
+                    if index.fileImgPathId
                         a(href="javascript:void(0)" class='button left')  左翻转
                         a(href="javascript:void(0)" class='button right')  右翻转
                         a(href="javascript:void(0)" class='button vertical')  翻转

@@ -15,9 +15,9 @@ var client = new AipSpeechClient("16329044", "um4CpIw5abD8si05UUU7bGOg", "TumiW2
 //设置 百度 访问 request
 HttpClient.setRequestInterceptor(function (requestOptions) {
 
-    console.log(requestOptions);
-
-    requestOptions.timeout = 5000;
+    // console.log(requestOptions);
+    console.log("start word 2 voice ")
+    requestOptions.timeout = 10000;
 
     return requestOptions;
 })
@@ -105,7 +105,7 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg) {
         var pathImg = pathImg;
         var length = originContent.length;
         var splits = new Array();
-        var splitNum = 1024;
+        var splitNum = 900;
         if(retrys > 5){
             console.log("已经重试5次"+filename)
             // console.log(originContent);
@@ -154,7 +154,7 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg) {
                     updateFileName = filename;
                 }else{
                     updateFileName = filename+"@@"+index;
-                    updateFileName = updateFileName +"  "+ dateformat(new Date(), "dddd, mmmm dS, yyyy, h:MM:ss TT");
+                    updateFileName = updateFileName +"  "+ dateformat(new Date(), "yyyy-mm-dd HH:MM:ss");
                 }
                 var content = splitConten;
                 var options = {spd:spd,per:per}
@@ -167,7 +167,10 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg) {
                 //     //输入非法字符，清空输入框
                 //     $("#username").val("");
                 // }
-                splitConten=splitConten.replace(/^[A-Za-z0-9\u4e00-\u9fa5]+$/g,'')
+                var reg = /[0-9\u4e00-\u9fa5]/g;
+                var names = splitConten.match(reg);
+                splitConten = names.join("");
+                // splitConten=splitConten.replace(/^[A-Za-z0-9\u4e00-\u9fa5]+$/g,'')
                 client.text2audio(splitConten.replace(/\s+/g,""),options).then(function (result) {
                     if (result.data) {
                         var uuid1 = uuid2 + ".mp3";

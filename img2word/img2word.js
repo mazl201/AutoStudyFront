@@ -1,6 +1,7 @@
 var httpClient = require("baidu-aip-sdk").HttpClient;
 var ocr = require("baidu-aip-sdk").ocr;
 var fs = require("fs");
+var GridFSBucket = require("mongodb").GridFSBucket;
 var paths = require("path");
 //"16329044", "um4CpIw5abD8si05UUU7bGOg", "TumiW2FDLxCIEv2Gv2Eq9rVa0VEBG36w"
 var async = require("async-lock");
@@ -22,9 +23,11 @@ var dateformat = require("dateformat");
 
 httpClient.setRequestInterceptor(function (requestOptions) {
 
-    console.log(requestOptions);
+    // console.log(requestOptions);
 
-    requestOptions.timeout = 5000;
+    console.log("start img 2 word");
+
+    requestOptions.timeout = 10000;
 
     return requestOptions;
 })
@@ -56,7 +59,8 @@ try {
                 options["detect_language"] = "true";
                 options["probability"] = "true";
                 client.generalBasic(image, options).then(function (result) {
-                    console.log(JSON.stringify(result));
+                    // console.log(JSON.stringify(result));
+                    console.log("success accept img 2 word api interface response");
                     var content = "";
                     producer.sendMsg("进入图像转文字cb");
                     if (result.words_result) {
@@ -66,7 +70,7 @@ try {
                         producer.sendMsg("开始，文字转语音");
                         var path = "./public/images/compress/" + fileName;
                         lock.acquire("word2voice", function () {
-                            word2voice(content, 3, 3, dateformat(new Date(), "yyyy-MM-dd HH:mm:ss"), 0, path)
+                            word2voice(content, 3, 3, dateformat(new Date(), "yyyy-mm-dd HH:MM:ss"), 0, path)
                         });
                     }
                 }).catch(function (err) {
@@ -119,33 +123,22 @@ try {
 
 
 function splitImgByPath(fileName, type, fileDirectory, splitDirectory) {
-    // getPixels(fileDirectory+fileName+".png", function(err, pixels) {
-    //     if(err) {
-    //         console.log("Bad image path")
-    //         return
-    //     }
-    //     console.log("got pixels", pixels.shape.slice())
-    //
-    //     val width = pixels.shape.width;
-    //     val length = pixels.shape.length;
-    //
-    //
-    // })
     gm(fileDirectory + fileName + "." + type)
         .size(function (err, size) {
             if (err) {
-                console.log(size.width > size.height ? 'wider' : 'taller than you');
+                console.log("img size failed");
             }else{
                 var width = size.width;
                 var height = size.height;
                 var stride = 100;
                 if(width > height){
                     for(var index = 0;index<width;index += stride){
-                        var newSplitFileName = dateformat(new Date(), "dddd, mmmm dS, yyyy, h:MM:ss TT")+"-"+index+"."+type;
-                        gm("img.png").crop(stride, height, index, 0).write(splitDirectory+newSplitFileName,function(err){
+                        var newSplitFileName = dateformat(new Date(), "yyyymmddHHMMss")+"-"+index+"."+type;
+                        gm(fileDirectory+fileName+"."+type).crop(stride, height, index, 0).write(splitDirectory+newSplitFileName,function(err){
                             if(err){
                                 console.log("split file failed")
                             }else{
+                                var pathTxt = splitDirectory+newSplitFileName;
                                 mongoClient.connect("mongodb://106.12.28.10:27017", function (err, conn) {
                                     var db = conn.db("baidu_split_file");
                                     var gridFSdb = new GridFSBucket(db);
@@ -176,11 +169,12 @@ function splitImgByPath(fileName, type, fileDirectory, splitDirectory) {
                     }
                 }else if(width < height){
                     for(var index = 0;index<height;index += stride){
-                        var newSplitFileName = dateformat(new Date(), "dddd, mmmm dS, yyyy, h:MM:ss TT")+"-"+index+"."+type;
-                        gm("img.png").crop(stride, stride, 0, index).write(splitDirectory+newSplitFileName,function(err){
+                        var newSplitFileName = dateformat(new Date(), "yyyymmddHHMMss")+"-"+index+"."+type;
+                        gm(fileDirectory+fileName+"."+type).crop(stride, stride, 0, index).write(splitDirectory+newSplitFileName,function(err){
                             if(err){
                                 console.log("split file failed")
                             }else{
+                                var pathTxt = splitDirectory+newSplitFileName;
                                 mongoClient.connect("mongodb://106.12.28.10:27017", function (err, conn) {
                                     var db = conn.db("baidu_split_file");
                                     var gridFSdb = new GridFSBucket(db);
@@ -215,6 +209,37 @@ function splitImgByPath(fileName, type, fileDirectory, splitDirectory) {
         });
 }
 
+function extracted(path, file) {
+    gm(path + file)
+        .size(function (err, size) {
+            if (size.width > size.height) {
+                gm(path + file).resize(800).write("./public/images/compress/" + file, function (err) {
+                    if (err) {
+                        console.log(err);
+                        return;
+                    }
+                    // fs.unlink(paths.join(path, file), function (err) {
+                    //     if (!err) {
+                    //         console.log("删除临时图片文件成功");
+                    //     }
+                    // })
+                })
+            } else {
+                gm(path + file).resize(null, 1000).write("./public/images/compress/" + file, function (err) {
+                    if (err) {
+                        console.log(err);
+                        return;
+                    }
+                    // fs.unlink(paths.join(path, file), function (err) {
+                    //     if (!err) {
+                    //         console.log("删除临时图片文件成功");
+                    //     }
+                    // })
+                })
+            }
+
+        })
+}
 function scanCompression(path) {
     try {
         fs.readdir(path, function (err, files) {
@@ -235,24 +260,17 @@ function scanCompression(path) {
                         } else {
                             // 读出所有的文件
                             console.log('文件名:' + path + file);
-                            if (file.contains("\.")) {
+                            if (file.indexOf("\.") > -1) {
                                 // 将 文件 分解
                                 var files = file.split("\.");
-                                splitImgByPath(files[0], files[1], path, "./public/images/splitImg/");
+                                lock.acquire("compress",function(){
+                                    splitImgByPath(files[0], files[1], path, "./public/images/splitImg/");
+                                })
                             }
 
                             lock.acquire("compress", function () {
-                                gm(path + file).resize(1000, 800).write("./public/images/compress/" + file, function (err) {
-                                    if (err) {
-                                        console.log(err);
-                                        return;
-                                    }
-                                    fs.unlink(paths.join(path, file), function (err) {
-                                        if (!err) {
-                                            console.log("删除临时图片文件成功");
-                                        }
-                                    })
-                                })
+                                extracted(path, file);
+
                             })
                         }
                     })

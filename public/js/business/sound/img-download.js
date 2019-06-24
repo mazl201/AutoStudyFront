@@ -26,124 +26,64 @@ function freshAudioContent() {
 }
 
 
-$(function () {
+$(".left").on("click",function(){
+    $(this).parent().find("img").css("transform","rotate(270deg)")
+})
+$(".right").on("click",function(){
+    $(this).parent().find("img").css("transform","rotate(90deg)")
+})
+$(".vertical").on("click",function(){
+    $(this).parent().find("img").css("transform","rotate(180deg)")
+})
+$(".origin").on("click",function(){
+    $(this).parent().find("img").css("transform","rotate(0deg)")
+})
 
-    $(".left").on("click",function(){
-        $(this).parent().find("img").css("transform","rotate(270deg)")
-    })
-    $(".right").on("click",function(){
-        $(this).parent().find("img").css("transform","rotate(90deg)")
-    })
-    $(".vertical").on("click",function(){
-        $(this).parent().find("img").css("transform","rotate(180deg)")
-    })
-    $(".origin").on("click",function(){
-        $(this).parent().find("img").css("transform","rotate(0deg)")
-    })
+$.ajax({
+    url: "/sound/img_list_count" + location.search,
+    data: {},
+    type: "GET",
+    // context:null,
+    success: function (res) {
 
-    $.ajax({
-        url: "/sound/img_list_count" + location.search,
-        data: {},
-        type: "GET",
-        // context:null,
-        success: function (res) {
-
-            if (res) {
-                if ($("#pagination")) {
-                    debugger;
-                    var pagecount = res.total;
-                    var pagesize = 5;
-                    var currentpage = parseInt(res.page);
-                    var counts, pagehtml = "";
-                    if (pagecount % pagesize == 0) {
-                        counts = parseInt(pagecount / pagesize);
-                    } else {
-                        counts = parseInt(pagecount / pagesize) + 1;
-                    }
-                    //只有一页内容
-                    if (pagecount <= pagesize) {
-                        pagehtml = "";
-                    }
-                    //大于一页内容
-                    if (pagecount > pagesize) {
-                        if (currentpage > 1) {
-                            pagehtml += '<li class="page-item"><a class="page-link" href="/sound/img_list?index=' + (currentpage - 1) + '">上一页</a></li>';
-                        }
-                        for (var i = 0; i < counts; i++) {
-                            if (i >= (currentpage - 3) && i < (currentpage + 3)) {
-                                if (i == currentpage - 1) {
-                                    pagehtml += '<li class="active page-item"><a class="page-link" href="/sound/img_list?index=' + (i + 1) + '">' + (i + 1) + '</a></li>';
-                                } else {
-                                    pagehtml += '<li class="page-item"><a class="page-link" href="/sound/img_list?index=' + (i + 1) + '">' + (i + 1) + '</a></li>';
-                                }
-
-                            }
-                        }
-                        if (currentpage < counts) {
-                            pagehtml += '<li class="page-item"><a class="page-link" href="/sound/img_list?index=' + (currentpage + 1) + '">下一页</a></li>';
-                        }
-                    }
-                    $("#pagination").html(pagehtml);
+        if (res) {
+            if ($("#pagination")) {
+                debugger;
+                var pagecount = res.total;
+                var pagesize = 5;
+                var currentpage = parseInt(res.page);
+                var counts, pagehtml = "";
+                if (pagecount % pagesize == 0) {
+                    counts = parseInt(pagecount / pagesize);
+                } else {
+                    counts = parseInt(pagecount / pagesize) + 1;
                 }
+                //只有一页内容
+                if (pagecount <= pagesize) {
+                    pagehtml = "";
+                }
+                //大于一页内容
+                if (pagecount > pagesize) {
+                    if (currentpage > 1) {
+                        pagehtml += '<li class="page-item"><a class="page-link" href="/sound/img_list?index=' + (currentpage - 1) + '">上一页</a></li>';
+                    }
+                    for (var i = 0; i < counts; i++) {
+                        if (i >= (currentpage - 3) && i < (currentpage + 3)) {
+                            if (i == currentpage - 1) {
+                                pagehtml += '<li class="active page-item"><a class="page-link" href="/sound/img_list?index=' + (i + 1) + '">' + (i + 1) + '</a></li>';
+                            } else {
+                                pagehtml += '<li class="page-item"><a class="page-link" href="/sound/img_list?index=' + (i + 1) + '">' + (i + 1) + '</a></li>';
+                            }
+
+                        }
+                    }
+                    if (currentpage < counts) {
+                        pagehtml += '<li class="page-item"><a class="page-link" href="/sound/img_list?index=' + (currentpage + 1) + '">下一页</a></li>';
+                    }
+                }
+                $("#pagination").html(pagehtml);
             }
         }
-    })
-
-
-    var audios = $("audio");
-    for (var i in audios) {
-        if ($(audios[i])) {
-            // $(audios[i]).on("canplay",function(){
-            //     var audioName = $(this).attr("name");
-            //     console.log(audioName+"可以开始播放")
-            //     $(this).show();
-            // })
-            $(audios[i]).on("canplaythrough", function () {
-
-            })
-            console.log("加载第" + i + "个")
-            $(audios[i]).on("play", function () {
-                var audioName = $(this).attr("name");
-                console.log(audioName + "开始播放")
-                console.log(audioName + "当前播放进度" + this.currentTime)
-                console.log(audioName + "总长度" + this.duration)
-                var number = this.currentTime / this.duration;
-                console.log(audioName + "百分比" + number * 100)
-                var contentLength = $($(this).parent().find(".content")[0]).html().length;
-                console.log(audioName + "目前字数" + parseInt(contentLength * number))
-                currentTime = this.currentTime;
-                totalTime = this.duration;
-                startTime = new Date();
-                nowAudio = this;
-                nowInterval = setInterval(freshAudioContent, 1000);
-            })
-            console.log("加载第" + i + "个，完成")
-            $(audios[i]).on("pause", function () {
-                var audioName = $(this).attr("name");
-                console.log(audioName + "暂停播放")
-                console.log(audioName + "当前播放进度" + this.currentTime)
-                console.log(audioName + "总长度" + this.duration)
-                var number = this.currentTime / this.duration;
-                console.log(audioName + "百分比" + number * 100)
-                var contentLength = $($(this).parent().find(".content")[0]).html().length;
-                console.log(audioName + "目前字数" + parseInt(contentLength * number))
-                var startIndex = 0;
-                var endIndex = 30;
-                clearInterval(nowInterval);
-                if (startIndex < 0) {
-                    startIndex = 0;
-                }
-                if (endIndex > contentLength) {
-                    endIndex = contentLength;
-                }
-
-            })
-            $(audios[i]).on("playing", function () {
-
-            })
-
-        }
-
     }
 })
 

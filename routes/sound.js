@@ -296,18 +296,18 @@ router.post("/baidu_api_down", function (req, res, next) {
 /* GET home page. */
 router.get('/img_list', function (req, res, next) {
     var content = new Array("1", "2", "3", "4", "5")
-    var page;
+    var pageIndex;
     if(req.query && req.query.index){
-        page = parseInt(req.query.index);
+        pageIndex = parseInt(req.query.index);
     }else{
-        page = 10
+        pageIndex = 1
     }
     mongoClient.connect("mongodb://106.12.28.10:27017", function (err, connect) {
         if (err) {
             console.log("mongodb connect failed");
         } else {
             var collection = connect.db("baidu_split_file").collection("fs.files");
-            collection.find({}).sort({filename: -1}).skip((page-1)*10).limit(10).toArray(function (err, ret) {
+            collection.find({}).sort({filename: -1}).skip((pageIndex-1)*10).limit(10).toArray(function (err, ret) {
                 if (err) {
                     console.log("query mongodb baidu_voice.mp3_list failed");
                 } else {
@@ -387,18 +387,18 @@ router.get('/img_list_count', function (req, res, next) {
 /* GET home page. */
 router.get('/mp3_list', function (req, res, next) {
     var content = new Array("1", "2", "3", "4", "5")
-    var page;
+    var pageIndex;
     if(req.query && req.query.index){
-        page = parseInt(req.query.index);
+        pageIndex = parseInt(req.query.index);
     }else{
-        page = 10
+        pageIndex = 1
     }
     mongoClient.connect("mongodb://106.12.28.10:27017", function (err, connect) {
         if (err) {
             console.log("mongodb connect failed");
         } else {
             var collection = connect.db("baidu_voice").collection("fs.files");
-            collection.find({content:{$ne:null}}).sort({filename: -1}).skip((page-1)*5).limit(5).toArray(function (err, ret) {
+            collection.find({content:{$ne:null}}).sort({filename: -1}).skip((pageIndex-1)*5).limit(5).toArray(function (err, ret) {
                 if (err) {
                     console.log("query mongodb baidu_voice.mp3_list failed");
                 } else {
