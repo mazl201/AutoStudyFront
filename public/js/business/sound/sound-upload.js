@@ -28,16 +28,45 @@ $(".submitButton").on("click",function(){
 })
 
 $(".voiceButton").on("click",function(){
-
+    debugger;
     var speech = new SpeechSynthesisUtterance();
 
-    //设置朗读内容和属性
-    speech.text = $(".upload-content").val();
-    speech.volume = 1;
-    speech.rate = 1;
-    speech.pitch = 1;
+    // speech.onstart = function(event) {
+    //     debugger;
+    //     console.log('The utterance started to be spoken.');
+    // };
+    // speech.onboundary = function(event) {
+    //     debugger;
+    //     console.log('The utterance started to be spoken.');
+    // };
+    // speech.onerror = function(event) {
+    //     debugger;
+    //     console.log('The utterance onerror to be spoken.');
+    // };
+    if($(".upload-content").val()){
+        var contents = $(".upload-content").val().split(/[.,!\?。，？！]/);
+        var index = 0;
+        //设置朗读内容和属性
+        speech.text = contents[index];
+        speech.volume = 1;
+        speech.rate = 1;
+        speech.pitch = 1;
 
-    window.speechSynthesis.speak(speech);
+        speech.onend = function(event){
+            index++;
+            if(index >= contents.length){
+                return;
+            }
+            speech.text = contents[index];
+
+            $("#contentDis").html(speech.text);
+
+            window.speechSynthesis.speak(speech);
+        }
+
+        window.speechSynthesis.speak(speech);
+    }
+
 })
 
 $(".uploadFileButton").on("click",function(){

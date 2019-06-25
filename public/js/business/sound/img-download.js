@@ -48,7 +48,7 @@ $.ajax({
 
         if (res) {
             if ($("#pagination")) {
-                debugger;
+
                 var pagecount = res.total;
                 var pagesize = 5;
                 var currentpage = parseInt(res.page);
@@ -129,14 +129,14 @@ $(".clearAllButton").on("click", function () {
 
     if (confirmMsg == true) {
         var idss = "";
-        debugger;
+
         for (var i = 0;i < $(".ids").length;i++) {
             if($(".ids")[i]){
                 idss += $($(".ids")[i]).html()+","
             }
         }
         // var data = {id: idss};
-        debugger;
+
         $.ajax({
             url: "/sound/clearAllImg",
             data: {id: idss},

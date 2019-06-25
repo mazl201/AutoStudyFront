@@ -48,7 +48,7 @@ $.ajax({
 
         if (res) {
             if ($("#pagination")) {
-                debugger;
+
                 var pagecount = res.total;
                 var pagesize = 5;
                 var currentpage = parseInt(res.page);
@@ -89,16 +89,17 @@ $.ajax({
 
 
 var audios = $("audio");
-for (var i in audios) {
+debugger;
+for (var i = 0; i < audios.length;i++) {
     if ($(audios[i])) {
         // $(audios[i]).on("canplay",function(){
         //     var audioName = $(this).attr("name");
         //     console.log(audioName+"可以开始播放")
         //     $(this).show();
         // })
-        $(audios[i]).on("canplaythrough", function () {
-
-        })
+        // $(audios[i]).on("canplaythrough", function () {
+        //
+        // })
         console.log("加载第" + i + "个")
         $(audios[i]).on("play", function () {
             var audioName = $(this).attr("name");
@@ -136,9 +137,9 @@ for (var i in audios) {
             }
 
         })
-        $(audios[i]).on("playing", function () {
-
-        })
+        // $(audios[i]).on("playing", function () {
+        //
+        // })
 
     }
 
@@ -185,14 +186,14 @@ $(".clearAllButton").on("click", function () {
 
     if (confirmMsg == true) {
         var idss = "";
-        debugger;
+
         for (var i = 0; i < $(".ids").length; i++) {
             if ($(".ids")[i]) {
                 idss += $($(".ids")[i]).html() + ","
             }
         }
         // var data = {id: idss};
-        debugger;
+
         $.ajax({
             url: "/sound/clearAll",
             data: {id: idss},
