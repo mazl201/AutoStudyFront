@@ -48,6 +48,7 @@ $(".voiceButton").on("click",function(){
         var index = 0;
         //设置朗读内容和属性
         speech.text = contents[index];
+        $("#contentDis").html(speech.text);
         speech.volume = 1;
         speech.rate = 1;
         speech.pitch = 1;
