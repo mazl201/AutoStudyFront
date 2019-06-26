@@ -2,6 +2,8 @@ var express = require('express');
 var http = require("http");
 var request1 = require("request");
 var urlencode = require("urlencode");
+var crypto = require("crypto");
+
 var fs = require("fs");
 var mongoClient = require("mongodb").MongoClient;
 var GridFSBucket = require("mongodb").GridFSBucket;
@@ -43,18 +45,18 @@ router.post('/uploadFile', upload.single('file'), function (req, res, next) {
         var suffix = fileNameArr[fileNameArr.length - 1];
 
         //文件重命名
-        fs.renameSync('./public/filetext/' + file.filename,'./public/filetext/' + file.filename+"."+suffix);
-        fs.readFile('./public/filetext/' + file.filename+"."+suffix,"binary",function(err,data){
-            if(err){
+        fs.renameSync('./public/filetext/' + file.filename, './public/filetext/' + file.filename + "." + suffix);
+        fs.readFile('./public/filetext/' + file.filename + "." + suffix, "binary", function (err, data) {
+            if (err) {
                 console.log("has error")
                 return;
             }
             var buf = new Buffer(data, 'binary');
             var str = iconv.decode(buf, 'GBK');
-            var originName =  file.originalname.replace("."+suffix,"");
-            word2voice(str,3,3,originName)
-            fs.unlink('./public/filetext/' + file.filename,function(err,ret){
-                if(err){
+            var originName = file.originalname.replace("." + suffix, "");
+            word2voice(str, 3, 3, originName)
+            fs.unlink('./public/filetext/' + file.filename, function (err, ret) {
+                if (err) {
                     console.log("delete file failed")
                     return;
                 }
@@ -67,12 +69,12 @@ router.post('/uploadFile', upload.single('file'), function (req, res, next) {
     res.send(ret);
 })
 router.get("/clearAllImg", function (req, res, next) {
-    if(req.query.id){
+    if (req.query.id) {
         var arrIds = new Array();
         var splits = req.query.id.split(",");
-        for(var jj in splits){
+        for (var jj in splits) {
             var split = splits[jj];
-            if(split){
+            if (split) {
                 var objectId = ObjectId(split);
                 arrIds.push(objectId);
             }
@@ -83,25 +85,25 @@ router.get("/clearAllImg", function (req, res, next) {
                 console.log("mongodb connect failed");
             } else {
                 var collection = connect.db("baidu_split_file").collection("fs.files");
-                collection.find({_id:{$in:arrIds}}).toArray(function(err,ret){
-                    if(err){
+                collection.find({_id: {$in: arrIds}}).toArray(function (err, ret) {
+                    if (err) {
                         return
-                    }else{
-                        ret.forEach(function(retMp3){
-                            if(retMp3.fileImgPathId){
-                                collection.find({_id:retMp3.fileImgPathId}).toArray(function(err,retImg){
-                                    try{
+                    } else {
+                        ret.forEach(function (retMp3) {
+                            if (retMp3.fileImgPathId) {
+                                collection.find({_id: retMp3.fileImgPathId}).toArray(function (err, retImg) {
+                                    try {
                                         if (err) {
                                             console.log("can't find fs.files")
                                         } else {
-                                            fs.unlink(retImg[0].path,function(err,result){
-                                                if(err){
+                                            fs.unlink(retImg[0].path, function (err, result) {
+                                                if (err) {
                                                     console.log("delete compress file again")
-                                                }else{
+                                                } else {
                                                     console.log("delete compress file again success")
                                                 }
                                             })
-                                            collection.remove({_id:retImg[0]._id},function (err, ret) {
+                                            collection.remove({_id: retImg[0]._id}, function (err, ret) {
                                                 if (err) {
                                                     console.log("删除图片 文件 失败");
                                                     res.end("failed")
@@ -109,15 +111,15 @@ router.get("/clearAllImg", function (req, res, next) {
                                                 res.end("success");
                                             })
                                         }
-                                    }catch(e){
+                                    } catch (e) {
                                         console.log(e)
                                     }
                                 })
                             }
                         })
                     }
-                    if(arrIds.length == ret.length){
-                        collection.remove({_id:{$in:arrIds}}, function (err, ret) {
+                    if (arrIds.length == ret.length) {
+                        collection.remove({_id: {$in: arrIds}}, function (err, ret) {
                             if (err) {
                                 console.log("语音mongodb删除失败");
                                 res.end("failed")
@@ -134,6 +136,101 @@ router.get("/clearAllImg", function (req, res, next) {
 
 })
 
+router.post("/translate", function (req, res, next) {
+    if (req.body && req.body.content) {
+        var content = req.body.content;
+        crypto.randomBytes(16, function (ex, buf) {
+            if (ex) throw ex;
+            var salt = buf.toString('hex');
+
+            var appid = '20190626000310542';
+            //appid+q+salt+密钥
+
+            // var sign =  md5(appid + content + salt + 'oxAgDeBYrc8xDwCyzXvs');
+
+            content = content.replace(/[\'\"\\\/\b\f\n\r\t]/g, '');
+            // 去掉特殊字符
+            content = content.replace(/[\@\#\$\%\^\&\*\(\)\{\}\:\"\L\<\>\?\[\]]/);
+            content = content.replace(/\s+/g, "");
+            var md5 = crypto.createHash("md5");
+            var sign = md5.update(appid + content + salt + 'oxAgDeBYrc8xDwCyzXvs').digest('hex');
+            var request2 = request1({
+                url: "http://api.fanyi.baidu.com/api/trans/vip/language?" + "q=" + urlencode(content, "UTF-8") + "&appid=20190626000310542&salt=" + salt + "&sign=" + sign,
+                method: 'GET',
+                timeout: 5000,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                // body: JSON.stringify({
+                //     q:urlencode(content,"UTF-8"),
+                //     appid:urlencode(appid,"UTF-8"),
+                //     salt:urlencode(req.body.salt,"UTF-8"),
+                //     from:urlencode("en","UTF-8"),
+                //     to:urlencode("zh","UTF-8"),
+                //     // sign:sign
+                //     sign:urlencode(req.body.md5,"UTF-8")
+                // })
+            }, function (err, response, body) {
+                if (err) {
+                    console.log("baidu translate language failed")
+                } else {
+                    try {
+                        console.log("baidu translate language received");
+                        if (body && eval("(" + body + ")").data) {
+                            var from = "";
+                            var to = "";
+                            if (eval("(" + body + ")").data.src == "en") {
+                                from = "en";
+                                to = "cn"
+                            } else if (eval("(" + body + ")").data.src == "zh") {
+                                from = "zh";
+                                to = "en";
+                            } else {
+                                res.end("当前不支持其他语言转换");
+                                return;
+                            }
+
+                            var requestTO = request1({
+                                url: "http://api.fanyi.baidu.com/api/trans/vip/translate?" + "q=" + urlencode(content, "UTF-8") + "&from=" + from + "&to=" + to + "&appid=20190626000310542&salt=" + salt + "&sign=" + sign,
+                                method: 'GET',
+                                timeout: 5000,
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded'
+                                },
+                            }, function (err, response, body) {
+                                if (err) {
+                                    console.log("baidu translate failed")
+                                } else {
+                                    try {
+                                        console.log("start receive translate result");
+                                        if (body && eval("(" + body + ")").trans_result && eval("(" + body + ")").trans_result.length > 0) {
+                                            res.end(eval("(" + body + ")").trans_result[0].src + "<BR>" + eval("(" + body + ")").trans_result[0].dst)
+                                        }
+                                    } catch (e) {
+                                        console.log("返回结果，取不到对应值");
+                                    }
+                                }
+                            });
+
+                            requestTO.on("end", function (data) {
+                                console.log("log started ")
+                            })
+                        }
+                    } catch (e) {
+                        console.log("返回结果，取不到对应值");
+                    }
+                }
+            });
+
+            request2.on("end", function (data) {
+                console.log("log started ")
+            })
+
+
+        });
+    }
+})
+
 router.get("/deleteMongoDBImg", function (req, res, next) {
     var id = ObjectId(req.query.id);
     mongoClient.connect("mongodb://106.12.28.10:27017", function (err, connect) {
@@ -141,7 +238,7 @@ router.get("/deleteMongoDBImg", function (req, res, next) {
             console.log("mongodb connect failed");
         } else {
             var collection = connect.db("baidu_split_file").collection("fs.files");
-            collection.find({_id:id}).toArray(function (err, ret) {
+            collection.find({_id: id}).toArray(function (err, ret) {
                 if (err) {
                     console.log("can't find fs.files")
                 } else {
@@ -162,12 +259,12 @@ router.get("/deleteMongoDBImg", function (req, res, next) {
 })
 
 router.get("/clearAll", function (req, res, next) {
-    if(req.query.id){
+    if (req.query.id) {
         var arrIds = new Array();
         var splits = req.query.id.split(",");
-        for(var jj in splits){
+        for (var jj in splits) {
             var split = splits[jj];
-            if(split){
+            if (split) {
                 var objectId = ObjectId(split);
                 arrIds.push(objectId);
             }
@@ -178,25 +275,25 @@ router.get("/clearAll", function (req, res, next) {
                 console.log("mongodb connect failed");
             } else {
                 var collection = connect.db("baidu_voice").collection("fs.files");
-                collection.find({_id:{$in:arrIds}}).toArray(function(err,ret){
-                    if(err){
+                collection.find({_id: {$in: arrIds}}).toArray(function (err, ret) {
+                    if (err) {
                         return
-                    }else{
-                        ret.forEach(function(retMp3){
-                            if(retMp3.fileImgPathId){
-                                collection.find({_id:retMp3.fileImgPathId}).toArray(function(err,retImg){
-                                    try{
+                    } else {
+                        ret.forEach(function (retMp3) {
+                            if (retMp3.fileImgPathId) {
+                                collection.find({_id: retMp3.fileImgPathId}).toArray(function (err, retImg) {
+                                    try {
                                         if (err) {
                                             console.log("can't find fs.files")
                                         } else {
-                                            fs.unlink(retImg[0].path,function(err,result){
-                                                if(err){
+                                            fs.unlink(retImg[0].path, function (err, result) {
+                                                if (err) {
                                                     console.log("delete compress file again")
-                                                }else{
+                                                } else {
                                                     console.log("delete compress file again success")
                                                 }
                                             })
-                                            collection.remove({_id:retImg[0]._id},function (err, ret) {
+                                            collection.remove({_id: retImg[0]._id}, function (err, ret) {
                                                 if (err) {
                                                     console.log("删除图片 文件 失败");
                                                     res.end("failed")
@@ -204,15 +301,15 @@ router.get("/clearAll", function (req, res, next) {
                                                 res.end("success");
                                             })
                                         }
-                                    }catch(e){
+                                    } catch (e) {
                                         console.log(e)
                                     }
                                 })
                             }
                         })
                     }
-                    if(arrIds.length == ret.length){
-                        collection.remove({_id:{$in:arrIds}}, function (err, ret) {
+                    if (arrIds.length == ret.length) {
+                        collection.remove({_id: {$in: arrIds}}, function (err, ret) {
                             if (err) {
                                 console.log("语音mongodb删除失败");
                                 res.end("failed")
@@ -236,24 +333,24 @@ router.get("/deleteMongoDB", function (req, res, next) {
             console.log("mongodb connect failed");
         } else {
             var collection = connect.db("baidu_voice").collection("fs.files");
-            collection.find({_id:id}).toArray(function (err, ret) {
+            collection.find({_id: id}).toArray(function (err, ret) {
                 if (err) {
                     console.log("can't find fs.files")
                 } else {
-                    if(ret[0].fileImgPathId){
-                        collection.find({_id:ret[0].fileImgPathId}).toArray(function(err,retImg){
-                            try{
+                    if (ret[0].fileImgPathId) {
+                        collection.find({_id: ret[0].fileImgPathId}).toArray(function (err, retImg) {
+                            try {
                                 if (err) {
                                     console.log("can't find fs.files")
                                 } else {
-                                    fs.unlink(retImg[0].path,function(err,result){
-                                        if(err){
+                                    fs.unlink(retImg[0].path, function (err, result) {
+                                        if (err) {
                                             console.log("delete compress file again")
-                                        }else{
+                                        } else {
                                             console.log("delete compress file again success")
                                         }
                                     })
-                                    collection.remove({_id:retImg[0]._id},function (err, ret) {
+                                    collection.remove({_id: retImg[0]._id}, function (err, ret) {
                                         if (err) {
                                             console.log("删除图片 文件 失败");
                                             res.end("failed")
@@ -261,12 +358,11 @@ router.get("/deleteMongoDB", function (req, res, next) {
                                         res.end("success");
                                     })
                                 }
-                            }catch(e){
+                            } catch (e) {
                                 console.log(e)
                             }
                         })
                     }
-
 
 
                     collection.remove({_id: id}, function (err, ret) {
@@ -287,7 +383,7 @@ router.get("/deleteMongoDB", function (req, res, next) {
 router.post("/baidu_api_down", function (req, res, next) {
     var response = res;
     if (req.body.content) {
-        word2voice(req.body.content,req.body.spd,req.body.per);
+        word2voice(req.body.content, req.body.spd, req.body.per);
         res.end("success")
     }
     res.end("failed")
@@ -297,9 +393,9 @@ router.post("/baidu_api_down", function (req, res, next) {
 router.get('/img_list', function (req, res, next) {
     var content = new Array("1", "2", "3", "4", "5")
     var pageIndex;
-    if(req.query && req.query.index){
+    if (req.query && req.query.index) {
         pageIndex = parseInt(req.query.index);
-    }else{
+    } else {
         pageIndex = 1
     }
     mongoClient.connect("mongodb://106.12.28.10:27017", function (err, connect) {
@@ -307,7 +403,7 @@ router.get('/img_list', function (req, res, next) {
             console.log("mongodb connect failed");
         } else {
             var collection = connect.db("baidu_split_file").collection("fs.files");
-            collection.find({}).sort({filename: -1}).skip((pageIndex-1)*10).limit(10).toArray(function (err, ret) {
+            collection.find({}).sort({filename: -1}).skip((pageIndex - 1) * 10).limit(10).toArray(function (err, ret) {
                 if (err) {
                     console.log("query mongodb baidu_voice.mp3_list failed");
                 } else {
@@ -333,7 +429,7 @@ router.get('/img_download', function (req, res, next) {
             var db = connect.db("baidu_split_file");
             var bucket = new GridFSBucket(db);
             db.collection("fs.files").find({_id: id}).toArray(function (err, ret) {
-                try{
+                try {
                     if (err) {
                         console.log("mp3 file does not exist");
                     } else {
@@ -348,7 +444,7 @@ router.get('/img_download', function (req, res, next) {
 
 
                     }
-                }catch(e){
+                } catch (e) {
                     console.log(e);
                 }
             })
@@ -360,9 +456,9 @@ router.get('/img_download', function (req, res, next) {
 /* GET home page. */
 router.get('/img_list_count', function (req, res, next) {
     var content = new Array("1", "2", "3", "4", "5")
-    if(req.query && req.query.index){
+    if (req.query && req.query.index) {
         page = parseInt(req.query.index);
-    }else{
+    } else {
         page = 1
     }
     mongoClient.connect("mongodb://106.12.28.10:27017", function (err, connect) {
@@ -370,13 +466,13 @@ router.get('/img_list_count', function (req, res, next) {
             console.log("mongodb connect failed");
         } else {
             var collection = connect.db("baidu_split_file").collection("fs.files");
-            collection.count({},function(err,ret){
-                if(err){
+            collection.count({}, function (err, ret) {
+                if (err) {
                     console.log("query count failed")
-                }else{
+                } else {
                     res.json({
-                        page:page,
-                        total:ret
+                        page: page,
+                        total: ret
                     });
                 }
             });
@@ -388,9 +484,9 @@ router.get('/img_list_count', function (req, res, next) {
 router.get('/mp3_list', function (req, res, next) {
     var content = new Array("1", "2", "3", "4", "5")
     var pageIndex;
-    if(req.query && req.query.index){
+    if (req.query && req.query.index) {
         pageIndex = parseInt(req.query.index);
-    }else{
+    } else {
         pageIndex = 1
     }
     mongoClient.connect("mongodb://106.12.28.10:27017", function (err, connect) {
@@ -398,7 +494,7 @@ router.get('/mp3_list', function (req, res, next) {
             console.log("mongodb connect failed");
         } else {
             var collection = connect.db("baidu_voice").collection("fs.files");
-            collection.find({content:{$ne:null}}).sort({filename: -1}).skip((pageIndex-1)*5).limit(5).toArray(function (err, ret) {
+            collection.find({content: {$ne: null}}).sort({filename: -1}).skip((pageIndex - 1) * 5).limit(5).toArray(function (err, ret) {
                 if (err) {
                     console.log("query mongodb baidu_voice.mp3_list failed");
                 } else {
@@ -418,9 +514,9 @@ router.get('/', function (req, res, next) {
 /* GET home page. */
 router.get('/mp3_list_count', function (req, res, next) {
     var content = new Array("1", "2", "3", "4", "5")
-    if(req.query && req.query.index){
+    if (req.query && req.query.index) {
         page = parseInt(req.query.index);
-    }else{
+    } else {
         page = 1
     }
     mongoClient.connect("mongodb://106.12.28.10:27017", function (err, connect) {
@@ -428,13 +524,13 @@ router.get('/mp3_list_count', function (req, res, next) {
             console.log("mongodb connect failed");
         } else {
             var collection = connect.db("baidu_voice").collection("fs.files");
-            collection.count({},function(err,ret){
-                if(err){
+            collection.count({}, function (err, ret) {
+                if (err) {
                     console.log("query count failed")
-                }else{
+                } else {
                     res.json({
-                        page:page,
-                        total:ret
+                        page: page,
+                        total: ret
                     });
                 }
             });
@@ -456,7 +552,7 @@ router.get('/mp3_download', function (req, res, next) {
             var db = connect.db("baidu_voice");
             var bucket = new GridFSBucket(db);
             db.collection("fs.files").find({_id: id}).toArray(function (err, ret) {
-                try{
+                try {
                     if (err) {
                         console.log("mp3 file does not exist");
                     } else {
@@ -471,7 +567,7 @@ router.get('/mp3_download', function (req, res, next) {
 
 
                     }
-                }catch(e){
+                } catch (e) {
                     console.log(e);
                 }
             })

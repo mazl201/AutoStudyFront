@@ -4,8 +4,27 @@ var currentTime;
 var nowAudio;
 var nowInterval;
 
+
+function translateToENCN(text) {
+    var data = {
+        content: text,
+    }
+    debugger;
+    $.ajax({
+        url: "/sound/translate",
+        data: data,
+        type: "POST",
+        // context:null,
+        success: function (res) {
+            if (res) {
+                $($(nowAudio).parent().find(".contentDis")[0]).html(res)
+            }
+        }
+    })
+}
+
 function freshAudioContent() {
-    layer.msg("当前播放进度(实时)" + nowAudio.currentTime);
+    // layer.msg("当前播放进度(实时)" + nowAudio.currentTime);
     console.log("总长度（实时）" + nowAudio.duration);
     console.log("总时间" + totalTime);
     console.log("当前进度" + currentTime);
@@ -21,8 +40,8 @@ function freshAudioContent() {
     if (calucEnd > contentLength) {
         calucEnd = contentLength;
     }
-
-    $($(nowAudio).parent().find(".contentDis")[0]).html(content.substring(calucIndex, calucEnd));
+    translateToENCN(content.substring(calucIndex, calucEnd))
+    // $($(nowAudio).parent().find(".contentDis")[0]).html();
 }
 
 
