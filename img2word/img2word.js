@@ -43,6 +43,62 @@ httpClient.setRequestInterceptor(function (requestOptions) {
 //     console.log(err);
 // })
 try {
+    schedule.scheduleJob('01 * * * * *', function () {
+        console.log('scheduleCronstyle:' + new Date());
+        var path = "./public/images/splitImg/"
+        var strings = fs.readdirSync(path);
+        if (strings && strings.length > 0) {
+            var pathTxt = strings[0]
+            lock.acquire("splitfile2mongo", function () {
+                var splitDirectory = path;
+                var newSplitFileName = pathTxt.replace(splitDirectory,"");
+                pathTxt = path+pathTxt;
+
+                gm(pathTxt)
+                    .size(function (err, size) {
+                        if(err){
+                            console.log("rotate split img file failed")
+                        }else{
+                            if(size.height > size.width){
+                                gm(pathTxt).rotate("white",90).write("./public/images/splitImgRotate/"+newSplitFileName,function(err,ret){
+                                    if(err){
+                                        console.log("rotated split img file write failed");
+                                    }else{
+                                        fs.unlink(pathTxt, function (err) {
+                                            if (!err) {
+                                                console.log("删除临时图片文件成功");
+                                            }else{
+                                                console.log("删除切割的图片失败");
+                                            }
+                                        })
+                                    }
+                                })
+                            }else{
+                                gm(pathTxt).write("./public/images/splitImgRotate/"+newSplitFileName,function(err,ret){
+                                    if(err){
+                                        console.log("rotated split img file write failed");
+                                    }else{
+                                        fs.unlink(pathTxt, function (err) {
+                                            if (!err) {
+                                                console.log("删除临时图片文件成功");
+                                            }else{
+                                                console.log("删除切割的图片失败");
+                                            }
+                                        })
+                                    }
+
+                                })
+                            }
+
+                        }
+                    })
+            })
+        }
+    });
+} catch (e) {
+    console.log(e);
+}
+try {
     schedule.scheduleJob('05 * * * * *', function () {
         console.log('scheduleCronstyle:' + new Date());
         var path = "./public/images/compress/"
@@ -87,9 +143,9 @@ try {
 
 
 try {
-    schedule.scheduleJob('05 * * * * *', function () {
+    schedule.scheduleJob('02 * * * * *', function () {
         console.log('scheduleCronstyle:' + new Date());
-        var path = "./public/images/splitImg/"
+        var path = "./public/images/splitImgRotate/";
         var strings = fs.readdirSync(path);
         if (strings && strings.length > 0) {
             var pathTxt = strings[0]
@@ -138,41 +194,6 @@ try {
 } catch (e) {
     console.log(e);
 }
-// function scanDirectory(path) {
-//     var strings = fs.readdirSync(path);
-//     if (strings && strings.length > 0) {
-//         strings.forEach(function (fileName) {
-//             lock.acquire("img2word",function(){
-//                 producer.sendMsg("开始图像转文字");
-//                 var image = fs.readFileSync(paths.join(path, fileName)).toString("base64");
-//                 // 如果有可选参数
-//                 var options = {};
-//                 options["language_type"] = "CHN_ENG";
-//                 options["detect_direction"] = "true";
-//                 options["detect_language"] = "true";
-//                 options["probability"] = "true";
-//                 client.generalBasic(image, options).then(function (result) {
-//                     console.log(JSON.stringify(result));
-//                     var content = "";
-//                     producer.sendMsg("进入图像转文字cb");
-//                     if(result.words_result){
-//                         result.words_result.forEach(function (data) {
-//                             content += data.words;
-//                         })
-//                         producer.sendMsg("开始，文字转语音");
-//                         var path = "./public/images/compress/"+fileName;
-//                         lock.acquire("word2voice",function(){
-//                             word2voice(content,3,3,dateformat(new Date(), "yyyy-MM-dd HH:mm:ss"),0,path)
-//                         });
-//                     }
-//                 }).catch(function (err) {
-//                     console.log(err);
-//                 })
-//             })
-//
-//         })
-//     }
-// }
 
 
 function splitImgByPath(fileName, type, fileDirectory, splitDirectory) {
