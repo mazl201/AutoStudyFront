@@ -176,8 +176,8 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg) {
                         var uuid1 = uuid2 + ".mp3";
                         producer.sendMsg("文字转语音，百度接口返回，文件名"+uuid1);
                         console.log("文字转语音,成功收到返回"+updateFileName)
-                        fs.writeFile(uuid1, result.data,function(err,ret){
-                            var path = uuid1;
+                        fs.writeFile("./public/baidu_mp3/"+uuid1, result.data,function(err,ret){
+                            var path = "./public/baidu_mp3/"+uuid1;
                             console.log("test log chain")
                             mongoClient.connect("mongodb://106.12.28.10:27017", function (err, conn) {
 

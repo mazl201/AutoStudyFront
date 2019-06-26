@@ -85,6 +85,59 @@ try {
     console.log(e);
 }
 
+
+try {
+    schedule.scheduleJob('05 * * * * *', function () {
+        console.log('scheduleCronstyle:' + new Date());
+        var path = "./public/images/splitImg/"
+        var strings = fs.readdirSync(path);
+        if (strings && strings.length > 0) {
+            var pathTxt = strings[0]
+            lock.acquire("splitfile2mongo", function () {
+                var splitDirectory = path;
+                var newSplitFileName = pathTxt.replace(splitDirectory,"");
+                pathTxt = path+pathTxt;
+                mongoClient.connect("mongodb://106.12.28.10:27017", function (err, conn) {
+                    var db = conn.db("baidu_split_file");
+                    var gridFSdb = new GridFSBucket(db);
+                    var fileReadStream = fs.createReadStream(pathTxt);
+                    var openUploadStream = gridFSdb.openUploadStream(pathTxt);
+
+                    var license = fs.readFileSync(pathTxt);
+                    var id = openUploadStream.id;
+
+                    openUploadStream.on("finish",function(err, conn){
+                        var chunksColl = db.collection('fs.files');
+
+                        var chunksQuery = chunksColl.find({_id: id});
+                        chunksQuery.toArray(function (err, ret) {
+                            if(err){
+                                console.log("split file can't save to  mongodb");
+                                return
+                            }
+                            chunksColl.update({_id:id},{$set:{filename:newSplitFileName}},function(err,result){
+                                console.log(result);
+                            })
+
+                            fs.unlink(pathTxt, function (err) {
+                                if (!err) {
+                                    console.log("删除临时图片文件成功");
+                                }else{
+                                    console.log("删除切割的图片失败");
+                                }
+                            })
+                        })
+                    })
+                    fileReadStream.pipe(openUploadStream);
+                })
+            })
+        }
+
+
+    });
+} catch (e) {
+    console.log(e);
+}
 // function scanDirectory(path) {
 //     var strings = fs.readdirSync(path);
 //     if (strings && strings.length > 0) {
@@ -130,40 +183,15 @@ function splitImgByPath(fileName, type, fileDirectory, splitDirectory) {
             }else{
                 var width = size.width;
                 var height = size.height;
-                var stride = 100;
+                var stride = 280;
                 if(width > height){
                     for(var index = 0;index<width;index += stride){
                         var newSplitFileName = dateformat(new Date(), "yyyymmddHHMMss")+"-"+index+"."+type;
-                        gm(fileDirectory+fileName+"."+type).crop(stride, height, index, 0).write(splitDirectory+newSplitFileName,function(err){
+                        gm(fileDirectory+fileName+"."+type).crop(stride, height, index, 0).write(splitDirectory+newSplitFileName,function(err,file){
                             if(err){
                                 console.log("split file failed")
                             }else{
-                                var pathTxt = splitDirectory+newSplitFileName;
-                                mongoClient.connect("mongodb://106.12.28.10:27017", function (err, conn) {
-                                    var db = conn.db("baidu_split_file");
-                                    var gridFSdb = new GridFSBucket(db);
-                                    var fileReadStream = fs.createReadStream(pathTxt);
-                                    var openUploadStream = gridFSdb.openUploadStream(pathTxt);
-
-                                    var license = fs.readFileSync(pathTxt);
-                                    var id = openUploadStream.id;
-
-                                    openUploadStream.on("finish",function(err, conn){
-                                        var chunksColl = db.collection('fs.files');
-
-                                        var chunksQuery = chunksColl.find({_id: id});
-                                        chunksQuery.toArray(function (err, ret) {
-                                            if(err){
-                                                console.log("split file can't save to  mongodb");
-                                                return
-                                            }
-                                            chunksColl.update({_id:id},{$set:{filename:newSplitFileName}},function(err,result){
-                                                console.log(result);
-                                            })
-                                        })
-                                    })
-                                    fileReadStream.pipe(openUploadStream);
-                                })
+                                console.log("split file write succeed");
                             }
                         })
                     }
@@ -174,32 +202,7 @@ function splitImgByPath(fileName, type, fileDirectory, splitDirectory) {
                             if(err){
                                 console.log("split file failed")
                             }else{
-                                var pathTxt = splitDirectory+newSplitFileName;
-                                mongoClient.connect("mongodb://106.12.28.10:27017", function (err, conn) {
-                                    var db = conn.db("baidu_split_file");
-                                    var gridFSdb = new GridFSBucket(db);
-                                    var fileReadStream = fs.createReadStream(pathTxt);
-                                    var openUploadStream = gridFSdb.openUploadStream(pathTxt);
-
-                                    var license = fs.readFileSync(pathTxt);
-                                    var id = openUploadStream.id;
-
-                                    openUploadStream.on("finish",function(err, conn){
-                                        var chunksColl = db.collection('fs.files');
-
-                                        var chunksQuery = chunksColl.find({_id: id});
-                                        chunksQuery.toArray(function (err, ret) {
-                                            if(err){
-                                                console.log("split file can't save to  mongodb");
-                                                return
-                                            }
-                                            chunksColl.update({_id:id},{$set:{filename:newSplitFileName}},function(err,result){
-                                                console.log(result);
-                                            })
-                                        })
-                                    })
-                                    fileReadStream.pipe(openUploadStream);
-                                })
+                                console.log("split file write succeed")
                             }
                         })
                     }
