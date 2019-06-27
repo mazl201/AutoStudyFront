@@ -27,6 +27,8 @@ $(".submitButton").on("click", function () {
     })
 })
 
+$('.selectpicker').selectpicker();
+
 function translateToENCN(text) {
     var data = {
         content: text,
@@ -109,3 +111,5 @@ $(".uploadFileButton").on("click", function () {
         })
     }
 })
+
+$("#input-id").fileinput({'showUpload':true, 'previewFileType':'any','uploadUrl':"/sound/uploadFile"});

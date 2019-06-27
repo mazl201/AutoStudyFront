@@ -13,17 +13,17 @@ block content
                     font(size="6",font-family:"STKaiti" class="contentDis")
                     font(size="3",font-family:"STKaiti" hidden class="content") #{index.content}
                     br
-                    a(href="javascript:void(0)" class='button submitButton')  #{index.filename}
-                    a(href="javascript:void(0)" class='button deleteButton')  删除
+                    a(href="javascript:void(0)" class='btn submitButton')  #{index.filename}
+                    a(href="javascript:void(0)" class='btn deleteButton')  删除
                     p(class='ids') #{index._id}
                     if index.filename
                         audio(src="mp3_download?id=#{index._id}" name='#{index.filename}' controls ) #{index.filename}
                     br
                     if index.fileImgPathId
-                        a(href="javascript:void(0)" class='button left')  左翻转
-                        a(href="javascript:void(0)" class='button right')  右翻转
-                        a(href="javascript:void(0)" class='button vertical')  翻转
-                        a(href="javascript:void(0)" class='button origin')  复原
+                        a(href="javascript:void(0)" class='btn left')  左翻转
+                        a(href="javascript:void(0)" class='btn right')  右翻转
+                        a(href="javascript:void(0)" class='btn vertical')  翻转
+                        a(href="javascript:void(0)" class='btn origin')  复原
                         br
                         br
                         br

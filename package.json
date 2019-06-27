@@ -10,6 +10,8 @@
     "async-lock": "^1.2.0",
     "baidu-aip-sdk": "^2.3.9",
     "body-parser": "^1.19.0",
+    "bootstrap": "^3.4.1",
+    "bootstrap-fileinput": "^5.0.3",
     "child_process": "^1.0.2",
     "cookie-parser": "~1.4.3",
     "dateformat": "^3.0.3",

@@ -88,10 +88,11 @@ $.ajax({
 })
 
 //显示大图
-function showimage(source)
+function showimage1(source)
 {
-    $("#ShowImage_Form").find("#img_show").html("<image src='"+source+"' class='carousel-inner img-responsive img-rounded' />");
-    $("#ShowImage_Form").modal();
+    debugger;
+    $("#ShowImage_Form1").find("#img_show1").html("<image src='"+source+"' class='carousel-inner img-responsive img-rounded' />");
+    $("#ShowImage_Form1").modal();
 }
 
 $(".submitButton").on("click", function () {

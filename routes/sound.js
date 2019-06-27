@@ -35,7 +35,7 @@ var word2voice = require("../word2voice/word2voice");
 
 var iconv = require('iconv-lite');
 var upload = multer({dest: './public/filetext'});//设置上传文件存储地址
-router.post('/uploadFile', upload.single('file'), function (req, res, next) {
+router.post('/uploadFile', upload.single('file_data'), function (req, res, next) {
 
     var ret = {};
     ret['code'] = 200;
@@ -64,8 +64,11 @@ router.post('/uploadFile', upload.single('file'), function (req, res, next) {
             })
         })
         file['newfilename'] = '${file.filename}.${suffix}';
+        ret['file'] = file;
+        ret['error'] = ""
+        res.send(ret);
     }
-    ret['file'] = file;
+    ret['error'] = "文件为空"
     res.send(ret);
 })
 router.get("/clearAllImg", function (req, res, next) {
@@ -508,7 +511,7 @@ router.get('/mp3_list', function (req, res, next) {
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-    res.render('tabView', {title: 'sound-upload-transferword-to-mp3', content: {}});
+    res.render('tabView', {title: '解放你的双手', content: {}});
 });
 
 /* GET home page. */
@@ -560,7 +563,7 @@ router.get('/mp3_download', function (req, res, next) {
 
                         res.writeHead(200, {
                             'Content-Type': 'application/force-download',
-                            'Content-Disposition': 'attachment; filename=' + "alternative.mp3",
+                            'Content-Disposition': 'attachment; filename=' + ret[0].filename,
                             'Content-Length': ret[0].length
                         });
                         downloadStream.pipe(res);

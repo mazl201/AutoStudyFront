@@ -1,0 +1,110 @@
+PUT workflow
+{
+  "index": {
+    "analysis": {
+      "filter": {
+        "edge_ngram_filter": {
+          "type": "edge_ngram",
+          "min_gram": 1,
+          "max_gram": 50
+        },
+        "pinyin_simple_filter": {
+          "type": "pinyin",
+          "first_letter": "prefix",
+          "padding_char": " ",
+          "limit_first_letter_length": 50,
+          "lowercase": true
+        }
+      },
+      "char_filter": {
+        "tsconvert": {
+          "type": "stconvert",
+          "convert_type": "t2s"
+        }
+      },
+      "analyzer": {
+        "ikSearchAnalyzer": {
+          "type": "custom",
+          "tokenizer": "ik_max_word",
+          "char_filter": [
+            "tsconvert"
+          ]
+        },
+        "pinyinSimpleIndexAnalyzer": {
+          "tokenizer": "keyword",
+          "filter": [
+            "pinyin_simple_filter",
+            "edge_ngram_filter",
+            "lowercase"
+          ]
+        }
+      }
+    }
+  }
+}
+
+PUT workflow/t_schedule/_mapping
+{
+  "t_schedule": {
+    "_all": {
+      "enabled": true
+    },
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "dealUser": {
+        "type": "keyword",
+        "analyzer": "ikSearchAnalyzer",
+        "search_analyzer": "ikSearchAnalyzer",
+        "fields": {
+          "pinyin": {
+            "type": "keyword",
+            "analyzer": "pinyinSimpleIndexAnalyzer",
+            "search_analyzer": "pinyinSimpleIndexAnalyzer"
+          }
+        }
+      },
+	        "sqNr": {
+        "type": "keyword",
+        "analyzer": "ikSearchAnalyzer",
+        "search_analyzer": "ikSearchAnalyzer",
+        "fields": {
+          "pinyin": {
+            "type": "keyword",
+            "analyzer": "pinyinSimpleIndexAnalyzer",
+            "search_analyzer": "pinyinSimpleIndexAnalyzer"
+          }
+        }
+      },
+	        "title": {
+        "type": "keyword",
+        "analyzer": "ikSearchAnalyzer",
+        "search_analyzer": "ikSearchAnalyzer",
+        "fields": {
+          "pinyin": {
+            "type": "keyword",
+            "analyzer": "pinyinSimpleIndexAnalyzer",
+            "search_analyzer": "pinyinSimpleIndexAnalyzer"
+          }
+        }
+      },
+	        "lcInitiatorName": {
+        "type": "keyword",
+        "analyzer": "ikSearchAnalyzer",
+        "search_analyzer": "ikSearchAnalyzer",
+        "fields": {
+          "pinyin": {
+            "type": "keyword",
+            "analyzer": "pinyinSimpleIndexAnalyzer",
+            "search_analyzer": "pinyinSimpleIndexAnalyzer"
+          }
+        }
+      },
+      "createTime": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+      }
+    }
+  }
+}

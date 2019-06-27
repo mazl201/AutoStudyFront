@@ -7,27 +7,28 @@ block content
     - var perSelect = {"女声":"0","男声":"1","度逍遥":"3","度丫丫":"4"}
     h1= title
     p now you use #{title}
-    select.bootstrap-select(class="myselectionspd")
+    select.selectpicker(class="myselectionspd")
         each name,key in spdSelect
             option(value="#{name}") #{key}
 
-    select.bootstrap-select(class="myselectionper")
+    select.selectpicker(class="myselectionper")
         each name,key in perSelect
             option(value="#{name}") #{key}
     br
     textarea(style="width:800px;height:400px;" class="upload-content")
     br
-    a(href="javascript:void(0)" class='button submitButton') 提交
+    a(href="javascript:void(0)" class='btn submitButton') 提交
     br
-    a(href="javascript:void(0)" class='button voiceButton') 朗读
+    a(href="javascript:void(0)" class='btn voiceButton') 朗读
     br
     br
     div
         font(size="6" id="contentDis")
     br
     br
-    input(type="file" id="fileId")
-    a(href="javascript:void(0)" class='button uploadFileButton') 上传文件
+    input(type="file" id="input-id" class="file")
+    br
+    a(href="javascript:void(0)" class='btn uploadFileButton') 上传文件-转储成MP3文件
 
 block append scripts
     //script(type="text/javascript" src='https://code.jquery.com/jquery-3.4.1.min.js')
