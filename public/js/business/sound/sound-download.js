@@ -3,21 +3,21 @@ var totalTime;
 var currentTime;
 var nowAudio;
 var nowInterval;
+var nowEnCnContent;
 
-
-function translateToENCN(text) {
+function translateToENCN(contents) {
     var data = {
-        content: text,
+        content: contents,
     }
     debugger;
     $.ajax({
-        url: "/sound/translate",
+        url: "/sound/translateDst",
         data: data,
         type: "POST",
         // context:null,
         success: function (res) {
             if (res) {
-                $($(nowAudio).parent().find(".contentDis")[0]).html(res)
+                nowEnCnContent = res;
             }
         }
     })
@@ -40,8 +40,8 @@ function freshAudioContent() {
     if (calucEnd > contentLength) {
         calucEnd = contentLength;
     }
-    translateToENCN(content.substring(calucIndex, calucEnd))
-    // $($(nowAudio).parent().find(".contentDis")[0]).html();
+    // translateToENCN(content)
+    $($(nowAudio).parent().find(".contentDis")[0]).html(content.substring(calucIndex, calucEnd) + nowEnCnContent.substring(calucIndex, calucEnd));
 }
 
 
@@ -134,6 +134,7 @@ for (var i = 0; i < audios.length;i++) {
             startTime = new Date();
             nowAudio = this;
             nowInterval = setInterval(freshAudioContent, 1000);
+            translateToENCN( $($(nowAudio).parent().find(".content")[0]).html());
         })
         console.log("加载第" + i + "个，完成")
         $(audios[i]).on("pause", function () {
@@ -148,6 +149,7 @@ for (var i = 0; i < audios.length;i++) {
             var startIndex = 0;
             var endIndex = 30;
             clearInterval(nowInterval);
+            nowEnCnContent = "";
             if (startIndex < 0) {
                 startIndex = 0;
             }

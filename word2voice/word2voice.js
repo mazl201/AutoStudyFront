@@ -26,6 +26,16 @@ function word2pdf(){
 
 }
 
+
+function pad(num, n) {
+    var len = num.toString().length;
+    while(len < n) {
+        num = "0" + num;
+        len++;
+    }
+    return num;
+}
+
 function pathImgFailedTxtUpload(pathTxt,fileName,pathImg,originContent) {
     if (pathTxt) {
         mongoClient.connect("mongodb://106.12.28.10:27017", function (err, conn) {
@@ -46,11 +56,18 @@ function pathImgFailedTxtUpload(pathTxt,fileName,pathImg,originContent) {
                 chunksQuery.toArray(function (err, ret) {
                     if(err){
                         console.log("未能成功保存到数据库");
-                        fs.unlink("pathTxt",function(err,ret){
-                            console.log("未能成功保存到数据库,删除txt文件");
-                        })
+                        // fs.unlink(pathTxt,function(err,ret){
+                        //     console.log("未能成功保存到数据库,删除txt文件");
+                        // })
                     }
                     if(!err){
+                        fs.unlink(pathTxt,function(err,result){
+                            if(err){
+                                console.log("delete compress txt file failed")
+                                return;
+                            }
+                            return "delete  compress txt file success";
+                        })
                         chunksColl.update({_id:id},{$set:{filename:fileName,"content":originContent}},function(err,result){
                             console.log(result);
                         })
@@ -71,13 +88,7 @@ function pathImgFailedTxtUpload(pathTxt,fileName,pathImg,originContent) {
                                     chunksColl.update({_id:id},{$set:{fileImgPathId:idImg,path:pathImg}},function(err,result){
                                         console.log(result);
                                     })
-                                    fs.unlink(pathTxt,function(err,result){
-                                        if(err){
-                                            console.log("delete compress txt file failed")
-                                            return;
-                                        }
-                                        return "delete  compress txt file success";
-                                    })
+
                                     fs.unlink(pathImg,function(err,result){
                                         if(err){
                                             console.log("delete compress image file failed")
@@ -109,7 +120,7 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg) {
         if(retrys > 5){
             console.log("已经重试5次"+filename)
             // console.log(originContent);
-            var fileName = uuid()+".txt";
+            var fileName =filename +".txt";
             var path2 = "./public/images/failedTxt/"+fileName;
 
             // $pattern =($encoding=='utf8')?'/[\x{4e00}-\x{9fa5}a-zA-Z0-9]/u':'/[\x80-\xFF]/';
@@ -157,7 +168,7 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg) {
                 if(filename.indexOf("@@") > -1){
                     updateFileName = filename;
                 }else{
-                    updateFileName = filename+"@@"+index;
+                    updateFileName = filename+"@@"+pad(index,6);
                     updateFileName = updateFileName +"  "+ dateformat(new Date(), "yyyy-mm-dd HH:MM:ss");
                 }
                 var content = splitConten;
