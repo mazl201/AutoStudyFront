@@ -1,8 +1,8 @@
-var Kafka = require("kafka-node");
-var Consumer = Kafka.Consumer;
-var client = new Kafka.KafkaClient({kafkahost:"106.12.10.241:9092"});
-consumer = new Consumer(client,[{topic:"auto-study-2",partition:0}],{
-    autoCommit:false,
+var kafka = require("kafka-node");
+var Consumer = kafka.Consumer;
+var consumerClient = new kafka.KafkaClient({"kafkaHost":'106.12.10.241:9092'});
+var consumer = new Consumer(consumerClient,[{topic:"auto-study-2"}],{
+    autoCommit:true,
     encoding:"utf8",
     valueEncoding:"utf8"
 })
