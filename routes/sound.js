@@ -535,7 +535,7 @@ router.get('/img_download', function (req, res, next) {
 
                         res.writeHead(200, {
                             'Content-Type': 'application/force-download',
-                            'Content-Disposition': 'attachment; filename=' + ret[0].filename,
+                            'Content-Disposition': 'attachment; filename=' + urlencode( ret[0].filename,"UTF-8"),
                             'Content-Length': ret[0].length
                         });
                         downloadStream.pipe(res);
@@ -592,10 +592,17 @@ router.get('/mp3_list', function (req, res, next) {
             console.log("mongodb connect failed");
         } else {
             var collection = connect.db("baidu_voice").collection("fs.files");
-            collection.find({content: {$ne: null}}).sort({filename: -1}).skip((pageIndex - 1) * 5).limit(5).toArray(function (err, ret) {
+            collection.find({content: {$ne: null}}).sort({filename: 1}).skip((pageIndex - 1) * 5).limit(5).toArray(function (err, ret) {
                 if (err) {
                     console.log("query mongodb baidu_voice.mp3_list failed");
                 } else {
+                    ret.forEach(function(retSingle){
+                        if(retSingle.filename && retSingle.filename.indexOf("mp3") > -1){
+                            retSingle.isMp3 = true;
+                        }else{
+                            retSingle.isMp3 = false;
+                        }
+                    })
                     res.render('sound-list', {title: 'sound-upload-transferword-to-mp3', content: ret});
                 }
             })
@@ -658,7 +665,7 @@ router.get('/mp3_download', function (req, res, next) {
 
                         res.writeHead(200, {
                             'Content-Type': 'application/force-download',
-                            'Content-Disposition': 'attachment; filename=' + ret[0].filename,
+                            'Content-Disposition': 'attachment; filename=' +urlencode( ret[0].filename,"UTF-8"),
                             'Content-Length': ret[0].length
                         });
                         downloadStream.pipe(res);
@@ -666,6 +673,7 @@ router.get('/mp3_download', function (req, res, next) {
 
                     }
                 } catch (e) {
+                    res.end("failed")
                     console.log(e);
                 }
             })

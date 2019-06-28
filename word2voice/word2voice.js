@@ -4,7 +4,7 @@ var AipSpeechClient = require("baidu-aip-sdk").speech;
 var HttpClient = require("baidu-aip-sdk").HttpClient;
 var uuid = require("uuid");
 var fs = require("fs");
-var producer = require("../kafkautils/kafka-producer");
+var sendMsg = require("../kafkautils/kafka-producer");
 var require1 = require("../kafkautils/kafka-consumer");
 var dateformat = require("dateformat");
 
@@ -47,11 +47,9 @@ function pathImgFailedTxtUpload(pathTxt,fileName,pathImg,originContent) {
             var license = fs.readFileSync(pathTxt);
             var id = openUploadStream.id;
 
-            openUploadStream.on("finish",function(err, conn){
-                // var chunksColl = db.collection('fs.files');
+            openUploadStream.once("finish",function(){
 
                 var chunksColl = db.collection('fs.files');
-
                 var chunksQuery = chunksColl.find({_id: id});
                 chunksQuery.toArray(function (err, ret) {
                     if(err){
@@ -68,7 +66,7 @@ function pathImgFailedTxtUpload(pathTxt,fileName,pathImg,originContent) {
                             }
                             return "delete  compress txt file success";
                         })
-                        chunksColl.update({_id:id},{$set:{filename:fileName,"content":originContent}},function(err,result){
+                        chunksColl.update({_id:id},{$set:{filename:fileName+".txt","content":originContent}},function(err,result){
                             console.log(result);
                         })
                         //插入 上传图片
@@ -121,15 +119,7 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg) {
             console.log("已经重试5次"+filename)
             // console.log(originContent);
             var fileName =filename +".txt";
-            var path2 = "./public/images/failedTxt/"+fileName;
-
-            // $pattern =($encoding=='utf8')?'/[\x{4e00}-\x{9fa5}a-zA-Z0-9]/u':'/[\x80-\xFF]/';
-            //
-            // preg_match_all($pattern,$chars,$result);
-            //
-            // $temp =join('',$result[0]);
-
-            // originContent=originContent.replace(/^[A-Za-z0-9\u4e00-\u9fa5]+$/g,'')
+            var path2 = "./public/failedTxt/"+uuid()+".txt";
             if(originContent){
                 fs.writeFile(path2,originContent,function(err, ret){
                     if(err){
@@ -139,14 +129,14 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg) {
                     }
                 })
             }else{
-                producer.sendMsg("failed word 2 voice txt don't have content");
+                sendMsg("failed word 2 voice txt don't have content");
             }
 
             return;
         }
         if (length > splitNum) {
             //0 2048
-            producer.sendMsg("文字转语音，开始拆分");
+            sendMsg("文字转语音，开始拆分");
             for (var index = 0; index < length; index += splitNum) {
                 if ((index + splitNum) < length) {
                     splits.push(originContent.substring(index, index + splitNum))
@@ -157,7 +147,7 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg) {
         } else {
             splits.push(originContent);
         }
-        producer.sendMsg("文字转语音,开始foreach")
+        sendMsg("文字转语音,开始foreach")
         splits.forEach(function (splitConten, index) {
             setTimeout(function(){
                 var uuid2 = uuid();
@@ -182,7 +172,7 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg) {
                 //     //输入非法字符，清空输入框
                 //     $("#username").val("");
                 // }
-                var reg = /[0-9\u4e00-\u9fa5]/g;
+                var reg = /[0-9\u4e00-\u9fa5\.\,\!\\\?\。\，\？\！\~\`\!\@\#\$\%\^\&\*\(\)\-\_\+\=\[\]\{\}\;\:\"\'\,\<\.\>\/\?]/g;
                 var names = splitConten.match(reg);
                 if(names){
                     splitConten = names.join("");
@@ -190,7 +180,7 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg) {
                     client.text2audio(splitConten.replace(/\s+/g,""),options).then(function (result) {
                         if (result.data) {
                             var uuid1 = uuid2 + ".mp3";
-                            producer.sendMsg("文字转语音，百度接口返回，文件名"+uuid1);
+                            sendMsg("文字转语音，百度接口返回，文件名"+uuid1);
                             console.log("文字转语音,成功收到返回"+updateFileName)
                             fs.writeFile("./public/baidu_mp3/"+uuid1, result.data,function(err,ret){
                                 var path = "./public/baidu_mp3/"+uuid1;
@@ -246,7 +236,7 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg) {
                                                             fileReadStream1.pipe(openUploadStream1)
                                                         })
                                                     }
-                                                    chunksColl.update({_id:id},{$set:{filename:updateFileName,"content":content}},function(err,result){
+                                                    chunksColl.update({_id:id},{$set:{filename:updateFileName+".mp3","content":content}},function(err,result){
                                                         console.log(result);
                                                     })
 
@@ -256,7 +246,7 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg) {
                                                         }
                                                     })
 
-                                                    producer.sendMsg("文字转语音，存入mongodb数据库,文件名"+ret[0].filename)
+                                                    sendMsg("文字转语音，存入mongodb数据库,文件名"+ret[0].filename)
                                                 }
                                             })
                                             console.log("mp3 ")

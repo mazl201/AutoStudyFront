@@ -237,3 +237,55 @@ $(".flushAllButton").on("click", function () {
 
     location.reload()
 })
+
+var nowContentDis;
+
+$(".voiceMp3Failed").on("click",function(){
+    nowContentDis = $(this).parent().find(".contentDis");
+
+    var speech = new SpeechSynthesisUtterance();
+
+    var content = $(this).parent().find("p").html();
+    var contents = content.split(/[.,!\?。，？！]/);
+    debugger;
+    var index = 0;
+    //设置朗读内容和属性
+    speech.text = contents[index];
+    // $("#contentDis").html(speech.text);
+    translateToENCN2(speech.text);
+    speech.volume = 1;
+    speech.rate = 1;
+    speech.pitch = 1;
+
+    speech.onend = function (event) {
+        index++;
+        if (index >= contents.length) {
+            return;
+        }
+        speech.text = contents[index];
+
+        // $("#contentDis").html(speech.text);
+        translateToENCN2(speech.text);
+        window.speechSynthesis.speak(speech);
+    }
+
+    window.speechSynthesis.speak(speech);
+})
+
+function translateToENCN2(text) {
+    var data = {
+        content: text,
+    }
+    debugger;
+    $.ajax({
+        url: "/sound/translate",
+        data: data,
+        type: "POST",
+        // context:null,
+        success: function (res) {
+            if (res) {
+                $(nowContentDis).html(res);
+            }
+        }
+    })
+}

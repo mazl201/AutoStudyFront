@@ -7,6 +7,7 @@ var paths = require("path");
 var async = require("async-lock");
 var lock = new async();
 var schedule = require("node-schedule");
+var sendMsg = require("../kafkautils/kafka-producer");
 var mongoClient = require("mongodb").MongoClient;
 
 var APP_ID = '16329044'
@@ -18,7 +19,7 @@ var gm = require("gm");
 var getPixels = require("get-pixels");
 var dateformat = require("dateformat");
 var word2voice = require("../word2voice/word2voice");
-var producer = require("../kafkautils/kafka-producer");
+
 
 httpClient.setRequestInterceptor(function (requestOptions) {
 
@@ -67,7 +68,7 @@ try {
                         if(err){
                             console.log("rotate split img file failed")
                             fs.unlink(pathTxt, function (err) {
-                                if (!err) {
+                                if (err) {
                                     console.log("删除转换失败文件，失败");
                                 }else{
                                     console.log("删除转换失败文件，成功");
@@ -121,7 +122,7 @@ try {
         if (strings && strings.length > 0) {
             var fileName = strings[0]
             lock.acquire("img2word", function () {
-                producer.sendMsg("开始图像转文字");
+                sendMsg("开始图像转文字");
                 var image = fs.readFileSync(paths.join(path, fileName)).toString("base64");
                 // 如果有可选参数
                 var options = {};
@@ -133,12 +134,12 @@ try {
                     // console.log(JSON.stringify(result));
                     console.log("success accept img 2 word api interface response");
                     var content = "";
-                    producer.sendMsg("进入图像转文字cb");
+                    sendMsg("进入图像转文字cb");
                     if (result.words_result) {
                         result.words_result.forEach(function (data) {
                             content += data.words;
                         })
-                        producer.sendMsg("开始，文字转语音");
+                        sendMsg("开始，文字转语音");
                         var path = "./public/images/compress/" + fileName;
                         lock.acquire("word2voice", function () {
                             word2voice(content, 3, 3, dateformat(new Date(), "yyyy-mm-dd HH:MM:ss"), 0, path)
@@ -169,6 +170,10 @@ try {
                 var newSplitFileName = pathTxt.replace(splitDirectory,"");
                 pathTxt = path+pathTxt;
                 mongoClient.connect("mongodb://106.12.28.10:27017", function (err, conn) {
+                    if(err){
+                        console.log("split file save to mongodb connect failed");
+                        return;
+                    }
                     var db = conn.db("baidu_split_file");
                     var gridFSdb = new GridFSBucket(db);
                     var fileReadStream = fs.createReadStream(pathTxt);

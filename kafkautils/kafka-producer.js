@@ -1,21 +1,21 @@
 var kafka = require('kafka-node');
 var Producer = kafka.Producer;
 var KeyedMessage = kafka.KeyedMessage;
-var Client =new kafka.KafkaClient({kafkaHost:'106.12.10.241:9092'});
+var Client = new kafka.KafkaClient({kafkaHost: '106.12.10.241:9092'});
 var producer = new Producer(Client);
 
-producer.on('ready', function() {
-     var payloads = [{
-    topic: 'auto-study-2',
+producer.on('ready', function () {
+    var payloads = [{
+        topic: 'auto-study-2',
         messages: ['start kafka 106.12.10.241:9092'], // multi messages should be a array, single message can be just a string or a KeyedMessage instance
         // key: 'theKey', // string or buffer, only needed when using keyed partitioner
         partition: 0, // default 0
         attributes: 0, // default: 0
         timestamp: Date.now() // <-- defaults to Date.now() (only available with kafka v0.10+)
-   }]
+    }]
 
-    producer.send(payloads,function(err,data){
-        if(err){
+    producer.send(payloads, function (err, data) {
+        if (err) {
             console.log(err);
         }
         console.log(data);
@@ -27,10 +27,12 @@ producer.on('ready', function() {
     // });
 });
 
-producer.sendMsg = function(msg){
-    var Client =new kafka.KafkaClient({kafkaHost:'106.12.10.241:9092'});
-    var producerInner = new Producer(Client);
-    producerInner.on("ready",function(){
+function sendMsg(msg) {
+    // var innerClient = new kafka.KafkaClient({kafkaHost: '106.12.10.241:9092'});
+    // var producerInner = new Producer(innerClient);
+    // producerInner.on("ready", function () {
+
+    try {
         var payloads = [{
             topic: 'auto-study-2',
             messages: [msg], // multi messages should be a array, single message can be just a string or a KeyedMessage instance
@@ -39,19 +41,17 @@ producer.sendMsg = function(msg){
             attributes: 0, // default: 0
             timestamp: Date.now() // <-- defaults to Date.now() (only available with kafka v0.10+)
         }]
-        try{
-            producer.send(payloads,function(err,ret){
-                if(err){
-                    console.log("error from kafka"+err);
+        producer.send(payloads, function (err, ret) {
+            if (err) {
+                console.log("*********** error from kafka" + err);
             }
-            console.log(ret);
-            });
-        }catch(e){
-            console.log("ask local"+e)
-        }
-    })
-
-
+            console.log("***************" + ret);
+        });
+    } catch (e) {
+        console.log("ask local" + e)
+    }
 }
 
-module.exports = producer;
+
+
+module.exports = sendMsg;

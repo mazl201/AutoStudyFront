@@ -29,7 +29,7 @@ $(".submitButton").on("click", function () {
 
 $('.selectpicker').selectpicker();
 
-function translateToENCN(text) {
+function translateToENCN1(text) {
     var data = {
         content: text,
     }
@@ -70,7 +70,7 @@ $(".voiceButton").on("click", function () {
         //设置朗读内容和属性
         speech.text = contents[index];
         // $("#contentDis").html(speech.text);
-        translateToENCN(speech.text);
+        translateToENCN1(speech.text);
         speech.volume = 1;
         speech.rate = 1;
         speech.pitch = 1;
@@ -83,7 +83,7 @@ $(".voiceButton").on("click", function () {
             speech.text = contents[index];
 
             // $("#contentDis").html(speech.text);
-            translateToENCN(speech.text);
+            translateToENCN1(speech.text);
             window.speechSynthesis.speak(speech);
         }
 
