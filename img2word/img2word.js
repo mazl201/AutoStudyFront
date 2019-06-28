@@ -53,7 +53,7 @@ try {
                 var splitDirectory = path;
                 var newSplitFileName = pathTxt.replace(splitDirectory,"");
                 pathTxt = path+pathTxt;
-
+                console.log("start rotate split img file "+pathTxt);
                 gm(pathTxt)
                     .size(function (err, size) {
                         if(err){
