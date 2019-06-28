@@ -93,6 +93,8 @@ function showimage1(source)
     debugger;
     var image = new Image();
     image.src = source;
+    var imgNode=document.createElement('img');
+    imgNode.src = source;
     $("#ShowImage_Form1").find("#img_show1").html("<image src='"+source+"' class='carousel-inner img-responsive img-rounded' />");
     $("#ShowImage_Form1").modal();
 }
