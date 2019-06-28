@@ -66,6 +66,13 @@ try {
                     .size(function (err, size) {
                         if(err){
                             console.log("rotate split img file failed")
+                            fs.unlink(pathTxt, function (err) {
+                                if (!err) {
+                                    console.log("删除转换失败文件，失败");
+                                }else{
+                                    console.log("删除转换失败文件，成功");
+                                }
+                            })
                         }else{
                             if(size.height > size.width){
                                 gm(pathTxt).rotate("white",90).write("./public/images/splitImgRotate/"+newSplitFileName,function(err,ret){
