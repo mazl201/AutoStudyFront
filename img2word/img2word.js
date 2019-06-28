@@ -19,7 +19,6 @@ var getPixels = require("get-pixels");
 var dateformat = require("dateformat");
 var word2voice = require("../word2voice/word2voice");
 var producer = require("../kafkautils/kafka-producer");
-var dateformat = require("dateformat");
 
 httpClient.setRequestInterceptor(function (requestOptions) {
 
@@ -31,6 +30,15 @@ httpClient.setRequestInterceptor(function (requestOptions) {
 
     return requestOptions;
 })
+
+function pad(num, n) {
+    var len = num.toString().length;
+    while(len < n) {
+        num = "0" + num;
+        len++;
+    }
+    return num;
+}
 
 
 // var image = fs.readFileSync().toString("base64");
@@ -207,7 +215,7 @@ function splitImgByPath(fileName, type, fileDirectory, splitDirectory) {
                 var stride = 280;
                 if(width > height){
                     for(var index = 0;index<width;index += stride){
-                        var newSplitFileName = dateformat(new Date(), "yyyymmddHHMMss")+"-"+index+"."+type;
+                        var newSplitFileName = dateformat(new Date(), "yyyymmddHHMMss")+"-"+pad(index,6)+"."+type;
                         gm(fileDirectory+fileName+"."+type).crop(stride, height, index, 0).write(splitDirectory+newSplitFileName,function(err,file){
                             if(err){
                                 console.log("split file failed")
@@ -218,7 +226,7 @@ function splitImgByPath(fileName, type, fileDirectory, splitDirectory) {
                     }
                 }else if(width < height){
                     for(var index = 0;index<height;index += stride){
-                        var newSplitFileName = dateformat(new Date(), "yyyymmddHHMMss")+"-"+index+"."+type;
+                        var newSplitFileName = dateformat(new Date(), "yyyymmddHHMMss")+"-"+pad(index,6)+"."+type;
                         gm(fileDirectory+fileName+"."+type).crop(stride, stride, 0, index).write(splitDirectory+newSplitFileName,function(err){
                             if(err){
                                 console.log("split file failed")
