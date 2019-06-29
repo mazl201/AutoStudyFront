@@ -9,7 +9,7 @@ function translateToENCN(contents) {
     var data = {
         content: contents,
     }
-    debugger;
+    ;
     $.ajax({
         url: "/sound/translateDst",
         data: data,
@@ -108,7 +108,7 @@ $.ajax({
 
 
 var audios = $("audio");
-debugger;
+;
 for (var i = 0; i < audios.length;i++) {
     if ($(audios[i])) {
         // $(audios[i]).on("canplay",function(){
@@ -247,7 +247,7 @@ $(".voiceMp3Failed").on("click",function(){
 
     var content = $(this).parent().find("p").html();
     var contents = content.split(/[.,!\?。，？！]/);
-    debugger;
+    ;
     var index = 0;
     //设置朗读内容和属性
     speech.text = contents[index];
@@ -276,7 +276,7 @@ function translateToENCN2(text) {
     var data = {
         content: text,
     }
-    debugger;
+    ;
     $.ajax({
         url: "/sound/translate",
         data: data,

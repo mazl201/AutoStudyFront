@@ -33,7 +33,7 @@ function translateToENCN1(text) {
     var data = {
         content: text,
     }
-    debugger;
+    ;
     $.ajax({
         url: "/sound/translate",
         data: data,
@@ -49,19 +49,19 @@ function translateToENCN1(text) {
 
 
 $(".voiceButton").on("click", function () {
-    debugger;
+    ;
     var speech = new SpeechSynthesisUtterance();
 
     // speech.onstart = function(event) {
-    //     debugger;
+    //     ;
     //     console.log('The utterance started to be spoken.');
     // };
     // speech.onboundary = function(event) {
-    //     debugger;
+    //     ;
     //     console.log('The utterance started to be spoken.');
     // };
     // speech.onerror = function(event) {
-    //     debugger;
+    //     ;
     //     console.log('The utterance onerror to be spoken.');
     // };
     if ($(".upload-content").val()) {

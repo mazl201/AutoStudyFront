@@ -90,11 +90,7 @@ $.ajax({
 //显示大图
 function showimage1(source)
 {
-    debugger;
-    var image = new Image();
-    image.src = source;
-    var imgNode=document.createElement('img');
-    imgNode.src = source;
+    source = source +"&dateTime="+(new Date()).getMilliseconds();
     $("#ShowImage_Form1").find("#img_show1").html("<image src='"+source+"' class='carousel-inner img-responsive img-rounded' />");
     $("#ShowImage_Form1").modal();
 }

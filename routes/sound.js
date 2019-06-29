@@ -552,6 +552,45 @@ router.get('/img_download', function (req, res, next) {
 });
 
 /* GET home page. */
+router.get('/img_download_big', function (req, res, next) {
+    var request = req;
+    var response = res;
+    var id = ObjectId(req.query.id);
+    // var id = ObjectId('5cefbbd27a2d803bd0cbeb5f');
+    mongoClient.connect("mongodb://106.12.28.10:27017", function (err, connect) {
+        if (err) {
+            console.log("mongodb connect failed");
+        } else {
+
+            var db = connect.db("baidu_split_file");
+            var bucket = new GridFSBucket(db);
+            db.collection("fs.files").find({_id: id}).toArray(function (err, ret) {
+                try {
+                    if (err) {
+                        console.log("mp3 file does not exist");
+                    } else {
+                        var downloadStream = bucket.openDownloadStream(id);
+
+                        res.writeHead(200, {
+                            'Content-Type': 'application/force-download',
+                            'Content-Disposition': 'attachment; filename=' + urlencode( ret[0].filename,"UTF-8"),
+                            'Content-Length': ret[0].length
+                        });
+                        downloadStream.pipe(res);
+
+
+                    }
+                } catch (e) {
+                    console.log(e);
+                }
+            })
+
+        }
+    })
+});
+
+
+/* GET home page. */
 router.get('/img_list_count', function (req, res, next) {
     var content = new Array("1", "2", "3", "4", "5")
     if (req.query && req.query.index) {
