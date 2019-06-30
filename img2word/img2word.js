@@ -179,7 +179,7 @@ try {
 try {
     schedule.scheduleJob('05 * * * * *', function () {
         console.log('scheduleCronstyle:' + new Date());
-        if (dirExists("./public/images/splitImgRotate/")) {
+        if (dirExists("./public/images/splitImgRotate/") && dirExists("./public/images/compress/")) {
             var path = "./public/images/compress/"
             var strings = fs.readdirSync(path);
             if (strings && strings.length > 0) {
