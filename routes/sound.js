@@ -487,6 +487,15 @@ router.post("/baidu_api_down", function (req, res, next) {
     res.end("failed")
 });
 
+router.post("/retry_baidu_api_down", function (req, res, next) {
+    var response = res;
+    if (req.body.content) {
+        word2voice(req.body.content, 3,3,req.body.filename,1,null);
+        res.end("success")
+    }
+    res.end("failed")
+});
+
 /* GET home page. */
 router.get('/img_list', function (req, res, next) {
     var content = new Array("1", "2", "3", "4", "5")

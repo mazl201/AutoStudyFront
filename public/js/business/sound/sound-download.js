@@ -245,31 +245,49 @@ $(".voiceMp3Failed").on("click",function(){
 
     var speech = new SpeechSynthesisUtterance();
 
-    var content = $(this).parent().find("p").html();
-    var contents = content.split(/[.,!\?。，？！]/);
-    ;
-    var index = 0;
-    //设置朗读内容和属性
-    speech.text = contents[index];
-    // $("#contentDis").html(speech.text);
-    translateToENCN2(speech.text);
-    speech.volume = 1;
-    speech.rate = 1;
-    speech.pitch = 1;
-
-    speech.onend = function (event) {
-        index++;
-        if (index >= contents.length) {
-            return;
-        }
+    if(speech){
+        var content = $(this).parent().find("p").html();
+        var contents = content.split(/[.,!\?。，？！]/);
+        ;
+        var index = 0;
+        //设置朗读内容和属性
         speech.text = contents[index];
-
         // $("#contentDis").html(speech.text);
         translateToENCN2(speech.text);
-        window.speechSynthesis.speak(speech);
-    }
+        speech.volume = 1;
+        speech.rate = 1;
+        speech.pitch = 1;
 
-    window.speechSynthesis.speak(speech);
+        speech.onend = function (event) {
+            index++;
+            if (index >= contents.length) {
+                return;
+            }
+            speech.text = contents[index];
+
+            // $("#contentDis").html(speech.text);
+            translateToENCN2(speech.text);
+            window.speechSynthesis.speak(speech);
+        }
+
+        window.speechSynthesis.speak(speech);
+    }else{
+        layer.msg("来自手机 浏览器 尝试重新发起请求");
+        $.ajax({
+            url: "/sound/retry_baidu_api_down",
+            data: {
+                "content":content,
+                "fileame":$(this).parent().find(".submitButton").replace(".mp3","")
+            },
+            type: "POST",
+            // context:null,
+            success: function (res) {
+                if (res) {
+                    window.location.reload();
+                }
+            }
+        })
+    }
 })
 
 function translateToENCN2(text) {
