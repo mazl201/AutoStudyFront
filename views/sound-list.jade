@@ -21,9 +21,11 @@ block content
 
                     unless index.isMp3
                         div(class="tab-h2")
-                            p(class="tab-p") #{index.content}
+                            p(class="tab-p contentvoice") #{index.content}
                             a(href="javascript:void(0)" class='btn voiceMp3Failed') 朗读本段
                             font(size="6" class="contentDis")
+                            a(href="javascript:void(0)" class='btn retryTranslate') 再次翻译
+
                     br
                     if index.fileImgPathId
                         a(href="javascript:void(0)" class='btn left')  左翻转

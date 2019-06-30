@@ -490,10 +490,11 @@ router.post("/baidu_api_down", function (req, res, next) {
 router.post("/retry_baidu_api_down", function (req, res, next) {
     var response = res;
     if (req.body.content) {
-        word2voice(req.body.content, 3,3,req.body.filename,1,null);
-        res.end("success")
+        function callBack(id){
+            res.end(id.toString())
+        }
+        word2voice(req.body.content, 3,3,req.body.filename,1,null,callBack);
     }
-    res.end("failed")
 });
 
 /* GET home page. */

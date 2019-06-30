@@ -14,6 +14,7 @@ function translateToENCN(contents) {
         url: "/sound/translateDst",
         data: data,
         type: "POST",
+        async:true,
         // context:null,
         success: function (res) {
             if (res) {
@@ -59,6 +60,27 @@ function freshAudioContent() {
         calucEnd = contentLength;
     }
     // translateToENCN(content)
+    $($(nowAudio).parent().find(".contentDis")[0]).html(content.substring(calucIndex, calucEnd) + nowEnCnContent.substring(calucIndex, calucEnd));
+}
+
+function freshAudioContent1() {
+    // layer.msg("当前播放进度(实时)" + nowAudio.currentTime);
+    console.log("总长度（实时）" + nowAudio.duration);
+    console.log("总时间" + totalTime);
+    console.log("当前进度" + currentTime);
+    console.log("开始时间" + startTime);
+    console.log("现在时间" + new Date());
+    var content = $($(nowAudio).parent().parent().find(".content")[0]).html();
+    var contentLength = content.length;
+    var calucIndex = parseInt((nowAudio.currentTime / nowAudio.duration) * contentLength) - 10;
+    var calucEnd = (calucIndex + 40)
+    if (calucIndex < 0) {
+        calucIndex = 0;
+    }
+    if (calucEnd > contentLength) {
+        calucEnd = contentLength;
+    }
+    translateToENCN(content)
     $($(nowAudio).parent().find(".contentDis")[0]).html(content.substring(calucIndex, calucEnd) + nowEnCnContent.substring(calucIndex, calucEnd));
 }
 
@@ -138,44 +160,9 @@ for (var i = 0; i < audios.length;i++) {
         //
         // })
         console.log("加载第" + i + "个")
-        $(audios[i]).on("play", function () {
-            var audioName = $(this).attr("name");
-            console.log(audioName + "开始播放")
-            console.log(audioName + "当前播放进度" + this.currentTime)
-            console.log(audioName + "总长度" + this.duration)
-            var number = this.currentTime / this.duration;
-            console.log(audioName + "百分比" + number * 100)
-            var contentLength = $($(this).parent().find(".content")[0]).html().length;
-            console.log(audioName + "目前字数" + parseInt(contentLength * number))
-            currentTime = this.currentTime;
-            totalTime = this.duration;
-            startTime = new Date();
-            nowAudio = this;
-            nowInterval = setInterval(freshAudioContent, 1000);
-            translateToENCN( $($(nowAudio).parent().find(".content")[0]).html());
-        })
-        console.log("加载第" + i + "个，完成")
-        $(audios[i]).on("pause", function () {
-            var audioName = $(this).attr("name");
-            console.log(audioName + "暂停播放")
-            console.log(audioName + "当前播放进度" + this.currentTime)
-            console.log(audioName + "总长度" + this.duration)
-            var number = this.currentTime / this.duration;
-            console.log(audioName + "百分比" + number * 100)
-            var contentLength = $($(this).parent().find(".content")[0]).html().length;
-            console.log(audioName + "目前字数" + parseInt(contentLength * number))
-            var startIndex = 0;
-            var endIndex = 30;
-            clearInterval(nowInterval);
-            nowEnCnContent = "";
-            if (startIndex < 0) {
-                startIndex = 0;
-            }
-            if (endIndex > contentLength) {
-                endIndex = contentLength;
-            }
+        var audioNow = audios[i]
+        initAudioClick(audioNow)
 
-        })
         // $(audios[i]).on("playing", function () {
         //
         // })
@@ -184,6 +171,60 @@ for (var i = 0; i < audios.length;i++) {
 
 }
 
+function initAudioClick(audioNow){
+    $(audioNow).on("play", function () {
+        var audioName = $(this).attr("name");
+        console.log(audioName + "开始播放")
+        console.log(audioName + "当前播放进度" + this.currentTime)
+        console.log(audioName + "总长度" + this.duration)
+        var number = this.currentTime / this.duration;
+        console.log(audioName + "百分比" + number * 100)
+        var contentLength = $($(this).parent().find(".content")[0]).html().length;
+        console.log(audioName + "目前字数" + parseInt(contentLength * number))
+        currentTime = this.currentTime;
+        totalTime = this.duration;
+        startTime = new Date();
+        nowAudio = this;
+        nowInterval = setInterval(freshAudioContent, 1000);
+        translateToENCN( $($(nowAudio).parent().find(".content")[0]).html());
+    })
+    console.log("加载第" + i + "个，完成")
+    $(audioNow).on("pause", function () {
+        var audioName = $(this).attr("name");
+        console.log(audioName + "暂停播放")
+        console.log(audioName + "当前播放进度" + this.currentTime)
+        console.log(audioName + "总长度" + this.duration)
+        var number = this.currentTime / this.duration;
+        console.log(audioName + "百分比" + number * 100)
+        var contentLength = $($(this).parent().find(".content")[0]).html().length;
+        console.log(audioName + "目前字数" + parseInt(contentLength * number))
+        var startIndex = 0;
+        var endIndex = 30;
+        clearInterval(nowInterval);
+        nowEnCnContent = "";
+        if (startIndex < 0) {
+            startIndex = 0;
+        }
+        if (endIndex > contentLength) {
+            endIndex = contentLength;
+        }
+
+    })
+}
+
+function initAudioClick1(audioNow){
+    $(audioNow).on("play", function () {
+
+        nowAudio = this;
+        nowInterval = setInterval(freshAudioContent1, 1000);
+        translateToENCN( $($(nowAudio).parent().find(".contentvoice")[0]).html());
+    })
+    console.log("加载第" + i + "个，完成")
+    $(audioNow).on("pause", function () {
+        clearInterval(nowInterval);
+        nowEnCnContent = "";
+    })
+}
 //显示大图
 function showimage(source) {
     $("#ShowImage_Form").find("#img_show").html("<image src='" + source + "' class='carousel-inner img-responsive img-rounded' />");
@@ -257,6 +298,28 @@ $(".flushAllButton").on("click", function () {
 })
 
 var nowContentDis;
+var nowRetry;
+$(".retryTranslate").on("click",function(){
+    layer.msg("来自手机 浏览器 尝试重新发起请求");
+    nowRetry = this;
+    $.ajax({
+        url: "/sound/retry_baidu_api_down",
+        data: {
+            "content": $(this).parent().find("p").html(),
+            "fileame":$(this).parent().parent().find(".submitButton").html().replace(".mp3","")
+        },
+        type: "POST",
+        // context:null,
+        success: function (res) {
+            if (res) {
+               $(nowRetry).parent().append("<audio src=\"mp3_download?id="+ res+"\" name=\"temperarory  2019-06-30 13:55:29.mp3\" controls=\"\">undefined@@000000  2019-06-30 13:55:29.mp3</audio>");
+                $(nowRetry).remove();
+                var find = $(nowRetry).parent().find("audio");
+                initAudioClick1(find);
+            }
+        }
+    })
+})
 
 $(".voiceMp3Failed").on("click",function(){
     nowContentDis = $(this).parent().find(".contentDis");
@@ -290,21 +353,7 @@ $(".voiceMp3Failed").on("click",function(){
 
         window.speechSynthesis.speak(speech);
     }else{
-        layer.msg("来自手机 浏览器 尝试重新发起请求");
-        $.ajax({
-            url: "/sound/retry_baidu_api_down",
-            data: {
-                "content":content,
-                "fileame":$(this).parent().find(".submitButton").replace(".mp3","")
-            },
-            type: "POST",
-            // context:null,
-            success: function (res) {
-                if (res) {
-                    window.location.reload();
-                }
-            }
-        })
+
     }
 })
 
