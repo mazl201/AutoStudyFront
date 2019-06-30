@@ -493,7 +493,7 @@ router.post("/retry_baidu_api_down", function (req, res, next) {
         function callBack(id){
             res.end(id.toString())
         }
-        word2voice(req.body.content, 3,3,req.body.filename,1,null,callBack);
+        word2voice(req.body.content, 3,3,req.body.filename.split(/\s+/g)[0],1,null,callBack);
     }
 });
 

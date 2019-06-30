@@ -306,14 +306,14 @@ $(".retryTranslate").on("click",function(){
         url: "/sound/retry_baidu_api_down",
         data: {
             "content": $(this).parent().find("p").html(),
-            "fileame":$(this).parent().parent().find(".submitButton").html().replace(".mp3","")
+            "filename":$(this).parent().parent().find(".submitButton").html().replace(".mp3","")
         },
         type: "POST",
         // context:null,
         success: function (res) {
             if (res) {
                $(nowRetry).parent().append("<audio src=\"mp3_download?id="+ res+"\" name=\"temperarory  2019-06-30 13:55:29.mp3\" controls=\"\">undefined@@000000  2019-06-30 13:55:29.mp3</audio>");
-                $(nowRetry).remove();
+                // $(nowRetry).remove();
                 var find = $(nowRetry).parent().find("audio");
                 initAudioClick1(find);
             }
