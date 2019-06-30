@@ -23,6 +23,24 @@ function translateToENCN(contents) {
     })
 }
 
+function browserRedirect() {
+    var sUserAgent = navigator.userAgent.toLowerCase();
+    var bIsIpad = sUserAgent.match(/ipad/i) == "ipad";
+    var bIsIphoneOs = sUserAgent.match(/iphone os/i) == "iphone os";
+    var bIsMidp = sUserAgent.match(/midp/i) == "midp";
+    var bIsUc7 = sUserAgent.match(/rv:1.2.3.4/i) == "rv:1.2.3.4";
+    var bIsUc = sUserAgent.match(/ucweb/i) == "ucweb";
+    var bIsAndroid = sUserAgent.match(/android/i) == "android";
+    var bIsCE = sUserAgent.match(/windows ce/i) == "windows ce";
+    var bIsWM = sUserAgent.match(/windows mobile/i) == "windows mobile";
+    document.writeln("您的浏览设备为：");
+    if (bIsIpad || bIsIphoneOs || bIsMidp || bIsUc7 || bIsUc || bIsAndroid || bIsCE || bIsWM) {
+        return "phone";
+    } else {
+        return "pc"
+    }
+}
+
 function freshAudioContent() {
     // layer.msg("当前播放进度(实时)" + nowAudio.currentTime);
     console.log("总长度（实时）" + nowAudio.duration);
@@ -245,7 +263,7 @@ $(".voiceMp3Failed").on("click",function(){
 
     var speech = new SpeechSynthesisUtterance();
 
-    if(speech){
+    if(browserRedirect() == "pc"){
         var content = $(this).parent().find("p").html();
         var contents = content.split(/[.,!\?。，？！]/);
         ;
