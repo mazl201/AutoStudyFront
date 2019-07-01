@@ -5,6 +5,18 @@ var nowAudio;
 var nowInterval;
 var nowEnCnContent;
 
+document.addEventListener('copy', function(event){
+    setClipboardText(event);
+});
+
+//处理单词
+function setClipboardText(event){
+    event.preventDefault();
+    var result = window.getSelection(0).toString();
+
+    layer.msg(result);
+};
+
 function translateToENCN(contents) {
     var data = {
             content: contents,
