@@ -14,6 +14,17 @@ function setClipboardText(event){
     event.preventDefault();
     var result = window.getSelection(0).toString();
 
+    $.ajax({
+        url: "/sound/translateEnEn",
+        data: {word:result},
+        type: "POST",
+        async: true,
+        success: function (res) {
+            if (res) {
+               layer.msg(result+"***"+res);
+            }
+        }
+    })
     layer.msg(result);
 };
 
@@ -74,8 +85,15 @@ function freshAudioContent1() {
     if (calucEnd > contentLength) {
         calucEnd = contentLength;
     }
-    translateToENCN(content)
-    $($(nowAudio).parent().find(".contentDis")[0]).html(content.substring(calucIndex, calucEnd) + nowEnCnContent.substring(calucIndex, calucEnd));
+
+    var calucEnd1 = (calucIndex + 60)
+    if (calucIndex < 0) {
+        calucIndex = 0;
+    }
+    if (calucEnd1 > contentLength) {
+        calucEnd1 = contentLength;
+    }
+    $($(nowAudio).parent().find(".contentDis")[0]).html(content.substring(calucIndex, calucEnd) + nowEnCnContent.substring(calucIndex, calucEnd1));
 }
 
 
@@ -210,6 +228,7 @@ function initAudioClick1(audioNow) {
     $(audioNow).on("play", function () {
 
         nowAudio = this;
+        // translateToENCN(content)
         nowInterval = setInterval(freshAudioContent1, 1000);
         translateToENCN($($(nowAudio).parent().find(".contentvoice")[0]).html());
     })
@@ -303,7 +322,6 @@ $(".retryTranslate").on("click", function () {
             "filename": $(this).parent().parent().find(".submitButton").html().replace(".mp3", "")
         },
         type: "POST",
-        // context:null,
         success: function (res) {
             if (res) {
                 $(nowRetry).parent().append("<audio src=\"mp3_download?id=" + res + "\" name=\"temperarory  2019-06-30 13:55:29.mp3\" controls=\"\">undefined@@000000  2019-06-30 13:55:29.mp3</audio>");
@@ -313,6 +331,15 @@ $(".retryTranslate").on("click", function () {
             }
         }
     })
+})
+
+$(".allFailedFlush").on("click",function(){
+    var $retryTranslate = $(".retryTranslate");
+    if($retryTranslate){
+        for(var i = 0;i<$retryTranslate.length-1;i++){
+            $($retryTranslate[i]).click();
+        }
+    }
 })
 
 $(".voiceMp3Failed").on("click", function () {

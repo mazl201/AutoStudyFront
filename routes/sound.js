@@ -329,9 +329,9 @@ router.post("/translateDst", function (req, res, next) {
     }
 })
 
-router.post("/translateDst", function (req, res, next) {
-    if (req.body && req.body.content) {
-        var content = req.body.content;
+router.post("/translateEnEn", function (req, res, next) {
+    if (req.body && req.body.word) {
+        var content = req.body.word;
         crypto.randomBytes(16, function (ex, buf) {
             if (ex) throw ex;
             var salt = buf.toString('hex');
@@ -374,52 +374,45 @@ router.post("/translateDst", function (req, res, next) {
                             var to = "";
                             if (eval("(" + body + ")").data.src == "en") {
                                 from = "en";
-                                to = "cn"
-                            } else if (eval("(" + body + ")").data.src == "zh") {
-                                from = "zh";
-                                to = "en";
-                            } else {
-                                res.end("当前不支持其他语言转换");
-                                return;
+                                to = "zh"
+
+                                var requestTO = request1({
+                                    url: "http://api.fanyi.baidu.com/api/trans/vip/translate?" + "q=" + urlencode(content, "UTF-8") + "&from=" + from + "&to=" + to + "&appid=20190626000310542&salt=" + salt + "&sign=" + sign,
+                                    method: 'GET',
+                                    timeout: 5000,
+                                    headers: {
+                                        'Content-Type': 'application/x-www-form-urlencoded'
+                                    },
+                                }, function (err, response, body) {
+                                    if (err) {
+                                        console.log("baidu translate failed")
+                                    } else {
+                                        try {
+                                            console.log("start receive translate result");
+                                            if (body && eval("(" + body + ")").trans_result && eval("(" + body + ")").trans_result.length > 0) {
+                                                res.end(eval("(" + body + ")").trans_result[0].dst)
+                                            }
+                                        } catch (e) {
+                                            console.log("返回结果，取不到对应值");
+                                        }
+                                    }
+                                });
+
+                                requestTO.on("end", function (data) {
+                                    console.log("log started ")
+                                })
                             }
 
-                            var requestTO = request1({
-                                url: "http://api.fanyi.baidu.com/api/trans/vip/translate?" + "q=" + urlencode(content, "UTF-8") + "&from=" + from + "&to=" + to + "&appid=20190626000310542&salt=" + salt + "&sign=" + sign,
-                                method: 'GET',
-                                timeout: 5000,
-                                headers: {
-                                    'Content-Type': 'application/x-www-form-urlencoded'
-                                },
-                            }, function (err, response, body) {
-                                if (err) {
-                                    console.log("baidu translate failed")
-                                } else {
-                                    try {
-                                        console.log("start receive translate result");
-                                        if (body && eval("(" + body + ")").trans_result && eval("(" + body + ")").trans_result.length > 0) {
-                                            res.end(eval("(" + body + ")").trans_result[0].dst)
-                                        }
-                                    } catch (e) {
-                                        console.log("返回结果，取不到对应值");
-                                    }
-                                }
-                            });
 
-                            requestTO.on("end", function (data) {
-                                console.log("log started ")
-                            })
                         }
                     } catch (e) {
                         console.log("返回结果，取不到对应值");
                     }
                 }
             });
-
             request2.on("end", function (data) {
                 console.log("log started ")
             })
-
-
         });
     }
 })
@@ -479,13 +472,13 @@ router.get("/clearAll", function (req, res, next) {
                                         if (err) {
                                             console.log("can't find fs.files")
                                         } else {
-                                            fs.unlink(retImg[0].path, function (err, result) {
-                                                if (err) {
-                                                    console.log("delete compress file again")
-                                                } else {
-                                                    console.log("delete compress file again success")
-                                                }
-                                            })
+                                            // fs.unlink(retImg[0].path, function (err, result) {
+                                            //     if (err) {
+                                            //         console.log("delete compress file again")
+                                            //     } else {
+                                            //         console.log("delete compress file again success")
+                                            //     }
+                                            // })
                                             collection.remove({_id: retImg[0]._id}, function (err, ret) {
                                                 if (err) {
                                                     console.log("删除图片 文件 失败");
@@ -588,7 +581,7 @@ router.post("/retry_baidu_api_down", function (req, res, next) {
         function callBack(id){
             res.end(id.toString())
         }
-        word2voice(req.body.content, 3,3,req.body.filename.split(/\s+/g)[0],1,null,callBack);
+        word2voice(req.body.content, 3,3,req.body.filename.trim().split(/\s+/g)[0],1,null,callBack);
     }
 });
 
