@@ -131,8 +131,9 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg,callback) {
             }else{
                 sendMsg("failed word 2 voice txt don't have content");
             }
-
-            callback("");
+            if(callback){
+                callback("");
+            }
         }
         if (length > splitNum) {
             //0 2048
@@ -195,7 +196,9 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg,callback) {
 
                                         var license = fs.readFileSync(path);
                                         var id = openUploadStream.id;
-                                        callback(id);
+                                        if(callback){
+                                            callback(id);
+                                        }
                                         openUploadStream.once('finish', function () {
                                             var chunksColl = db.collection('fs.files');
                                             var chunksQuery = chunksColl.find({_id: id});

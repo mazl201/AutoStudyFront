@@ -7,14 +7,14 @@ var nowEnCnContent;
 
 function translateToENCN(contents) {
     var data = {
-        content: contents,
-    }
+            content: contents,
+        }
     ;
     $.ajax({
         url: "/sound/translateDst",
         data: data,
         type: "POST",
-        async:true,
+        async: true,
         // context:null,
         success: function (res) {
             if (res) {
@@ -22,24 +22,6 @@ function translateToENCN(contents) {
             }
         }
     })
-}
-
-function browserRedirect() {
-    var sUserAgent = navigator.userAgent.toLowerCase();
-    var bIsIpad = sUserAgent.match(/ipad/i) == "ipad";
-    var bIsIphoneOs = sUserAgent.match(/iphone os/i) == "iphone os";
-    var bIsMidp = sUserAgent.match(/midp/i) == "midp";
-    var bIsUc7 = sUserAgent.match(/rv:1.2.3.4/i) == "rv:1.2.3.4";
-    var bIsUc = sUserAgent.match(/ucweb/i) == "ucweb";
-    var bIsAndroid = sUserAgent.match(/android/i) == "android";
-    var bIsCE = sUserAgent.match(/windows ce/i) == "windows ce";
-    var bIsWM = sUserAgent.match(/windows mobile/i) == "windows mobile";
-    document.writeln("您的浏览设备为：");
-    if (bIsIpad || bIsIphoneOs || bIsMidp || bIsUc7 || bIsUc || bIsAndroid || bIsCE || bIsWM) {
-        return "phone";
-    } else {
-        return "pc"
-    }
 }
 
 function freshAudioContent() {
@@ -149,7 +131,7 @@ $.ajax({
 
 var audios = $("audio");
 ;
-for (var i = 0; i < audios.length;i++) {
+for (var i = 0; i < audios.length; i++) {
     if ($(audios[i])) {
         // $(audios[i]).on("canplay",function(){
         //     var audioName = $(this).attr("name");
@@ -171,7 +153,7 @@ for (var i = 0; i < audios.length;i++) {
 
 }
 
-function initAudioClick(audioNow){
+function initAudioClick(audioNow) {
     $(audioNow).on("play", function () {
         var audioName = $(this).attr("name");
         console.log(audioName + "开始播放")
@@ -186,7 +168,7 @@ function initAudioClick(audioNow){
         startTime = new Date();
         nowAudio = this;
         nowInterval = setInterval(freshAudioContent, 1000);
-        translateToENCN( $($(nowAudio).parent().find(".content")[0]).html());
+        translateToENCN($($(nowAudio).parent().find(".content")[0]).html());
     })
     console.log("加载第" + i + "个，完成")
     $(audioNow).on("pause", function () {
@@ -212,12 +194,12 @@ function initAudioClick(audioNow){
     })
 }
 
-function initAudioClick1(audioNow){
+function initAudioClick1(audioNow) {
     $(audioNow).on("play", function () {
 
         nowAudio = this;
         nowInterval = setInterval(freshAudioContent1, 1000);
-        translateToENCN( $($(nowAudio).parent().find(".contentvoice")[0]).html());
+        translateToENCN($($(nowAudio).parent().find(".contentvoice")[0]).html());
     })
     console.log("加载第" + i + "个，完成")
     $(audioNow).on("pause", function () {
@@ -299,20 +281,20 @@ $(".flushAllButton").on("click", function () {
 
 var nowContentDis;
 var nowRetry;
-$(".retryTranslate").on("click",function(){
+$(".retryTranslate").on("click", function () {
     layer.msg("来自手机 浏览器 尝试重新发起请求");
     nowRetry = this;
     $.ajax({
         url: "/sound/retry_baidu_api_down",
         data: {
             "content": $(this).parent().find("p").html(),
-            "filename":$(this).parent().parent().find(".submitButton").html().replace(".mp3","")
+            "filename": $(this).parent().parent().find(".submitButton").html().replace(".mp3", "")
         },
         type: "POST",
         // context:null,
         success: function (res) {
             if (res) {
-               $(nowRetry).parent().append("<audio src=\"mp3_download?id="+ res+"\" name=\"temperarory  2019-06-30 13:55:29.mp3\" controls=\"\">undefined@@000000  2019-06-30 13:55:29.mp3</audio>");
+                $(nowRetry).parent().append("<audio src=\"mp3_download?id=" + res + "\" name=\"temperarory  2019-06-30 13:55:29.mp3\" controls=\"\">undefined@@000000  2019-06-30 13:55:29.mp3</audio>");
                 // $(nowRetry).remove();
                 var find = $(nowRetry).parent().find("audio");
                 initAudioClick1(find);
@@ -321,46 +303,42 @@ $(".retryTranslate").on("click",function(){
     })
 })
 
-$(".voiceMp3Failed").on("click",function(){
+$(".voiceMp3Failed").on("click", function () {
     nowContentDis = $(this).parent().find(".contentDis");
 
     var speech = new SpeechSynthesisUtterance();
 
-    if(browserRedirect() == "pc"){
-        var content = $(this).parent().find("p").html();
-        var contents = content.split(/[.,!\?。，？！]/);
-        ;
-        var index = 0;
-        //设置朗读内容和属性
+    var content = $(this).parent().find("p").html();
+    var contents = content.split(/[.,!\?。，？！]/);
+    ;
+    var index = 0;
+    //设置朗读内容和属性
+    speech.text = contents[index];
+    // $("#contentDis").html(speech.text);
+    translateToENCN2(speech.text);
+    speech.volume = 1;
+    speech.rate = 1;
+    speech.pitch = 1;
+
+    speech.onend = function (event) {
+        index++;
+        if (index >= contents.length) {
+            return;
+        }
         speech.text = contents[index];
+
         // $("#contentDis").html(speech.text);
         translateToENCN2(speech.text);
-        speech.volume = 1;
-        speech.rate = 1;
-        speech.pitch = 1;
-
-        speech.onend = function (event) {
-            index++;
-            if (index >= contents.length) {
-                return;
-            }
-            speech.text = contents[index];
-
-            // $("#contentDis").html(speech.text);
-            translateToENCN2(speech.text);
-            window.speechSynthesis.speak(speech);
-        }
-
         window.speechSynthesis.speak(speech);
-    }else{
-
     }
+
+    window.speechSynthesis.speak(speech);
 })
 
 function translateToENCN2(text) {
     var data = {
-        content: text,
-    }
+            content: text,
+        }
     ;
     $.ajax({
         url: "/sound/translate",
