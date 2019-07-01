@@ -68,8 +68,15 @@ function freshAudioContent() {
     if (calucEnd > contentLength) {
         calucEnd = contentLength;
     }
+    var calucEnd1 = (calucIndex + 100)
+    if (calucIndex < 0) {
+        calucIndex = 0;
+    }
+    if (calucEnd1 > contentLength) {
+        calucEnd1 = contentLength;
+    }
     // translateToENCN(content)
-    $($(nowAudio).parent().find(".contentDis")[0]).html(content.substring(calucIndex, calucEnd) + nowEnCnContent.substring(calucIndex, calucEnd));
+    $($(nowAudio).parent().find(".contentDis")[0]).html(content.substring(calucIndex, calucEnd) + nowEnCnContent.substring(calucIndex, calucEnd1));
 }
 
 function freshAudioContent1() {
@@ -90,7 +97,7 @@ function freshAudioContent1() {
         calucEnd = contentLength;
     }
 
-    var calucEnd1 = (calucIndex + 60)
+    var calucEnd1 = (calucIndex + 100)
     if (calucIndex < 0) {
         calucIndex = 0;
     }
