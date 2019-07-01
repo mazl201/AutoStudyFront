@@ -196,9 +196,7 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg,callback) {
 
                                         var license = fs.readFileSync(path);
                                         var id = openUploadStream.id;
-                                        if(callback){
-                                            callback(id);
-                                        }
+
                                         openUploadStream.once('finish', function () {
                                             var chunksColl = db.collection('fs.files');
                                             var chunksQuery = chunksColl.find({_id: id});
@@ -241,6 +239,9 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg,callback) {
                                                     }
                                                     chunksColl.update({_id:id},{$set:{filename:updateFileName+".mp3","content":content}},function(err,result){
                                                         console.log(result);
+                                                        if(callback){
+                                                            callback(id);
+                                                        }
                                                     })
 
                                                     fs.unlink(path, function (err) {

@@ -21,7 +21,11 @@ function setClipboardText(event){
         async: true,
         success: function (res) {
             if (res) {
-               layer.msg(result+"***"+res);
+               layer.msg(result+"---"+res,{
+                   icon: 6,
+                   time: 10000, //2秒关闭（如果不配置，默认是3秒）
+                   offset: ['10px', '10px']
+               })
             }
         }
     })
