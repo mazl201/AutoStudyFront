@@ -76,7 +76,7 @@ function freshAudioContent() {
         calucEnd1 = contentLength;
     }
     // translateToENCN(content)
-    $($(nowAudio).parent().find(".contentDis")[0]).html(content.substring(calucIndex, calucEnd) + nowEnCnContent.substring(calucIndex, calucEnd1));
+    $($(nowAudio).parent().find(".contentDis")[0]).html(content.substring(calucIndex, calucEnd) +"<br>"+ nowEnCnContent.substring(calucIndex, calucEnd1));
 }
 
 function freshAudioContent1() {
@@ -104,7 +104,7 @@ function freshAudioContent1() {
     if (calucEnd1 > contentLength) {
         calucEnd1 = contentLength;
     }
-    $($(nowAudio).parent().find(".contentDis")[0]).html(content.substring(calucIndex, calucEnd) + nowEnCnContent.substring(calucIndex, calucEnd1));
+    $($(nowAudio).parent().find(".contentDis")[0]).html(content.substring(calucIndex, calucEnd) +"<br>"+ nowEnCnContent.substring(calucIndex, calucEnd1));
 }
 
 

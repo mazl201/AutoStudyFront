@@ -599,7 +599,7 @@ router.get('/img_list', function (req, res, next) {
             console.log("mongodb connect failed");
         } else {
             var collection = connect.db("baidu_split_file").collection("fs.files");
-            collection.find({}).sort({filename: -1}).skip((pageIndex - 1) * 10).limit(10).toArray(function (err, ret) {
+            collection.find({}).sort({filename: 1}).skip((pageIndex - 1) * 10).limit(10).toArray(function (err, ret) {
                 if (err) {
                     console.log("query mongodb baidu_voice.mp3_list failed");
                 } else {

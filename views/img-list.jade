@@ -9,13 +9,13 @@ block content
 
         ul.home.post-list
             each index in content
-                div
+                div(class="tab-h2")
                     font(size="6",font-family:"STKaiti" class="contentDis")
                     font(size="3",font-family:"STKaiti" hidden class="content") #{index.content}
                     br
                     a(href="javascript:void(0)" class='button submitButton')  #{index.filename}
                     a(href="javascript:void(0)" class='button deleteButton')  删除
-                    p(class='ids') #{index._id}
+                    p(class='ids' hidden) #{index._id}
                     br
                     a(href="javascript:void(0)" class='button left')  左翻转
                     a(href="javascript:void(0)" class='button right')  右翻转
