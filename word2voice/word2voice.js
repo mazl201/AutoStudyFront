@@ -66,7 +66,7 @@ function pathImgFailedTxtUpload(pathTxt,fileName,pathImg,originContent) {
                             }
                             return "delete  compress txt file success";
                         })
-                        chunksColl.update({_id:id},{$set:{filename:fileName+".txt","content":originContent}},function(err,result){
+                        chunksColl.update({_id:id},{$set:{filename:fileName+".txt","content":originContent,"originFileName":fileName}},function(err,result){
                             console.log(result);
                         })
                         //插入 上传图片
@@ -118,7 +118,7 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg,callback) {
         if(retrys > 5){
             console.log("已经重试5次"+filename)
             // console.log(originContent);
-            var fileName =filename +".txt";
+            var fileName =filename +"  "+ dateformat(new Date(), "yyyy-mm-dd HH:MM:ss");
             var path2 = "./public/failedTxt/"+uuid()+".txt";
             if(originContent){
                 fs.writeFile(path2,originContent,function(err, ret){
@@ -237,7 +237,7 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg,callback) {
                                                             fileReadStream1.pipe(openUploadStream1)
                                                         })
                                                     }
-                                                    chunksColl.update({_id:id},{$set:{filename:updateFileName+".mp3","content":content}},function(err,result){
+                                                    chunksColl.update({_id:id},{$set:{filename:updateFileName+".mp3","content":content,originFileName:filename}},function(err,result){
                                                         console.log(result);
                                                         if(callback){
                                                             callback(id);
