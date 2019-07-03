@@ -7,13 +7,13 @@ extends layout
 block content
     div.demo
         div.container
-            each index in content
-                div.row
+            div.row
+                each index in content
                     div(class="col-md-3 col-sm-6")
                         div.counter
                             div.counter-content
                                 div.counter-icon(class="fa fa-globe")
-                                    span.counter-value #{index.counts}
+                                    span.counter-value #{index.countss}
                                 h3.title #{index._id}
 
     //div(class="thumbnail")

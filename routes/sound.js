@@ -759,12 +759,20 @@ router.get('/', function (req, res, next) {
             console.log("mongodb connect failed");
         } else {
             var collection = connect.db("baidu_voice").collection("fs.files");
-            collection.aggregate({"$group" : {_id:"$originFileName", counts:{$sum:1}}},function (err, ret) {
+            collection.aggregate({"$group" : {_id:"$originFileName", countss:{$sum:1}}},function (err, ret) {
                 if (err) {
                     console.log("query mongodb baidu_voice.mp3_list failed");
                 } else {
+                    var array = new Array();
 
-                    res.render('tabView', {title: '解放你的双手', content: ret});
+                    // ret.each(function(err,item){
+                    //     array.add(item);
+                    // })
+                    ret.toArray(function(err, items) {
+                        console.log("count: " + items.length);
+                        res.render('tabView', {title: '解放你的双手', content: items});
+                    });
+
                 }
             })
         }
