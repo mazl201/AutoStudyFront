@@ -222,31 +222,39 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg,callback) {
                                                 } else {
                                                     //插入 上传图片
                                                     if(pathImg){
-                                                        fs.stat(pathImg,function(err,res){
-                                                            if(err){
-                                                                console.log(err);
-                                                                return;
-                                                            }
-                                                            var gridFSdb1 = new GridFSBucket(db);
-                                                            var fileReadStream1 = fs.createReadStream(pathImg);
-                                                            var openUploadStream1 = gridFSdb1.openUploadStream(pathImg);
+                                                        let promiseImgFile = new Promise(function(resolve, reject){
+                                                            fs.stat(pathImg,function(err,res){
+                                                                if(err){
+                                                                    console.log(err);
+                                                                    return;
+                                                                }
+                                                                var gridFSdb1 = new GridFSBucket(db);
+                                                                var fileReadStream1 = fs.createReadStream(pathImg);
+                                                                var openUploadStream1 = gridFSdb1.openUploadStream(pathImg);
 
-                                                            var license = fs.readFileSync(pathImg);
-                                                            var idImg = openUploadStream1.id;
-                                                            openUploadStream1.once('finish',function(){
-                                                                chunksColl.update({_id:id},{$set:{fileImgPathId:idImg,path:pathImg}},function(err,result){
-                                                                    console.log(result);
+                                                                var license = fs.readFileSync(pathImg);
+                                                                var idImg = openUploadStream1.id;
+                                                                openUploadStream1.once('finish',function(){
+                                                                    chunksColl.update({_id:id},{$set:{fileImgPathId:idImg,path:pathImg}},function(err,result){
+                                                                        console.log(result);
+                                                                        resolve("success");
+                                                                    })
+
+                                                                    fs.unlink(pathImg,function(err,result){
+                                                                        if(err){
+                                                                            console.log("delete compress image file failed")
+                                                                            return;
+                                                                        }
+                                                                        return "delete  compress image file success";
+                                                                    })
                                                                 })
-                                                                fs.unlink(pathImg,function(err,result){
-                                                                    if(err){
-                                                                        console.log("delete compress image file failed")
-                                                                        return;
-                                                                    }
-                                                                    return "delete  compress image file success";
-                                                                })
+                                                                fileReadStream1.pipe(openUploadStream1)
                                                             })
-                                                            fileReadStream1.pipe(openUploadStream1)
-                                                        })
+                                                        });
+                                                        let waitImgFile = async function(){
+                                                            let successImgFile = await  promiseImgFile;
+                                                            console.log(successImgFile+"imgFileUploadSuccess");
+                                                        }
                                                     }
                                                     chunksColl.update({_id:id},{$set:{filename:updateFileName+".mp3","content":content,originFileName:filename}},function(err,result){
                                                         console.log(result);
