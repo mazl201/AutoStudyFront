@@ -1,0 +1,53 @@
+extends layout
+
+block content
+    section.container
+        a(href="javascript:void(0)" class='button clearAllButton')  清空当前页
+        br
+        br
+        a(href="javascript:void(0)" class='button flushAllButton')  刷新
+
+        a(href="javascript:void(0)" class='button allFailedFlush')  刷新失败
+
+        ul.home.post-list
+            each index in content
+                div(class="tab-h2")
+                    p(size="6",font-family:"STKaiti" class="tab-p contentDis")
+                    font(size="3",font-family:"STKaiti" hidden class="content") #{index.content}
+                    br
+                    a(href="javascript:void(0)" class='btn submitButton')  #{index.filename}
+                    a(href="javascript:void(0)" class='btn deleteButton')  删除
+                    p(class='ids') #{index._id}
+                    if index.isMp3
+                        audio(src="mp3_download?id=#{index._id}" name='#{index.filename}' controls ) #{index.filename}
+
+                    unless index.isMp3
+                        div(class="tab-h2")
+                            p(class="tab-p contentvoice") #{index.content}
+                            a(href="javascript:void(0)" class='btn voiceMp3Failed') 朗读本段
+                            p(size="6" class="tab-p contentDis")
+                            a(href="javascript:void(0)" class='btn retryTranslate') 再次翻译
+
+                    br
+                    if index.fileImgPathId
+                        a(href="javascript:void(0)" class='btn left')  左翻转
+                        a(href="javascript:void(0)" class='btn right')  右翻转
+                        a(href="javascript:void(0)" class='btn vertical')  翻转
+                        a(href="javascript:void(0)" class='btn origin')  复原
+                        br
+                        br
+                        br
+                        img(class="imgCamera" src='mp3_download?id=#{index.fileImgPathId}' onmouseover="this.style.cursor='pointer';this.style.cursor='hand'" onmouseout="this.style.cursor='default'"   onclick="javascript:showimage('mp3_download?id=#{index.fileImgPathId}');")
+
+                        div(id="ShowImage_Form" class="modal hide")
+                            div.modal-header
+                                button(class="close" data-dismiss="modal" type="button")
+                            div.modal-body
+                            div(id="img_show")
+
+                    br
+        a(href="javascript:void(0)" class='button clearAllButton')  清空当前页
+        ul.pagination( id="pagination")
+block append scripts
+    //script(type="text/javascript" src='https://code.jquery.com/jquery-3.4.1.min.js')
+    script(type="text/javascript" src='/js/business/sound/sound-download.js')
