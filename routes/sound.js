@@ -605,7 +605,7 @@ router.get('/img_list', function (req, res, next) {
             var collection = connect.db("baidu_split_file").collection("fs.files");
             collection.find({}).sort({filename: 1}).skip((pageIndex - 1) * 10).limit(10).toArray(function (err, ret) {
                 if (err) {
-                    console.log("query mongodb baidu_voice.mp3_list failed");
+                    console.log("query mongodb baidu_voice.img_list failed");
                 } else {
                     res.render('img-list', {title: 'sound-upload-transferword-to-mp3', content: ret});
                 }
@@ -733,7 +733,7 @@ router.get('/mp3_list', function (req, res, next) {
             console.log("mongodb connect failed");
         } else {
             var collection = connect.db("baidu_voice").collection("fs.files");
-            collection.find({content: {$ne: null}}).sort({filename: 1}).skip((pageIndex - 1) * 5).limit(5).toArray(function (err, ret) {
+            collection.find({content: {$ne: null},"fileImgPathId":null}).sort({filename: 1}).skip((pageIndex - 1) * 5).limit(5).toArray(function (err, ret) {
                 if (err) {
                     console.log("query mongodb baidu_voice.mp3_list failed");
                 } else {
@@ -748,7 +748,6 @@ router.get('/mp3_list', function (req, res, next) {
                 }
             })
         }
-
     })
 });
 

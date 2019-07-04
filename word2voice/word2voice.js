@@ -4,6 +4,8 @@ var AipSpeechClient = require("baidu-aip-sdk").speech;
 var HttpClient = require("baidu-aip-sdk").HttpClient;
 var uuid = require("uuid");
 var fs = require("fs");
+//加载redis
+var redisClient = require("../utils/redis");
 var sendMsg = require("../kafkautils/kafka-producer");
 var require1 = require("../kafkautils/kafka-consumer");
 var dateformat = require("dateformat");
@@ -162,6 +164,15 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg,callback) {
                     updateFileName = filename+"@@"+pad(index,6);
                     updateFileName = updateFileName +"  "+ dateformat(new Date(), "yyyy-mm-dd HH:MM:ss");
                 }
+                let demo = async function(){
+                    if(pathImg){
+                        let nowIndex = await redisClient.getNowDayIncr();
+                        updateFileName = filename+"@@"+pad(nowIndex,6);
+                        console.log(nowIndex);
+                    }
+                }
+                demo();
+
                 var content = splitConten;
                 var options = {spd:spd,per:per}
                 //正则表达式

@@ -9,6 +9,9 @@ var lock = new async();
 var schedule = require("node-schedule");
 var sendMsg = require("../kafkautils/kafka-producer");
 var mongoClient = require("mongodb").MongoClient;
+//加载redis
+var redisClient = require("../utils/redis");
+var dateformat = require("dateformat");
 
 var APP_ID = '16329044'
 var API_KEY = 'um4CpIw5abD8si05UUU7bGOg';
@@ -17,7 +20,7 @@ var client = new ocr(APP_ID, API_KEY, SECRET_KEY);
 // var images = require("images");
 var gm = require("gm");
 var getPixels = require("get-pixels");
-var dateformat = require("dateformat");
+
 var word2voice = require("../word2voice/word2voice");
 
 
@@ -205,7 +208,7 @@ try {
                             sendMsg("开始，文字转语音");
                             var path = "./public/images/compress/" + fileName;
                             lock.acquire("word2voice", function () {
-                                word2voice(content, 3, 3, dateformat(new Date(), "yyyy-mm-dd HH:MM:ss"), 0, path)
+                                word2voice(content, 3, 3, dateformat(new Date(), "yyyy-mm-dd"), 0, path)
                             });
                         }
                     }).catch(function (err) {
