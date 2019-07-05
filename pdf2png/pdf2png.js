@@ -106,7 +106,7 @@ exports.convert = function() {
 
 		getPageCount(function(resp2) {
 			// get temporary filepath
-			for(var i = 1; i <= resp2.data; i++){
+			for(var i = 1; i <= 80; i++){
 
 				var result = new Object();
 				result.data = [];
