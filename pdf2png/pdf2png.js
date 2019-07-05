@@ -65,7 +65,7 @@ function getImage(callback, options, imageFilepath, resp, i){
 
 		// Remove temp file
 		console.log(imageFilepath);
-		fs.unlink(imageFilepath);
+		fs.unlinkSync(imageFilepath);
 
 		callback({ success: true, data: img, number: i });
 	});
