@@ -98,6 +98,11 @@ router.post('/uploadFile', upload.single('file_data'), function (req, res, next)
                     });
                 });
             }
+
+            file['newfilename'] = '${file.filename}.${suffix}';
+            ret['file'] = file;
+            ret['error'] = ""
+            res.send(ret);
             // var pdfParser = new PDFParser(this, 1);
             // pdfParser.loadPDF( './public/filetext/' + file.filename + "." + suffix);
             // pdfParser.on("pdfParser_dataError", errData => console.error(errData.parserError));
