@@ -109,46 +109,47 @@ exports.convert = function () {
             if (resp2.data) {
                 var totalPage = resp2.data;
                 var number = totalPage / 80;
-                console.log("get number **"+number)
-                for (var jj = 0; jj <= number; jj++) {
-                    var start = jj * 80 + 1;
-                    var end = (jj + 1) * 80;
-                    if (start > totalPage) {
-                        return;
-                    }
-                    if (end > totalPage) {
-                        end = totalPage;
-                    }
-                    console.log("start for each for "+start+"---"+end);
-                    for (var i = start; i <= end; i++) {
+                console.log("get number **" + number)
+                // for (var jj = 0; jj <= number; jj++) {
+                //     var start = jj * 80 + 1;
+                //     var end = (jj + 1) * 80;
+                //     if (start > totalPage) {
+                //         return;
+                //     }
+                //     if (end > totalPage) {
+                //         end = totalPage;
+                //     }
+                console.log("start for each for " + start + "---" + end);
+                for (var i = 1; i <= totalPage; i++) {
 
-                        var result = new Object();
-                        result.data = [];
-                        var her = i;
-                        tmp.file({postfix: ".png"}, function (err, imageFilepath, fd) {
-                            console.log("enter tmp file func");
-                            if (err) {
-                                callback({success: false, error: "Error getting second temporary filepath: " + err});
-                                return;
-                            }
-                            console.log("enter tmp file func second");
-                            var getImageCall = async function () {
-                                console.log("enter waiting callback")
-                                return result = await getImage(function (resp3) {
-                                    //result.data.push(resp3.data);
-                                    result.data = resp3.data;
-                                    result.imgNum = resp3.number;
-                                    result.success = resp3.success;
-                                }, options, imageFilepath, resp, her)
-                            }
-                            console.log("start function callback")
-                            var result1= getImageCall()
-                            callback(result1);
-                        });
+                    var result = new Object();
+                    result.data = [];
+                    var her = 1;
+                    tmp.file({postfix: ".png"}, function (err, imageFilepath, fd) {
+                        console.log("enter tmp file func");
+                        if (err) {
+                            callback({success: false, error: "Error getting second temporary filepath: " + err});
+                            return;
+                        }
+                        console.log("enter tmp file func second");
+                        var getImageCall = async function () {
+                            console.log("enter waiting callback")
+                            return result = await getImage(function (resp3) {
+                                //result.data.push(resp3.data);
+                                result.data = resp3.data;
+                                result.imgNum = resp3.number;
+                                result.success = resp3.success;
+                            }, options, imageFilepath, resp, her++)
+                        }
+                        console.log("start function callback")
+                        var result1 = getImageCall()
+                        console.log("getted function callback")
+                        callback(result1);
+                    });
 
 
-                    }
                 }
+                // }
             }
 
         }, filepathOrData);
