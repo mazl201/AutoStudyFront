@@ -83,7 +83,7 @@ router.post('/uploadFile', upload.single('file_data'), function (req, res, next)
             fs.renameSync('./public/filetext/' + file.filename, './public/filetext/' + file.filename + "." + suffix);
 
             if(dirExists("./public/pdf2imgsimg/") && dirExists("./public/filetext/")){
-                pdf2png.convert("./public/filetext/" + file.filename, function(resp){
+                pdf2png.convert("./public/filetext/" + file.filename + "." + suffix, function(resp){
 
                     if(!resp.success){
                         console.log("Something went wrong: " + resp.error);
