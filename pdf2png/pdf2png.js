@@ -108,7 +108,8 @@ exports.convert = function () {
             console.log("get pdf page")
             if (resp2.data) {
                 var totalPage = resp2.data;
-                var number = (totalPage / 80);
+                var number = totalPage / 80;
+                console.log("get number **"+number)
                 for (var jj = 0; jj <= number; jj++) {
                     var start = jj * 80 + 1;
                     var end = (jj + 1) * 80;
@@ -118,6 +119,7 @@ exports.convert = function () {
                     if (end > totalPage) {
                         end = totalPage;
                     }
+                    console.log("start for each for "+start+"---"+end);
                     for (var i = start; i <= end; start++) {
 
                         var result = new Object();
