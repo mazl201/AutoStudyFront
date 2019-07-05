@@ -222,6 +222,49 @@ try {
     console.log(e);
 }
 
+try {
+    schedule.scheduleJob('05 * * * * *', function () {
+        console.log('scheduleCronstyle:' + new Date());
+        if (dirExists("./public/images/splitImgRotate/") && dirExists("./public/images/compress/")) {
+            var path = "./public/pdf2imgsimg/"
+            var strings = fs.readdirSync(path);
+            if (strings && strings.length > 0) {
+                var fileName = strings[0]
+                lock.acquire("img2word", function () {
+                    sendMsg("开始图像转文字");
+                    var image = fs.readFileSync(paths.join(path, fileName)).toString("base64");
+                    // 如果有可选参数
+                    var options = {};
+                    options["language_type"] = "CHN_ENG";
+                    options["detect_direction"] = "true";
+                    options["detect_language"] = "true";
+                    options["probability"] = "true";
+                    client.generalBasic(image, options).then(function (result) {
+                        // console.log(JSON.stringify(result));
+                        console.log("success accept img 2 word api interface response");
+                        var content = "";
+                        sendMsg("进入图像转文字cb");
+                        if (result.words_result) {
+                            result.words_result.forEach(function (data) {
+                                content += data.words;
+                            })
+                            sendMsg("开始，文字转语音");
+                            var path = "./public/images/compress/" + fileName;
+                            lock.acquire("word2voice", function () {
+                                word2voice(content, 3, 3, dateformat(new Date(), "yyyy-mm-dd"), 0, path)
+                            });
+                        }
+                    }).catch(function (err) {
+                        console.log(err);
+                    })
+                })
+            }
+        }
+    });
+} catch (e) {
+    console.log(e);
+}
+
 
 try {
     schedule.scheduleJob('02 * * * * *', function () {
