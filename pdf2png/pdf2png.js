@@ -140,6 +140,7 @@ exports.convert = function () {
                                     result.success = resp3.success;
                                 }, options, imageFilepath, resp, her++)
                             }
+                            console.log("start function callback")
                             var result1= getImageCall()
                             callback(result1);
                         });
