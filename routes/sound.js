@@ -11,6 +11,9 @@ var ObjectId = require("mongodb").ObjectId;
 var uuid = require("uuid");
 var multer = require("multer");
 let PDFParser = require("pdf2json");
+
+var func = require("../img2word/img2word");
+
 //
 // var convertpdftoIMGdemo = require("../pdf2png/convert-linux");
 var dirExists = require("../utils/hasDir");
@@ -95,6 +98,7 @@ router.post('/uploadFile', upload.single('file_data'), function (req, res, next)
                             console.log(err);
                         }
                         console.log("transfer success");
+                        func.scanCompression("./public/pdf2imgsimg/");
                     });
                 });
             }

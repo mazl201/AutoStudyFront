@@ -16,136 +16,137 @@ console.log(exports.ghostscriptPath);
 exports.ghostscriptPath = exports.ghostscriptPath.split("\\").join("/");
 
 function getPageCount(callback, filepathOrData) {
-	pdfPageCount.count(filepathOrData, function(resp2){
-		if(!resp2.success)
-		{
-			console.log("Something went wrong: " + resp2.error);
+    pdfPageCount.count(filepathOrData, function (resp2) {
+        if (!resp2.success) {
+            console.log("Something went wrong: " + resp2.error);
 
-			return;
-		}
-		callback(resp2);
-	});
+            return;
+        }
+        callback(resp2);
+    });
 };
 
 
-function getImage(callback, options, imageFilepath, resp, i){
-	console.log("start exec ghost cmd");
+function getImage(callback, options, imageFilepath, resp, i) {
+    return new Promise(function (resolve, reject) {
+        console.log("start exec ghost cmd");
 
-	console.log("gs -dQUIET -dPARANOIDSAFER -dBATCH -dNOPAUSE -dNOPROMPT -sDEVICE=png16m -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -r" +
-        options.quality +
-        " -dFirstPage="+i+
-        " -dLastPage="+i+
-        " -sOutputFile=" + imageFilepath +
-        " " +
-        '"' + resp.data + '"')
+        console.log("gs -dQUIET -dPARANOIDSAFER -dBATCH -dNOPAUSE -dNOPROMPT -sDEVICE=png16m -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -r" +
+            options.quality +
+            " -dFirstPage=" + i +
+            " -dLastPage=" + i +
+            " -sOutputFile=" + imageFilepath +
+            " " +
+            '"' + resp.data + '"')
 
-	exec("gs -dQUIET -dPARANOIDSAFER -dBATCH -dNOPAUSE -dNOPROMPT -sDEVICE=png16m -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -r" +
-	      options.quality + 
-	      " -dFirstPage="+i+
-	      " -dLastPage="+i+
-	      " -sOutputFile=" + imageFilepath + 
-	      " " + 
-	      '"' + resp.data + '"', function (error, stdout, stderr) {
-		// Remove temp files
-		resp.clean();
+        exec("gs -dQUIET -dPARANOIDSAFER -dBATCH -dNOPAUSE -dNOPROMPT -sDEVICE=png16m -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -r" +
+            options.quality +
+            " -dFirstPage=" + i +
+            " -dLastPage=" + i +
+            " -sOutputFile=" + imageFilepath +
+            " " +
+            '"' + resp.data + '"', function (error, stdout, stderr) {
+            // Remove temp files
+            resp.clean();
 
-		if(error !== null){
+            if (error !== null) {
 
-			callback({ success: false, error: "Error converting pdf to png: " + error });
-			return;
-		}
+                reject({success: false, error: "Error converting pdf to png: " + error});
+                return;
+            }
 
-		if(options.returnFilePath)
-		{
-			callback({ success: true, data: imageFilepath });
-			return;
-		}
+            if (options.returnFilePath) {
+                resolve({success: true, data: imageFilepath});
+                return;
+            }
 
-		var img = fs.readFileSync(imageFilepath);
+            var img = fs.readFileSync(imageFilepath);
 
-		// Remove temp file
-		console.log(imageFilepath);
-		fs.unlinkSync(imageFilepath);
+            // Remove temp file
+            console.log(imageFilepath);
+            fs.unlinkSync(imageFilepath);
 
-		callback({ success: true, data: img, number: i });
-	});
+            resolve({success: true, data: img, number: i});
+        });
+    })
 
 }
 
-exports.convert = function() {
+exports.convert = function () {
 
-	var filepathOrData = arguments[0];
-	//return;
-	var callback = arguments[1];
+    var filepathOrData = arguments[0];
+    //return;
+    var callback = arguments[1];
 
-	var options = {};
-	
-	var tmpFileCreated = false;
+    var options = {};
 
-	if(arguments[2] != null)
-	{
-		options = arguments[1];
-		callback = arguments[2];
-	}
-	
-	if(!initialized){
-		if(!options.useLocalGhostscript)
-		{
-			process.env.Path += ";" + exports.ghostscriptPath;
-		}
-		
-		initialized = true;
-	}
+    var tmpFileCreated = false;
 
-	options.quality = options.quality || 100;
-	
-	filesource.getDataPath(filepathOrData, function(resp){
-		if(!resp.success){
-			callback(resp);
-			return;
-		}
+    if (arguments[2] != null) {
+        options = arguments[1];
+        callback = arguments[2];
+    }
 
-		getPageCount(function(resp2) {
-			// get temporary filepath
-			if(resp2.data){
+    if (!initialized) {
+        if (!options.useLocalGhostscript) {
+            process.env.Path += ";" + exports.ghostscriptPath;
+        }
+
+        initialized = true;
+    }
+
+    options.quality = options.quality || 100;
+
+    filesource.getDataPath(filepathOrData, function (resp) {
+        if (!resp.success) {
+            callback(resp);
+            return;
+        }
+
+        getPageCount(function (resp2) {
+            // get temporary filepath
+            if (resp2.data) {
                 var totalPage = resp2.data;
-				var number = (totalPage/80);
-				for(var jj = 0;jj <= number;jj++){
-					var start = jj*80+1;
-					var end = (jj+1)*80;
-					if(start > totalPage){
-						return;
-					}
-					if(end > totalPage){
-						end = totalPage;
-					}
-                    for(var i = start; i <= end; start++){
+                var number = (totalPage / 80);
+                for (var jj = 0; jj <= number; jj++) {
+                    var start = jj * 80 + 1;
+                    var end = (jj + 1) * 80;
+                    if (start > totalPage) {
+                        return;
+                    }
+                    if (end > totalPage) {
+                        end = totalPage;
+                    }
+                    for (var i = start; i <= end; start++) {
 
                         var result = new Object();
                         result.data = [];
                         var her = start;
-                        tmp.file({ postfix: ".png" }, function(err, imageFilepath, fd) {
+                        tmp.file({postfix: ".png"}, function (err, imageFilepath, fd) {
 
-                            if(err){
-                                callback({ success: false, error: "Error getting second temporary filepath: " + err });
+                            if (err) {
+                                callback({success: false, error: "Error getting second temporary filepath: " + err});
                                 return;
                             }
-                            getImage(function(resp3){
-                                //result.data.push(resp3.data);
-                                result.data = resp3.data;
-                                result.imgNum = resp3.number;
-                                result.success = resp3.success;
-                                callback(result)
+                            var getImageCall = async function () {
+                                var result = await getImage(function (resp3) {
+                                    //result.data.push(resp3.data);
+                                    result.data = resp3.data;
+                                    result.imgNum = resp3.number;
+                                    result.success = resp3.success;
+                                }, options, imageFilepath, resp, her++)
+                                callback(result);
+                            }
+                            getImageCall()
 
-                            }, options, imageFilepath, resp, her++)
                         });
 
 
                     }
-				}
-			}
+                }
+            }
 
-		}, filepathOrData);
+        }, filepathOrData);
 
-	});
+    });
 };
