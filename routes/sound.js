@@ -12,7 +12,7 @@ var uuid = require("uuid");
 var multer = require("multer");
 let PDFParser = require("pdf2json");
 //
-var convertpdftoIMGdemo = require("../pdf2png/convert-linux");
+// var convertpdftoIMGdemo = require("../pdf2png/convert-linux");
 var dirExists = require("../utils/hasDir");
 //导入图片拆分
 var pdf2png = require("../pdf2png/pdf2png");
