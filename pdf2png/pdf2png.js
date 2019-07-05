@@ -30,6 +30,15 @@ function getPageCount(callback, filepathOrData) {
 
 function getImage(callback, options, imageFilepath, resp, i){
 	console.log("start exec ghost cmd");
+
+	console.log("gs -dQUIET -dPARANOIDSAFER -dBATCH -dNOPAUSE -dNOPROMPT -sDEVICE=png16m -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -r" +
+        options.quality +
+        " -dFirstPage="+i+
+        " -dLastPage="+i+
+        " -sOutputFile=" + imageFilepath +
+        " " +
+        '"' + resp.data + '"')
+
 	exec("gs -dQUIET -dPARANOIDSAFER -dBATCH -dNOPAUSE -dNOPROMPT -sDEVICE=png16m -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -r" +
 	      options.quality + 
 	      " -dFirstPage="+i+
