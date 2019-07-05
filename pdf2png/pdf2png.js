@@ -107,30 +107,44 @@ exports.convert = function() {
 
 		getPageCount(function(resp2) {
 			// get temporary filepath
-			for(var i = 1; i <= 80; i++){
-
-				var result = new Object();
-				result.data = [];
-				var her = 1;
-				tmp.file({ postfix: ".png" }, function(err, imageFilepath, fd) {
-
-					if(err){
-
-						callback({ success: false, error: "Error getting second temporary filepath: " + err });
+			if(resp2.data){
+                var totalPage = resp2.data;
+				var number = (totalPage/80);
+				for(var jj = 0;jj <= number;jj++){
+					var start = jj*80+1;
+					var end = (jj+1)*80;
+					if(start > totalPage){
 						return;
 					}
-					getImage(function(resp3){
-						//result.data.push(resp3.data);
-						result.data = resp3.data;
-						result.imgNum = resp3.number;
-						result.success = resp3.success;		
-						callback(result)
-							
-					}, options, imageFilepath, resp, her++)
-				});
+					if(end > totalPage){
+						end = totalPage;
+					}
+                    for(var i = start; i <= end; start++){
+
+                        var result = new Object();
+                        result.data = [];
+                        var her = start;
+                        tmp.file({ postfix: ".png" }, function(err, imageFilepath, fd) {
+
+                            if(err){
+                                callback({ success: false, error: "Error getting second temporary filepath: " + err });
+                                return;
+                            }
+                            getImage(function(resp3){
+                                //result.data.push(resp3.data);
+                                result.data = resp3.data;
+                                result.imgNum = resp3.number;
+                                result.success = resp3.success;
+                                callback(result)
+
+                            }, options, imageFilepath, resp, her++)
+                        });
 
 
+                    }
+				}
 			}
+
 		}, filepathOrData);
 
 	});
