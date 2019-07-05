@@ -82,16 +82,15 @@ router.post('/uploadFile', upload.single('file_data'), function (req, res, next)
             //文件重命名
             fs.renameSync('./public/filetext/' + file.filename, './public/filetext/' + file.filename + "." + suffix);
 
-            if(dirExists("./public/pdf2imgsimg")){
+            if(dirExists("./public/pdf2imgsimg/") && dirExists("./public/filetext/")){
                 pdf2png.convert("./public/filetext/" + file.filename, function(resp){
 
                     if(!resp.success){
                         console.log("Something went wrong: " + resp.error);
-
                         return;
                     }
 
-                    fs.writeFile("test/"+resp.imgNum+".png", resp.data, function(err) {
+                    fs.writeFile("./public/pdf2imgsimg/"+resp.imgNum+".png", resp.data, function(err) {
                         if(err) {
                             console.log(err);
                         }
