@@ -105,6 +105,7 @@ exports.convert = function () {
 
         getPageCount(function (resp2) {
             // get temporary filepath
+            console.log("get pdf page")
             if (resp2.data) {
                 var totalPage = resp2.data;
                 var number = (totalPage / 80);
