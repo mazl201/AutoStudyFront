@@ -138,7 +138,6 @@ exports.convert = function () {
                                 callback(result);
                             }
                             getImageCall()
-
                         });
 
 
