@@ -10,7 +10,18 @@ var GridFSBucket = require("mongodb").GridFSBucket;
 var ObjectId = require("mongodb").ObjectId;
 var uuid = require("uuid");
 var multer = require("multer");
-
+let PDFParser = require("pdf2json");
+//
+var convertpdftoIMGdemo = require("../pdf2png/convert-linux");
+var dirExists = require("../utils/hasDir");
+//导入图片拆分
+var pdf2png = require("../pdf2png/pdf2png");
+var projectPath = __dirname.split("\\");
+projectPath.pop();
+projectPath = projectPath.join("\\");
+var gsPath = projectPath + "\\executables\\ghostScript";
+console.log("current executable ghostScript path" + gsPath)
+pdf2png.ghostscriptPath = gsPath;
 
 // var mongoose = require("mongoose");
 // var conn = mongoose.createConnection("mongodb://106.12.28.10:27017/baidu_voice");
@@ -43,30 +54,60 @@ router.post('/uploadFile', upload.single('file_data'), function (req, res, next)
     if (file) {
         var fileNameArr = file.originalname.split('.');
         var suffix = fileNameArr[fileNameArr.length - 1];
-
-        //文件重命名
-        fs.renameSync('./public/filetext/' + file.filename, './public/filetext/' + file.filename + "." + suffix);
-        fs.readFile('./public/filetext/' + file.filename + "." + suffix, "binary", function (err, data) {
-            if (err) {
-                console.log("has error")
-                return;
-            }
-            var buf = new Buffer(data, 'binary');
-            var str = iconv.decode(buf, 'GBK');
-            var originName = file.originalname.replace("." + suffix, "");
-            word2voice(str, 3, 3, originName)
-            fs.unlink('./public/filetext/' + file.filename, function (err, ret) {
+        if(suffix.toUpperCase().indexOf("TXT") > -1){
+            //文件重命名
+            fs.renameSync('./public/filetext/' + file.filename, './public/filetext/' + file.filename + "." + suffix);
+            fs.readFile('./public/filetext/' + file.filename + "." + suffix, "binary", function (err, data) {
                 if (err) {
-                    console.log("delete file failed")
+                    console.log("has error")
                     return;
                 }
-                return "delete txt file success";
+                var buf = new Buffer(data, 'binary');
+                var str = iconv.decode(buf, 'GBK');
+                var originName = file.originalname.replace("." + suffix, "");
+                word2voice(str, 3, 4, originName)
+                fs.unlink('./public/filetext/' + file.filename, function (err, ret) {
+                    if (err) {
+                        console.log("delete file failed")
+                        return;
+                    }
+                    return "delete txt file success";
+                })
             })
-        })
-        file['newfilename'] = '${file.filename}.${suffix}';
-        ret['file'] = file;
-        ret['error'] = ""
-        res.send(ret);
+            file['newfilename'] = '${file.filename}.${suffix}';
+            ret['file'] = file;
+            ret['error'] = ""
+            res.send(ret);
+        }else if(suffix.toUpperCase().indexOf("PDF") > -1){
+            //文件重命名
+            fs.renameSync('./public/filetext/' + file.filename, './public/filetext/' + file.filename + "." + suffix);
+
+            if(dirExists("./public/pdf2imgsimg")){
+                pdf2png.convert("./public/filetext/" + file.filename, function(resp){
+
+                    if(!resp.success){
+                        console.log("Something went wrong: " + resp.error);
+
+                        return;
+                    }
+
+                    fs.writeFile("test/"+resp.imgNum+".png", resp.data, function(err) {
+                        if(err) {
+                            console.log(err);
+                        }
+                        console.log("transfer success");
+                    });
+                });
+            }
+            // var pdfParser = new PDFParser(this, 1);
+            // pdfParser.loadPDF( './public/filetext/' + file.filename + "." + suffix);
+            // pdfParser.on("pdfParser_dataError", errData => console.error(errData.parserError));
+            // pdfParser.on("pdfParser_dataReady", pdfData => {
+            //     data = pdfParser.getRawTextContent()
+            // });
+        }
+
+
     }
     ret['error'] = "文件为空"
     res.send(ret);
