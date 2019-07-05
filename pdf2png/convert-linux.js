@@ -2,7 +2,7 @@ var pdf2png = require("../pdf2png/pdf2png");
 var fs = require("fs");
 
 var projectPath = __dirname.split("\\");
-projectPath.pop();
+projectPath.pop().pop();
 projectPath = projectPath.join("\\");
 
 var gsPath = projectPath + "\\executables\\ghostScript";
