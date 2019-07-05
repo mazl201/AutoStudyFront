@@ -120,17 +120,18 @@ exports.convert = function () {
                         end = totalPage;
                     }
                     console.log("start for each for "+start+"---"+end);
-                    for (var i = start; i <= end; start++) {
+                    for (var i = start; i <= end; i++) {
 
                         var result = new Object();
                         result.data = [];
-                        var her = start;
+                        var her = i;
                         tmp.file({postfix: ".png"}, function (err, imageFilepath, fd) {
-
+                            console.log("enter tmp file func");
                             if (err) {
                                 callback({success: false, error: "Error getting second temporary filepath: " + err});
                                 return;
                             }
+                            console.log("enter tmp file func second");
                             var getImageCall = async function () {
                                 console.log("enter waiting callback")
                                 return result = await getImage(function (resp3) {
@@ -138,7 +139,7 @@ exports.convert = function () {
                                     result.data = resp3.data;
                                     result.imgNum = resp3.number;
                                     result.success = resp3.success;
-                                }, options, imageFilepath, resp, her++)
+                                }, options, imageFilepath, resp, her)
                             }
                             console.log("start function callback")
                             var result1= getImageCall()
