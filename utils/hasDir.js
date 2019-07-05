@@ -1,6 +1,8 @@
 /**
  * Created by Administrator on 2019/7/5.
  */
+var paths = require("path");
+var fs = require("fs");
 /**
  * 读取路径信息
  * @param {string} path 路径
