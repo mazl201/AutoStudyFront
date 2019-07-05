@@ -134,16 +134,19 @@ exports.convert = function () {
                         console.log("enter tmp file func second");
                         var getImageCall = async function () {
                             console.log("enter waiting callback")
-                            return result = await getImage(function (resp3) {
+                            let result = await getImage(function (resp3) {
                                 //result.data.push(resp3.data);
                                 result.data = resp3.data;
                                 result.imgNum = resp3.number;
                                 result.success = resp3.success;
                             }, options, imageFilepath, resp, her++)
+                            return result;
+                            console.log("result1"+result)
                         }
                         console.log("start function callback")
                         var result1 = getImageCall()
                         console.log("getted function callback")
+                        console.log("result2"+result1)
                         callback(result1);
                     });
 
