@@ -125,33 +125,42 @@ exports.convert = function () {
                     var result = new Object();
                     result.data = [];
                     var her = 1;
-                    tmp.file({postfix: ".png"}, function (err, imageFilepath, fd) {
-                        console.log("enter tmp file func");
-                        if (err) {
-                            callback({success: false, error: "Error getting second temporary filepath: " + err});
-                            return;
-                        }
-                        console.log("enter tmp file func second");
-                        var getImageCall = async function () {
-                            console.log("enter waiting callback")
-                            var imagePromise = getImage(function (resp3) {
-                                //result.data.push(resp3.data);
-                                result.data = resp3.data;
-                                result.imgNum = resp3.number;
-                                result.success = resp3.success;
-                            }, options, imageFilepath, resp, her++);
-                            let result = await imagePromise;
-                            callback(result1);
-                        }
-                        console.log("start function callback")
-                        let result1 = getImageCall()
-                        console.log("getted function callback")
-                        console.log("result2"+result1)
+                    let promiseTmp = new Promise(function(resolve,reject){
+                        tmp.file({postfix: ".png"}, function (err, imageFilepath, fd) {
+                            console.log("enter tmp file func");
+                            if (err) {
+                                callback({success: false, error: "Error getting second temporary filepath: " + err});
+                                reject(false);
+                                return;
+                            }
+                            console.log("enter tmp file func second");
+
+                            var getImageCall = async function () {
+                                console.log("enter waiting callback")
+                                var imagePromise = getImage(function (resp3) {
+                                    //result.data.push(resp3.data);
+                                    result.data = resp3.data;
+                                    result.imgNum = resp3.number;
+                                    result.success = resp3.success;
+                                }, options, imageFilepath, resp, her++);
+                                let result = await imagePromise;
+                                console.log("getted function callback")
+                                callback(result);
+                                resolve(true);
+                            }
+                            console.log("start function callback")
+                            let result1 = getImageCall()
+
+                            console.log("result2"+result1)
 
 
-                    });
-
-
+                        });
+                    })
+                    var waitTmp = async function(){
+                        let tmp = await promiseTmp
+                        console.log("now tmp "+tmp);
+                    }
+                    waitTmp();
                 }
                 // }
             }

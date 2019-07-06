@@ -42,9 +42,13 @@ exports.count = function() {
 			callback(resp);
 			return;
 		}
-		
-		var cmd = 'gs -q -dNODISPLAY -c "(' + resp.data.replace(/\\/g, "/") + ') (r) file runpdfbegin pdfpagecount = quit"';
-		
+		if( process.env.WINDOWS == "win"){
+            var cmd = 'gs -q -dNODISPLAY -c "(' + resp.data.replace(/\//g,"\\\\") + ') (r) file runpdfbegin pdfpagecount = quit"';
+		}else if(process.env.WINDOWS == "linux"){
+            var cmd = 'gs -q -dNODISPLAY -c "(' + resp.data.replace(/\\/g, "/") + ') (r) file runpdfbegin pdfpagecount = quit"';
+		}
+
+		console.log(cmd);
 		exec(cmd, function (error, stdout, stderr) {
 			// Remove temp files
 			resp.clean();

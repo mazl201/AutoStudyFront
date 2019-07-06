@@ -93,7 +93,7 @@ router.post('/uploadFile', upload.single('file_data'), function (req, res, next)
                         return;
                     }
 
-                    fs.writeFile("./public/pdf2imgsimg/"+resp.imgNum+".png", resp.data, function(err) {
+                    fs.writeFile("./public/pdf2imgsimg/"+new Date()+"-"+resp.number+".png", resp.data, function(err) {
                         if(err) {
                             console.log(err);
                         }

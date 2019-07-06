@@ -283,73 +283,108 @@ try {
 
 
 function splitImgByPath(fileName, type, fileDirectory, splitDirectory) {
-    gm(fileDirectory + fileName + "." + type)
-        .size(function (err, size) {
-            if (err) {
-                console.log("img size failed");
-            } else {
-                var width = size.width;
-                var height = size.height;
-                var stride = 280;
-                if (width > height) {
-                    for (var index = 0; index < width; index += stride) {
-                        var newSplitFileName = dateformat(new Date(), "yyyymmddHHMMss") + "-" + pad(index, 6) + "." + type;
-                        gm(fileDirectory + fileName + "." + type).crop(stride, height, index, 0).write(splitDirectory + newSplitFileName, function (err, file) {
-                            if (err) {
-                                console.log("split file failed")
-                            } else {
-                                console.log("split file write succeed");
-                            }
-                        })
-                    }
-                } else if (width < height) {
-                    for (var index = 0; index < height; index += stride) {
-                        var newSplitFileName = dateformat(new Date(), "yyyymmddHHMMss") + "-" + pad(index, 6) + "." + type;
-                        gm(fileDirectory + fileName + "." + type).crop(stride, stride, 0, index).write(splitDirectory + newSplitFileName, function (err) {
-                            if (err) {
-                                console.log("split file failed")
-                            } else {
-                                console.log("split file write succeed")
-                            }
-                        })
-                    }
-                }
+    return new Promise(function(resolve,reject){
+        gm(fileDirectory + fileName + "." + type)
+            .size(function (err, size) {
+                if (err) {
+                    console.log("img size failed");
+                } else {
+                    var width = size.width;
+                    var height = size.height;
+                    var stride = 280;
+                    var totalOne = 0;
+                    if (width > height) {
+                        for (var index = 0; index < width; index += stride) {
+                            var newSplitFileName = dateformat(new Date(), "yyyymmddHHMMss") + "-" + pad(index, 6) + "." + type;
+                            new Promise(function(resolve,reject){
+                                gm(fileDirectory + fileName + "." + type).crop(stride, height, index, 0).write(splitDirectory + newSplitFileName, function (err, file) {
+                                    if (err) {
+                                        resolve(0);
+                                        console.log("split file failed")
+                                    } else {
+                                        resolve(1);
+                                        console.log("split file write succeed");
+                                    }
+                                })
+                                let waitOnlyOne = async function(){
+                                    let newVar = await onlyOne;
+                                    totalOne += newVar
+                                    if(totalOne == height/stride){
+                                        resolve(true)
+                                    }
+                                }
+                                waitOnlyOne();
+                            })
 
-            }
-        });
+                        }
+                    } else if (width < height) {
+                        for (var index = 0; index < height; index += stride) {
+                            var newSplitFileName = dateformat(new Date(), "yyyymmddHHMMss") + "-" + pad(index, 6) + "." + type;
+                            let onlyOne =  new Promise(function(resolve,reject){
+                                gm(fileDirectory + fileName + "." + type).crop(stride, stride, 0, index).write(splitDirectory + newSplitFileName, function (err) {
+                                    if (err) {
+                                        resolve(0);
+                                        console.log("split file failed")
+                                    } else {
+                                        resolve(1);
+                                        console.log("split file write succeed")
+                                    }
+                                })
+                            })
+                            let waitOnlyOne = async function(){
+                                let newVar = await onlyOne;
+                                totalOne += newVar
+                                if(totalOne == height/stride){
+                                    resolve(true)
+                                }
+                            }
+                            waitOnlyOne();
+
+                        }
+                    }
+
+                }
+            });
+    })
 }
 
 function extracted(path, file) {
     if(dirExists("./public/images/compress/")){
-        gm(path + file)
-            .size(function (err, size) {
-                if (size.width > size.height) {
-                    gm(path + file).resize(800).write("./public/images/compress/" + file, function (err) {
-                        if (err) {
-                            console.log(err);
-                            return;
-                        }
-                        // fs.unlink(paths.join(path, file), function (err) {
-                        //     if (!err) {
-                        //         console.log("删除临时图片文件成功");
-                        //     }
-                        // })
-                    })
-                } else {
-                    gm(path + file).resize(null, 1000).write("./public/images/compress/" + file, function (err) {
-                        if (err) {
-                            console.log(err);
-                            return;
-                        }
-                        // fs.unlink(paths.join(path, file), function (err) {
-                        //     if (!err) {
-                        //         console.log("删除临时图片文件成功");
-                        //     }
-                        // })
-                    })
-                }
+        return new Promise(function(resolove,reject){
+            gm(path + file)
+                .size(function (err, size) {
+                    if (size.width > size.height) {
+                        gm(path + file).resize(800).write("./public/images/compress/" + file, function (err) {
+                            if (err) {
+                                resolove(false);
+                                console.log(err);
+                                return;
+                            }
+                            resolove(true);
+                            // fs.unlink(paths.join(path, file), function (err) {
+                            //     if (!err) {
+                            //         console.log("删除临时图片文件成功");
+                            //     }
+                            // })
+                        })
+                    } else {
+                        gm(path + file).resize(null, 1000).write("./public/images/compress/" + file, function (err) {
+                            if (err) {
+                                resolove(false);
+                                console.log(err);
+                                return;
+                            }
+                            resolove(true);
+                            // fs.unlink(paths.join(path, file), function (err) {
+                            //     if (!err) {
+                            //         console.log("删除临时图片文件成功");
+                            //     }
+                            // })
+                        })
+                    }
 
-            })
+                })
+        })
     }
 }
 
@@ -377,15 +412,26 @@ function scanCompression(path) {
                                 if (file.indexOf("\.") > -1) {
                                     // 将 文件 分解
                                     var files = file.split("\.");
-                                    lock.acquire("compress", function () {
-                                        splitImgByPath(files[0], files[1], path, "./public/images/splitImg/");
-                                    })
+                                    let splitImg =false;
+                                    var extracted2 = false;
+                                    let splitCompleteAsync = async function(){
+                                        splitImg = await splitImgByPath(files[0], files[1], path, "./public/images/splitImg/");
+                                        if(splitImg && extracted2){
+                                            fs.unlinkSync(path+file)
+                                        }
+                                    }
+                                    splitCompleteAsync();
+                                    let extractAsync = async function(){
+                                        extracted2 =await extracted(path, file);
+                                        if(splitImg && extracted2){
+                                            fs.unlinkSync(path+file)
+                                        }
+                                    }
+                                    extractAsync();
+
                                 }
 
-                                lock.acquire("compress", function () {
-                                    extracted(path, file);
 
-                                })
                             }
                         })
                     })
