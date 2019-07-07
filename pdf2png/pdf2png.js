@@ -5,6 +5,8 @@ var filesource = require('filesource');
 var initialized = false;
 var pdfPageCount = require("./pdfPageCount.js");
 
+var async = require("async-lock");
+var lock = new async();
 // Add Ghostscript executables path
 var projectPath = __dirname.split("\\");
 projectPath.pop();
@@ -149,11 +151,8 @@ exports.convert = function () {
                                 resolve(true);
                             }
                             console.log("start function callback")
-                            let result1 = getImageCall()
 
-                            console.log("result2"+result1)
-
-
+                            lock.acquire("img2pdf",getImageCall)
                         });
                     })
                     var waitTmp = async function(){

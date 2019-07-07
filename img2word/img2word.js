@@ -420,15 +420,14 @@ function scanCompression(path) {
                                             fs.unlinkSync(path+file)
                                         }
                                     }
-                                    splitCompleteAsync();
+                                    lock("splitComplete",splitCompleteAsync)
                                     let extractAsync = async function(){
                                         extracted2 =await extracted(path, file);
                                         if(splitImg && extracted2){
                                             fs.unlinkSync(path+file)
                                         }
                                     }
-                                    extractAsync();
-
+                                    lock("extractComplete",extractAsync)
                                 }
 
 

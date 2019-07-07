@@ -93,7 +93,7 @@ router.post('/uploadFile', upload.single('file_data'), function (req, res, next)
                         return;
                     }
 
-                    fs.writeFile("./public/pdf2imgsimg/"+new Date()+"-"+resp.number+".png", resp.data, function(err) {
+                    fs.writeFile("./public/pdf2imgsimg/"+resp.number+".png", resp.data, function(err) {
                         if(err) {
                             console.log(err);
                         }
@@ -107,6 +107,7 @@ router.post('/uploadFile', upload.single('file_data'), function (req, res, next)
             ret['file'] = file;
             ret['error'] = "";
             res.send(ret);
+
             // var pdfParser = new PDFParser(this, 1);
             // pdfParser.loadPDF( './public/filetext/' + file.filename + "." + suffix);
             // pdfParser.on("pdfParser_dataError", errData => console.error(errData.parserError));
@@ -116,9 +117,11 @@ router.post('/uploadFile', upload.single('file_data'), function (req, res, next)
         }
 
 
+    }else{
+        ret['error'] = "文件为空,或者暂时不支持的文件类型."
+        res.send(ret);
     }
-    ret['error'] = "文件为空"
-    res.send(ret);
+
 })
 router.get("/clearAllImg", function (req, res, next) {
     if (req.query.id) {
