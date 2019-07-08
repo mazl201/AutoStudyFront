@@ -1,40 +1,19 @@
 extends layout
 
 block content
-    section.container
         a(href="javascript:void(0)" class='button clearAllButton')  清空当前页
         br
         br
         a(href="javascript:void(0)" class='button flushAllButton')  刷新
 
-        ul.home.post-list
+        div(id="content")
             each index in content
-                div(class="tab-h2")
-                    font(size="6",font-family:"STKaiti" class="contentDis")
-                    font(size="3",font-family:"STKaiti" hidden class="content") #{index.content}
-                    br
-                    a(href="javascript:void(0)" class='button submitButton')  #{index.filename}
-                    a(href="javascript:void(0)" class='button deleteButton')  删除
-                    p(class='ids' hidden) #{index._id}
-                    br
-                    a(href="javascript:void(0)" class='button left')  左翻转
-                    a(href="javascript:void(0)" class='button right')  右翻转
-                    a(href="javascript:void(0)" class='button vertical')  翻转
-                    a(href="javascript:void(0)" class='button origin')  复原
-                    br
-                    br
-                    br
-                    img(class="imgCamera" src='img_download?id=#{index._id}&datetime=111' onmouseover="this.style.cursor='pointer';this.style.cursor='hand'" onmouseout="this.style.cursor='default'"   onclick="javascript:showimage1('img_download_big?id=#{index._id}');")
-
-                    div(id="ShowImage_Form1" class="modal hide")
-                         div.modal-header
-                             button(class="close" data-dismiss="modal" type="button")
-                         div.modal-body
-                         div(id="img_show1")
-
-                    br
+                a(class="example1" href="img_download?id=#{index._id}")
+                    img(href="img_download?id=#{index._id}")
 
         ul.pagination( id="pagination")
 block append scripts
     //script(type="text/javascript" src='https://code.jquery.com/jquery-3.4.1.min.js')
+    script(type="text/javascript" src='/jquery-plugin/jqueryLibrary.min.js')
+    script(type="text/javascript" src='/jquery-plugin/jquery.imgbox.pack.js')
     script(type="text/javascript" src='/js/business/sound/img-download.js')
