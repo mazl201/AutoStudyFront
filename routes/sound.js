@@ -878,7 +878,7 @@ router.get('/mp3_list_count', function (req, res, next) {
             console.log("mongodb connect failed");
         } else {
             var collection = connect.db("baidu_voice").collection("fs.files");
-            collection.count({}, function (err, ret) {
+            collection.count({content: {$ne: null},"fileImgPathId":null}, function (err, ret) {
                 if (err) {
                     console.log("query count failed")
                 } else {
@@ -891,6 +891,34 @@ router.get('/mp3_list_count', function (req, res, next) {
         }
     })
 });
+
+/* GET home page. */
+router.get('/mp3_img_count', function (req, res, next) {
+    var content = new Array("1", "2", "3", "4", "5")
+    if (req.query && req.query.index) {
+        page = parseInt(req.query.index);
+    } else {
+        page = 1
+    }
+    mongoClient.connect("mongodb://106.12.28.10:27017", function (err, connect) {
+        if (err) {
+            console.log("mongodb connect failed");
+        } else {
+            var collection = connect.db("baidu_voice").collection("fs.files");
+            collection.count({content: {$ne: null},"fileImgPathId":{$ne: null}}, function (err, ret) {
+                if (err) {
+                    console.log("query count failed")
+                } else {
+                    res.json({
+                        page: page,
+                        total: ret
+                    });
+                }
+            });
+        }
+    })
+});
+
 
 /* GET home page. */
 router.get('/mp3_download', function (req, res, next) {

@@ -255,6 +255,7 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg,callback) {
                                                             let successImgFile = await  promiseImgFile;
                                                             console.log(successImgFile+"imgFileUploadSuccess");
                                                         }
+                                                        waitImgFile
                                                     }
                                                     chunksColl.update({_id:id},{$set:{filename:updateFileName+".mp3","content":content,originFileName:filename}},function(err,result){
                                                         console.log(result);
