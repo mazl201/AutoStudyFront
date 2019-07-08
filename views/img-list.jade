@@ -1,17 +1,17 @@
 extends layout
 
 block content
-        a(href="javascript:void(0)" class='button clearAllButton')  清空当前页
-        br
-        br
-        a(href="javascript:void(0)" class='button flushAllButton')  刷新
+    a(href="javascript:void(0)" class='button clearAllButton')  清空当前页
+    br
+    br
+    a(href="javascript:void(0)" class='button flushAllButton')  刷新
 
-        div(id="content")
-            each index in content
-                a(class="example1" href="img_download?id=#{index._id}")
-                    img(href="img_download?id=#{index._id}")
+    div(id="content")
+        each index in content
+            a(class="example1" href="img_download?id=#{index._id}")
+                img(href="img_download?id=#{index._id}")
 
-        ul.pagination( id="pagination")
+    ul.pagination( id="pagination")
 block append scripts
     //script(type="text/javascript" src='https://code.jquery.com/jquery-3.4.1.min.js')
     script(type="text/javascript" src='/jquery-plugin/jqueryLibrary.min.js')
