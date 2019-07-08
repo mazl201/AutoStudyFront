@@ -86,6 +86,7 @@ router.post('/uploadFile', upload.single('file_data'), function (req, res, next)
             fs.renameSync('./public/filetext/' + file.filename, './public/filetext/' + file.filename + "." + suffix);
 
             if(dirExists("./public/pdf2imgsimg/") && dirExists("./public/filetext/")){
+                var time = (new Date()).getTime();
                 pdf2png.convert("./public/filetext/" + file.filename + "." + suffix, function(resp){
 
                     if(!resp.success){
@@ -93,16 +94,16 @@ router.post('/uploadFile', upload.single('file_data'), function (req, res, next)
                         return;
                     }
 
-                    fs.writeFile("./public/pdf2imgsimg/"+resp.number+".png", resp.data, function(err) {
+                    fs.writeFile("./public/pdf2imgsimg/"+time+"-"+resp.number+".png", resp.data, function(err) {
                         if(err) {
                             console.log(err);
                         }
                         console.log("transfer success");
-                        func.scanCompression("./public/pdf2imgsimg/");
+                        // func.scanCompression("./public/pdf2imgsimg/");
                     });
                 });
             }
-
+            func.scanCompression("./public/pdf2imgsimg/");
             file['newfilename'] = '${file.filename}.${suffix}';
             ret['file'] = file;
             ret['error'] = "";
