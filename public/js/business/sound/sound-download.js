@@ -399,7 +399,8 @@ function translateToENCN2(text) {
             if (res) {
                 debugger;
                 $(nowContentDis).html(res);
-                $(parent.window.document.getElementById("footerDivContent")).html(res);
+                // $(parent.window.document.getElementById("footerDivContent")).html(res);
+                $("#footerDivContent").html(res);
             }
         }
     })

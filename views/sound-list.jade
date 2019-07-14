@@ -9,10 +9,13 @@ block content
 
         a(href="javascript:void(0)" class='button allFailedFlush')  刷新失败
 
+        div(class="header")
+            p(id="footerDivContent" size="6" class = 'tab-p')
+
         ul.home.post-list
             each index in content
                 div(class="tab-h2")
-                    p(size="6",font-family:"STKaiti" class="tab-p contentDis")
+                    p(size="6"  class="tab-p contentDis")
                     font(size="3",font-family:"STKaiti" hidden class="content") #{index.content}
                     br
                     a(href="javascript:void(0)" class='btn submitButton')  #{index.filename}
