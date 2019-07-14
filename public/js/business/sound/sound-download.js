@@ -399,7 +399,7 @@ function translateToENCN2(text) {
             if (res) {
                 debugger;
                 $(nowContentDis).html(res);
-                launchIntoFullscreen($(nowContentDis));
+                $(parent.window.document.getElementById("footerDivContent")).html(res);
             }
         }
     })

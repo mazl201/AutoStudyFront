@@ -21,3 +21,5 @@ $('.counter-value').each(function(){
         }
     });
 });
+
+var nowExternalDiv = $("#footerDivContent");

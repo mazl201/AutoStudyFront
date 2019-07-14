@@ -26,7 +26,19 @@
 
 }
 
+.footer{
 
+  height: 30%;
+
+  width: 100%;
+
+  background-color: #ddb78a;
+
+  position: fixed;
+
+  bottom: 0;
+
+}
 #圈圈 样式
 
 .demo{ padding: 2em 0;}
