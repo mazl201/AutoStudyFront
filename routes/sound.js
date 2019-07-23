@@ -576,41 +576,45 @@ router.get("/deleteMongoDB", function (req, res, next) {
                 if (err) {
                     console.log("can't find fs.files")
                 } else {
-                    if (ret[0].fileImgPathId) {
-                        collection.find({_id: ret[0].fileImgPathId}).toArray(function (err, retImg) {
-                            try {
-                                if (err) {
-                                    console.log("can't find fs.files")
-                                } else {
-                                    fs.unlink(retImg[0].path, function (err, result) {
-                                        if (err) {
-                                            console.log("delete compress file again")
-                                        } else {
-                                            console.log("delete compress file again success")
-                                        }
-                                    })
-                                    collection.remove({_id: retImg[0]._id}, function (err, ret) {
-                                        if (err) {
-                                            console.log("删除图片 文件 失败");
-                                            res.end("failed")
-                                        }
-                                        res.end("success");
-                                    })
+                    try{
+                        if (ret[0].fileImgPathId) {
+                            collection.find({_id: ret[0].fileImgPathId}).toArray(function (err, retImg) {
+                                try {
+                                    if (err) {
+                                        console.log("can't find fs.files")
+                                    } else {
+                                        fs.unlink(retImg[0].path, function (err, result) {
+                                            if (err) {
+                                                console.log("delete compress file again")
+                                            } else {
+                                                console.log("delete compress file again success")
+                                            }
+                                        })
+                                        collection.remove({_id: retImg[0]._id}, function (err, ret) {
+                                            if (err) {
+                                                console.log("删除图片 文件 失败");
+                                                res.end("failed")
+                                            }
+                                            res.end("success");
+                                        })
+                                    }
+                                } catch (e) {
+                                    console.log(e)
                                 }
-                            } catch (e) {
-                                console.log(e)
-                            }
-                        })
-                    }
-
-
-                    collection.remove({_id: id}, function (err, ret) {
-                        if (err) {
-                            console.log("语音mongodb删除失败");
-                            res.end("failed")
+                            })
                         }
-                        res.end("success");
-                    })
+
+
+                        collection.remove({_id: id}, function (err, ret) {
+                            if (err) {
+                                console.log("语音mongodb删除失败");
+                                res.end("failed")
+                            }
+                            res.end("success");
+                        })
+                    }catch(e){
+                        console.log("同时删除 file img 失败");
+                    }
                 }
             })
 

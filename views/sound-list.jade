@@ -19,7 +19,6 @@ block content
                     font(size="3",font-family:"STKaiti" hidden class="content") #{index.content}
                     br
                     a(href="javascript:void(0)" class='btn submitButton')  #{index.filename}
-                    a(href="javascript:void(0)" class='btn deleteButton')  删除
                     p(class='ids') #{index._id}
                     if index.isMp3
                         audio(src="mp3_download?id=#{index._id}" name='#{index.filename}' controls ) #{index.filename}
@@ -30,7 +29,12 @@ block content
                             a(href="javascript:void(0)" class='btn voiceMp3Failed') 朗读本段
                             p(size="6" class="tab-p contentDis")
                             a(href="javascript:void(0)" class='btn retryTranslate') 再次翻译
-
+                            br
+                            br
+                            #{index.filename}
+                            br
+                            br
+                            a(href="javascript:void(0)" class='btn deleteButton')  删除
                     br
                     if index.fileImgPathId
                         a(href="javascript:void(0)" class='btn left')  左翻转
@@ -49,8 +53,7 @@ block content
                             div(id="img_show")
 
                     br
-
-        a(href="javascript:void(0)" class='button clearAllButton')  清空当前页
+            a(href="javascript:void(0)" class='button clearAllButton')  清空当前页
         ul.pagination( id="pagination")
 block append scripts
     //script(type="text/javascript" src='https://code.jquery.com/jquery-3.4.1.min.js')
