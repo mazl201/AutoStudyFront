@@ -174,7 +174,8 @@ function word2voice(originContent,spd,per,filename,retrys,pathImg,callback) {
                 demo();
 
                 var content = splitConten;
-                var options = {spd:spd,per:per}
+                //暂时使用随机的方式 朗读 增加趣味性
+                var options = {spd:spd,per:Math.round(Math.random()*5)}
                 //正则表达式
                 // var reg = new regexp("^[a-za-z0-9\u4e00-\u9fa5]+$");
                 // //判断输入框中有内容
