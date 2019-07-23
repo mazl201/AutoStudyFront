@@ -76,6 +76,8 @@ function freshAudioContent() {
         calucEnd1 = contentLength;
     }
     // translateToENCN(content)
+
+    $("#footerDivContent").html(calucEnd1+"<br>"+ content.substring(calucIndex, calucEnd));
     $($(nowAudio).parent().find(".contentDis")[0]).html(nowEnCnContent.substring(calucIndex, calucEnd1+"<br>"+ content.substring(calucIndex, calucEnd) ));
 }
 
@@ -104,6 +106,8 @@ function freshAudioContent1() {
     if (calucEnd1 > contentLength) {
         calucEnd1 = contentLength;
     }
+
+    $("#footerDivContent").html(calucEnd1+"<br>"+ content.substring(calucIndex, calucEnd));
     $($(nowAudio).parent().find(".contentDis")[0]).html(nowEnCnContent.substring(calucIndex, calucEnd1)+"<br>"+ content.substring(calucIndex, calucEnd) );
 }
 
@@ -397,7 +401,7 @@ function translateToENCN2(text) {
         // context:null,
         success: function (res) {
             if (res) {
-                debugger;
+
                 $(nowContentDis).html(res);
                 // $(parent.window.document.getElementById("footerDivContent")).html(res);
                 $("#footerDivContent").html(res);

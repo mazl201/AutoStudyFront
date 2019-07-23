@@ -23,12 +23,12 @@ $('.counter-value').each(function(){
 });
 
 $(".showHidden").mouseover(function(){
-    debugger;
+
     $(".showHiddenDiv").show();
 })
 
 $(".showHidden").mouseout(function(){
-    debugger;
+
     $(".showHiddenDiv").hide();
 })
 

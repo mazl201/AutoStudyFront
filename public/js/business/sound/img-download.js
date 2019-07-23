@@ -6,4 +6,3 @@ $(".example2").imgbox({
     'overlayShow'	: true,
     'allowMultiple'	: false
 });
-debugger;
