@@ -695,7 +695,7 @@
 			}
 			else {
 				if (dataTransfer) {
-					dataTransfer.effectAllowed = 'move';
+					dataTransfer.effectAllowed = 'move.jade';
 					options.setData && options.setData.call(_this, dataTransfer, dragEl);
 				}
 
@@ -1234,7 +1234,7 @@
 
 	function _globalDragOver(/**Event*/evt) {
 		if (evt.dataTransfer) {
-			evt.dataTransfer.dropEffect = 'move';
+			evt.dataTransfer.dropEffect = 'move.jade';
 		}
 		evt.preventDefault();
 	}
@@ -1338,7 +1338,7 @@
 			retVal;
 
 		evt = document.createEvent('Event');
-		evt.initEvent('move', true, true);
+		evt.initEvent('move.jade', true, true);
 
 		evt.to = toEl;
 		evt.from = fromEl;

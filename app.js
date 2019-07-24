@@ -7,6 +7,7 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var soundRouter = require('./routes/sound');
+var move = require('./routes/move');
 // var images = require("images");
 
 var func = require("./img2word/img2word");
@@ -55,14 +56,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/sound', soundRouter);
+app.use('/move', move);
 var ueditor = require("ueditor");
 app.use("/ueditor/getImg",ueditor(path.join(__dirname,"./public"),function(req,res,next){
-    // res.on("data",function(err,ret){
-    //     console.log("data")
-    // })
-    // res.on("end",function(err,ret){
-    //     console.log("end")
-    // })
     //客户端上传文件设置
     var imgDir = '/images/ueditor/'
     var ActionType = req.query.action;
