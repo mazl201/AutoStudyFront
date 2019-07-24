@@ -138,7 +138,13 @@ function recursiveDir(dirPath, vedioArr, vedioDestDir, weHavedSuffix, nowIndex) 
 
                         //直接copy 文件 无需 异步
                         // fs.copyFileSync(dirPath + "\\" + fileOrDirName, vedioDestDir + "\\" + prefixFileName + "-" + fileOrDirName);
-                        fs.renameSync(dirPath + "\\" + fileOrDirName, vedioDestDir + "\\" + prefixFileName + "@@" + fileOrDirName);
+                        let number = parseInt(nowIndex/10);
+                        let tempVedioDestDir = vedioDestDir + number;
+
+                        if(dirExists(tempVedioDestDir)){
+                            fs.renameSync(dirPath + "\\" + fileOrDirName, tempVedioDestDir + "\\" + prefixFileName + "@@" + fileOrDirName);
+                        }
+
                         //留存记录
                         vedioArr.push(dirPath + "\\" + fileOrDirName);
                     }
