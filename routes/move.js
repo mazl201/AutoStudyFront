@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var fs = require("fs");
 
+var rar = require("../utils/compress-rar");
 var compressing = require("compressing");
 
 var paths = require("path");
@@ -12,6 +13,8 @@ var dateformat = require("dateformat");
 router.get("/initMove", function (req, res, next) {
     res.render('move', {title: '欢迎来到第一阶段，文件转移'});
 })
+
+
 
 /**
  * 读取路径信息
@@ -97,8 +100,6 @@ router.post("/finallyRMVedio", function (req, res, next) {
                 res.end("文件不能解析");
             }
         }
-
-
     }
 })
 
@@ -132,9 +133,11 @@ function recursiveUnzip(dirPath, vedioArr, vedioDestDir, weHavedSuffix, nowIndex
                         console.log(suffix + "can be is");
                     }
 
+                    let newPath = dirPath + "\\" + fileOrDirName.replace(/\s+/g, "");
+                    fs.renameSync(dirPath + "\\" + fileOrDirName,newPath)
                     //判断是否是 压缩文件
                     if (suffix == "gz" || suffix == "gz2") {
-                        var promiseZip = compressing.rar.uncompress(dirPath + "\\" + fileOrDirName,dirPath + "\\" + fileOrDirName.toLowerCase().replace("."+suffix,""));
+                        var promiseZip = compressing.rar.uncompress(newPath,dirPath + "\\" + fileOrDirName.toLowerCase().replace("."+suffix,"").replace(/\s+/g, ""));
                         async function unCompress(){
                             await promiseZip;
                             // recursiveDir()
@@ -146,7 +149,7 @@ function recursiveUnzip(dirPath, vedioArr, vedioDestDir, weHavedSuffix, nowIndex
                     //判断是否是 压缩文件
                     if (suffix == "tgz") {
 
-                        var promiseTgz = compressing.tar.uncompress(dirPath + "\\" + fileOrDirName,dirPath + "\\" + fileOrDirName.toLowerCase().replace("."+suffix,""));
+                        var promiseTgz = compressing.tar.uncompress(newPath,dirPath + "\\" + fileOrDirName.toLowerCase().replace("."+suffix,"").replace(/\s+/g, ""));
 
                         async function unCompress(){
                             await promiseTgz;
@@ -156,14 +159,25 @@ function recursiveUnzip(dirPath, vedioArr, vedioDestDir, weHavedSuffix, nowIndex
                         //留存记录
                         vedioArr.push(dirPath + "\\" + fileOrDirName);
                     }
-                    if(suffix == "zip" || suffix == "rar"){
-                        var promiseRar = compressing.zip.uncompress(dirPath + "\\" + fileOrDirName,dirPath + "\\" + fileOrDirName.toLowerCase().replace("."+suffix,""));
+                    if(suffix == "zip") {
+                        var promiseRar = compressing.zip.uncompress(newPath, dirPath + "\\" + fileOrDirName.toLowerCase().replace("." + suffix, "").replace(/\s+/g, ""));
 
-                        async function unCompress(){
+                        async function unCompress() {
                             await promiseRar;
                             // recursiveDir()
                         }
+
                         unCompress();
+                        //留存记录
+                        vedioArr.push(dirPath + "\\" + fileOrDirName);
+                    }
+
+                    if(suffix == "rar"){
+                        rar.decompress({
+                            rarPath:newPath,
+                            destPath:dirPath + "\\" + fileOrDirName.toLowerCase().replace("." + suffix, "").replace(/\s+/g, "")
+                        })
+
                         //留存记录
                         vedioArr.push(dirPath + "\\" + fileOrDirName);
                     }
