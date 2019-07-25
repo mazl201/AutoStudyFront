@@ -82,7 +82,7 @@ router.post("/finallyRMVedio", function (req, res, next) {
 
 
         // var vedioDestDir = dirPath + "\\copyVedio";
-        var vedioDestDir = "F:\\test1";
+        var vedioDestDir = "I:\\ai";
         if (dirExists(vedioDestDir)) {
             var stats = fs.statSync(dirPath);
 

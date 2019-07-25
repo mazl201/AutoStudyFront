@@ -224,7 +224,10 @@ function oneByoneReadImgWord2Voice(fileName, path) {
 }
 
 try {
-    schedule.scheduleJob('* 2 * * * *', function () {
+    var rule2 = new schedule.RecurrenceRule();
+    var times2 = [1,3,6,9,11,13,16,19,21,23,26,29,31,33,36,39,41,43,46,49,51,53,56];
+    rule2.minute = times2;
+    schedule.scheduleJob(times2, function () {
         console.log('scheduleCronstyle:compressImg ' + new Date());
         if (dirExists("./public/images/splitImgRotate/") && dirExists("./public/images/compress/")) {
             var path = "./public/images/compress/";
@@ -412,11 +415,6 @@ function extracted(path, file) {
                                 return;
                             }
                             resolove(true);
-                            // fs.unlink(paths.join(path, file), function (err) {
-                            //     if (!err) {
-                            //         console.log("删除临时图片文件成功");
-                            //     }
-                            // })
                         })
                     } else {
                         gm(path + file).resize(null, 1000).write("./public/images/compress/" + file, function (err) {
@@ -426,11 +424,6 @@ function extracted(path, file) {
                                 return;
                             }
                             resolove(true);
-                            // fs.unlink(paths.join(path, file), function (err) {
-                            //     if (!err) {
-                            //         console.log("删除临时图片文件成功");
-                            //     }
-                            // })
                         })
                     }
 
