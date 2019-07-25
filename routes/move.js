@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var fs = require("fs");
 
+var compressing = require("compressing");
+
 var paths = require("path");
 //加载redis
 var redisClient = require("../utils/redis");
@@ -82,10 +84,11 @@ router.post("/finallyRMVedio", function (req, res, next) {
             var stats = fs.statSync(dirPath);
 
             if (stats.isDirectory()) {
+                recursiveUnzip(dirPath, vedioArr, vedioDestDir, weHavedSuffix, 0);
                 //进入 循环
-                recursiveDir(dirPath, vedioArr, vedioDestDir, weHavedSuffix,0);
+                recursiveDir(dirPath, vedioArr, vedioDestDir, weHavedSuffix, 0);
                 let array = new Array();
-                weHavedSuffix.forEach(function(suffix){
+                weHavedSuffix.forEach(function (suffix) {
                     array = array.filter(word => word != suffix);
                     array.push(suffix);
                 })
@@ -101,12 +104,8 @@ router.post("/finallyRMVedio", function (req, res, next) {
 
 var nowSuffix;
 
-function isSame(element) {
-    return element == nowSuffix;
-}
-
-function recursiveDir(dirPath, vedioArr, vedioDestDir, weHavedSuffix, nowIndex) {
-    try{
+function recursiveUnzip(dirPath, vedioArr, vedioDestDir, weHavedSuffix, nowIndex){
+    try {
         var prefixFileName = "";
         var dateformat1 = dateformat(new Date(), "yyyy-mm-dd");
         nowIndex = nowIndex + 1;
@@ -116,13 +115,89 @@ function recursiveDir(dirPath, vedioArr, vedioDestDir, weHavedSuffix, nowIndex) 
         var filesUnderDir = fs.readdirSync(dirPath);
 
         if (filesUnderDir && filesUnderDir.length > 0) {
-
+            var fileIndex = 0;
             filesUnderDir.forEach(function (fileOrDirName, index) {
 
                 let forEachStat = fs.statSync(dirPath + "\\" + fileOrDirName)
 
                 if (forEachStat.isDirectory()) {
-                    recursiveDir(dirPath + "\\" + fileOrDirName, vedioArr, vedioDestDir, weHavedSuffix,nowIndex);
+                    recursiveUnzip(dirPath + "\\" + fileOrDirName, vedioArr, vedioDestDir, weHavedSuffix, nowIndex);
+                } else if (forEachStat.isFile()) {
+                    let lastDotIndexOf = fileOrDirName.lastIndexOf("\.")
+                    let suffix = ""
+                    if (lastDotIndexOf) {
+                        suffix = fileOrDirName.substring(lastDotIndexOf + 1, fileOrDirName.length).toLowerCase();
+                        // weHavedSuffix = weHavedSuffix.filter(word => word != suffix);
+                        weHavedSuffix.push(suffix);
+                        console.log(suffix + "can be is");
+                    }
+
+                    //判断是否是 压缩文件
+                    if (suffix == "gz" || suffix == "gz2") {
+                        var promiseZip = compressing.rar.uncompress(dirPath + "\\" + fileOrDirName,dirPath + "\\" + fileOrDirName.toLowerCase().replace("."+suffix,""));
+                        async function unCompress(){
+                            await promiseZip;
+                            // recursiveDir()
+                        }
+                        unCompress();
+                        //留存记录
+                        vedioArr.push(dirPath + "\\" + fileOrDirName);
+                    }
+                    //判断是否是 压缩文件
+                    if (suffix == "tgz") {
+
+                        var promiseTgz = compressing.tar.uncompress(dirPath + "\\" + fileOrDirName,dirPath + "\\" + fileOrDirName.toLowerCase().replace("."+suffix,""));
+
+                        async function unCompress(){
+                            await promiseTgz;
+                            // recursiveDir()
+                        }
+                        unCompress();
+                        //留存记录
+                        vedioArr.push(dirPath + "\\" + fileOrDirName);
+                    }
+                    if(suffix == "zip" || suffix == "rar"){
+                        var promiseRar = compressing.zip.uncompress(dirPath + "\\" + fileOrDirName,dirPath + "\\" + fileOrDirName.toLowerCase().replace("."+suffix,""));
+
+                        async function unCompress(){
+                            await promiseRar;
+                            // recursiveDir()
+                        }
+                        unCompress();
+                        //留存记录
+                        vedioArr.push(dirPath + "\\" + fileOrDirName);
+                    }
+                } else {
+                    console.log("文件既不是文件，也不是文件夹");
+                }
+            })
+        } else {
+            console.log(filesUnderDir + " 是一个空文件夹")
+            return;
+        }
+    } catch (e) {
+        console.log(e);
+    }
+}
+
+function recursiveDir(dirPath, vedioArr, vedioDestDir, weHavedSuffix, nowIndex) {
+    try {
+        var prefixFileName = "";
+        var dateformat1 = dateformat(new Date(), "yyyy-mm-dd");
+        nowIndex = nowIndex + 1;
+        prefixFileName = dateformat1 + nowIndex;
+
+        //读取 目录 以下
+        var filesUnderDir = fs.readdirSync(dirPath);
+
+        if (filesUnderDir && filesUnderDir.length > 0) {
+            var fileIndex = 0;
+            filesUnderDir.forEach(function (fileOrDirName, index) {
+
+                let forEachStat = fs.statSync(dirPath + "\\" + fileOrDirName)
+
+                if (forEachStat.isDirectory()) {
+                    recursiveDir(dirPath + "\\" + fileOrDirName, vedioArr, vedioDestDir, weHavedSuffix, nowIndex);
                 } else if (forEachStat.isFile()) {
                     let lastDotIndexOf = fileOrDirName.lastIndexOf("\.")
                     if (lastDotIndexOf) {
@@ -138,13 +213,15 @@ function recursiveDir(dirPath, vedioArr, vedioDestDir, weHavedSuffix, nowIndex) 
 
                         //直接copy 文件 无需 异步
                         // fs.copyFileSync(dirPath + "\\" + fileOrDirName, vedioDestDir + "\\" + prefixFileName + "-" + fileOrDirName);
-                        let number = parseInt(nowIndex/10);
-                        let tempVedioDestDir = vedioDestDir + number;
+                        let number = parseInt(nowIndex / 10);
+                        let tempVedioDestDir = vedioDestDir + dateformat1;
 
-                        if(dirExists(tempVedioDestDir)){
-                            fs.renameSync(dirPath + "\\" + fileOrDirName, tempVedioDestDir + "\\" + prefixFileName + "@@" + fileOrDirName);
+                        if (dirExists(tempVedioDestDir)) {
+
+                            prefixFileName.replace()
+                            fileIndex = fileIndex + 1;
+                            fs.renameSync(dirPath + "\\" + fileOrDirName, tempVedioDestDir + "\\" + prefixFileName + "@@@" + fileOrDirName.replace("."+nowSuffix,"") + "@@@" + fileIndex+"."+nowSuffix);
                         }
-
                         //留存记录
                         vedioArr.push(dirPath + "\\" + fileOrDirName);
                     }
@@ -156,7 +233,7 @@ function recursiveDir(dirPath, vedioArr, vedioDestDir, weHavedSuffix, nowIndex) 
             console.log(filesUnderDir + " 是一个空文件夹")
             return;
         }
-    }catch(e){
+    } catch (e) {
         console.log(e);
     }
 }
@@ -165,7 +242,7 @@ function isVedioFile(fileOrDirName) {
     if (fileOrDirName) {
         let lastDotIndexOf = fileOrDirName.lastIndexOf("\.")
         if (lastDotIndexOf) {
-            let suffix = fileOrDirName.substring(lastDotIndexOf + 1, fileOrDirName.length);
+            let suffix = fileOrDirName.substring(lastDotIndexOf + 1, fileOrDirName.length).toLowerCase();
             if (suffix == "avi") {
                 return true;
             } else if (suffix == "mp4") {
@@ -173,6 +250,28 @@ function isVedioFile(fileOrDirName) {
             } else if (suffix == "wmv") {
                 return true;
             } else if (suffix == "flv") {
+                return true;
+            } else if (suffix == "mov") {
+                return true;
+            } else if (suffix == "rmvb") {
+                return true;
+            } else if (suffix == "rm") {
+                return true;
+            } else if (suffix == "3gp") {
+                return true;
+            }else if(suffix == "asf"){
+                return true;
+            }else if(suffix == "mkv"){
+                return true;
+            }else if(suffix == "f4v"){
+                return true;
+            }else if(suffix == "rmhd"){
+                return true;
+            }else if(suffix == "webm"){
+                return true;
+            }else if(suffix == "qsv"){
+                return true;
+            }else if(suffix == "swf"){
                 return true;
             }
             return false;
@@ -183,6 +282,5 @@ function isVedioFile(fileOrDirName) {
         return false;
     }
 }
-
 
 module.exports = router;
