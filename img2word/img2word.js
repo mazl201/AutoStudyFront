@@ -109,8 +109,8 @@ function pad(num, n) {
 //     console.log(err);
 // })
 try {
-    schedule.scheduleJob('01 * * * * *', function () {
-        console.log('scheduleCronstyle:' + new Date());
+    schedule.scheduleJob('1 * * * * *', function () {
+        console.log('scheduleCronstyle:scanSplitImg ' + new Date());
         if (dirExists("./public/images/splitImg/")) {
             var path = "./public/images/splitImg/"
             var strings = fs.readdirSync(path);
@@ -216,6 +216,7 @@ function oneByoneReadImgWord2Voice(fileName, path) {
                 resolveImg("noWord");
             }
         }).catch(function (err) {
+            resolveImg("cantgetImg2Word");
             console.log(err);
         })
     })
@@ -224,7 +225,7 @@ function oneByoneReadImgWord2Voice(fileName, path) {
 
 try {
     schedule.scheduleJob('* 2 * * * *', function () {
-        console.log('scheduleCronstyle:' + new Date());
+        console.log('scheduleCronstyle:compressImg ' + new Date());
         if (dirExists("./public/images/splitImgRotate/") && dirExists("./public/images/compress/")) {
             var path = "./public/images/compress/";
             var strings = fs.readdirSync(path);
@@ -234,10 +235,20 @@ try {
                     let result = await oneByoneReadImgWord2Voice(strings[index], path);
                     index = index + 1;
                     if (result == "success") {
+                        fs.unlink(paths.join(path, fileName), function (err, result) {
+                            if (err) {
+                                console.log("delete compress image file failed")
+                                return;
+                            }
+                            return "delete  compress image file success "+fileName;
+                        })
                         oneByoneDisposeImg();
                     }else if(result == "noWord"){
                         oneByoneDisposeImg();
                     }else if(result == "cantvoice"){
+                        oneByoneDisposeImg();
+                    }else if(result == "cantgetImg2Word"){
+                        console.log("接口 未能 返回 但仍然繼續 執行");
                         oneByoneDisposeImg();
                     }
                 }
@@ -250,8 +261,8 @@ try {
 }
 
 try {
-    schedule.scheduleJob('02 * * * * *', function () {
-        console.log('scheduleCronstyle:' + new Date());
+    schedule.scheduleJob('2 * * * * *', function () {
+        console.log('scheduleCronstyle:scanSplitImgRotate ' + new Date());
         if (dirExists("./public/images/splitImgRotate/")) {
             var path = "./public/images/splitImgRotate/";
             var strings = fs.readdirSync(path);
