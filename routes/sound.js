@@ -944,9 +944,13 @@ router.get('/mp3_download', function (req, res, next) {
                     } else {
                         var downloadStream = bucket.openDownloadStream(id);
 
+                        let str = ret[0].filename;
+                        if(!str){
+                            str="noName.mp3"
+                        }
                         res.writeHead(200, {
                             'Content-Type': 'application/force-download',
-                            'Content-Disposition': 'attachment; filename=' +urlencode( ret[0].filename,"UTF-8"),
+                            'Content-Disposition': 'attachment; filename=' +urlencode( str,"UTF-8"),
                             'Content-Length': ret[0].length
                         });
                         downloadStream.pipe(res);
