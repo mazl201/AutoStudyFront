@@ -179,42 +179,69 @@ try {
 } catch (e) {
     console.log(e);
 }
+
+function oneByoneReadImgWord2Voice(fileName, path) {
+    return new Promise(function (resolveImg, rejectImg) {
+        sendMsg("开始图像转文字");
+        var image = fs.readFileSync(paths.join(path, fileName)).toString("base64");
+        // 如果有可选参数
+        var options = {};
+        options["language_type"] = "CHN_ENG";
+        options["detect_direction"] = "true";
+        options["detect_language"] = "true";
+        options["probability"] = "true";
+        client.generalBasic(image, options).then(function (result) {
+            // console.log(JSON.stringify(result));
+            console.log("success accept img 2 word api interface response");
+            var content = "";
+            sendMsg("进入图像转文字cb");
+            if (result.words_result) {
+                result.words_result.forEach(function (data) {
+                    content += data.words;
+                })
+                sendMsg("开始，文字转语音");
+                var path = "./public/images/compress/" + fileName;
+
+                let waitWord2voiceComplete = async function(){
+                    let word2voiceResult = await word2voice(content, 3, 3, dateformat(new Date(), "yyyy-mm-dd"), 0, path);
+                    if(word2voiceResult == "success"){
+                        resolveImg("success");
+                    }else if(word2voiceResult == "failed"){
+                        resolveImg("cantvoice");
+                    }
+                }
+
+
+            } else {
+                resolveImg("noWord");
+            }
+        }).catch(function (err) {
+            console.log(err);
+        })
+    })
+
+}
+
 try {
-    schedule.scheduleJob('05 * * * * *', function () {
+    schedule.scheduleJob('* 2 * * * *', function () {
         console.log('scheduleCronstyle:' + new Date());
         if (dirExists("./public/images/splitImgRotate/") && dirExists("./public/images/compress/")) {
-            var path = "./public/images/compress/"
+            var path = "./public/images/compress/";
             var strings = fs.readdirSync(path);
             if (strings && strings.length > 0) {
-                var fileName = strings[0]
-                lock.acquire("img2word", function () {
-                    sendMsg("开始图像转文字");
-                    var image = fs.readFileSync(paths.join(path, fileName)).toString("base64");
-                    // 如果有可选参数
-                    var options = {};
-                    options["language_type"] = "CHN_ENG";
-                    options["detect_direction"] = "true";
-                    options["detect_language"] = "true";
-                    options["probability"] = "true";
-                    client.generalBasic(image, options).then(function (result) {
-                        // console.log(JSON.stringify(result));
-                        console.log("success accept img 2 word api interface response");
-                        var content = "";
-                        sendMsg("进入图像转文字cb");
-                        if (result.words_result) {
-                            result.words_result.forEach(function (data) {
-                                content += data.words;
-                            })
-                            sendMsg("开始，文字转语音");
-                            var path = "./public/images/compress/" + fileName;
-                            lock.acquire("word2voice", function () {
-                                word2voice(content, 3, 3, dateformat(new Date(), "yyyy-mm-dd"), 0, path)
-                            });
-                        }
-                    }).catch(function (err) {
-                        console.log(err);
-                    })
-                })
+                var index = 0;
+                let oneByoneDisposeImg = async function () {
+                    let result = await oneByoneReadImgWord2Voice(strings[index], path);
+                    index = index + 1;
+                    if (result == "success") {
+                        oneByoneDisposeImg();
+                    }else if(result == "noWord"){
+                        oneByoneDisposeImg();
+                    }else if(result == "cantvoice"){
+                        oneByoneDisposeImg();
+                    }
+                }
+                oneByoneDisposeImg();
             }
         }
     });
@@ -283,7 +310,7 @@ try {
 
 
 function splitImgByPath(fileName, type, fileDirectory, splitDirectory) {
-    return new Promise(function(resolve,reject){
+    return new Promise(function (resolve, reject) {
         gm(fileDirectory + fileName + "." + type)
             .size(function (err, size) {
                 if (err) {
@@ -297,7 +324,7 @@ function splitImgByPath(fileName, type, fileDirectory, splitDirectory) {
                     if (width > height) {
                         for (var index = 0; index < width; index += stride) {
                             var newSplitFileName = dateformat(new Date(), "yyyymmddHHMMss") + "-" + pad(index, 6) + "." + type;
-                            let onlyOne = new Promise(function(resolve,reject){
+                            let onlyOne = new Promise(function (resolve, reject) {
                                 gm(fileDirectory + fileName + "." + type).crop(stride, height, index, 0).write(splitDirectory + newSplitFileName, function (err, file) {
                                     if (err) {
                                         resolve(0);
@@ -308,13 +335,13 @@ function splitImgByPath(fileName, type, fileDirectory, splitDirectory) {
                                     }
                                 })
                             })
-                            onlyOne.catch(function(){
+                            onlyOne.catch(function () {
                                 console.log("can't get promise result")
                             })
-                            let waitOnlyOne = async function(){
+                            let waitOnlyOne = async function () {
                                 let newVar = await onlyOne;
                                 totalOne += newVar
-                                if(totalOne == parseInt(height/stride)){
+                                if (totalOne == parseInt(height / stride)) {
                                     resolve(true)
                                 }
                             }
@@ -324,7 +351,7 @@ function splitImgByPath(fileName, type, fileDirectory, splitDirectory) {
                     } else if (width < height) {
                         for (var index = 0; index < height; index += stride) {
                             var newSplitFileName = dateformat(new Date(), "yyyymmddHHMMss") + "-" + pad(index, 6) + "." + type;
-                            let onlyOne =  new Promise(function(resolve,reject){
+                            let onlyOne = new Promise(function (resolve, reject) {
                                 gm(fileDirectory + fileName + "." + type).crop(stride, stride, 0, index).write(splitDirectory + newSplitFileName, function (err) {
                                     if (err) {
                                         resolve(0);
@@ -335,13 +362,13 @@ function splitImgByPath(fileName, type, fileDirectory, splitDirectory) {
                                     }
                                 })
                             })
-                            onlyOne.catch(function(){
+                            onlyOne.catch(function () {
                                 console.log("can't get promise result")
                             })
-                            let waitOnlyOne = async function(){
+                            let waitOnlyOne = async function () {
                                 let newVar = await onlyOne;
                                 totalOne += newVar
-                                if(totalOne == parseInt(height/stride)){
+                                if (totalOne == parseInt(height / stride)) {
                                     resolve(true)
                                 }
                             }
@@ -356,11 +383,11 @@ function splitImgByPath(fileName, type, fileDirectory, splitDirectory) {
 }
 
 function extracted(path, file) {
-    if(dirExists("./public/images/compress/")){
-        return new Promise(function(resolove,reject){
+    if (dirExists("./public/images/compress/")) {
+        return new Promise(function (resolove, reject) {
             gm(path + file)
                 .size(function (err, size) {
-                    if(err){
+                    if (err) {
                         console.log("can't read png file size");
                         resolove(false);
                         return;
@@ -453,15 +480,16 @@ function compressOrSplitImg(path) {
         console.log(e);
     }
 }
-function scanCompression(path) {
-    if(dirExists("./public/images/splitImg/")){
+
+function compressUploadFileToHandleImg(path) {
+    if (dirExists("./public/images/splitImg/")) {
         compressOrSplitImg(path)
     }
 }
 
 var func = {
     // scanDirectory: scanDirectory,
-    scanCompression: scanCompression
+    scanCompression: compressUploadFileToHandleImg
 }
 module.exports = func
 

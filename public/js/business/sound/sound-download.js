@@ -46,6 +46,7 @@ function translateToENCN(contents) {
         success: function (res) {
             if (res) {
                 nowEnCnContent = res;
+                freshAudioContent();
             }
         }
     })
@@ -77,8 +78,9 @@ function freshAudioContent() {
     }
     // translateToENCN(content)
 
-    $("#footerDivContent").html(calucEnd1+"<br>"+ content.substring(calucIndex, calucEnd));
-    $($(nowAudio).parent().find(".contentDis")[0]).html(nowEnCnContent.substring(calucIndex, calucEnd1+"<br>"+ content.substring(calucIndex, calucEnd) ));
+    debugger;
+    $("#footerDivContent").html(nowEnCnContent.substring(calucIndex, calucEnd1)+"<br>"+ content.substring(calucIndex, calucEnd));
+    $($(nowAudio).parent().find(".contentDis")[0]).html(nowEnCnContent.substring(calucIndex, calucEnd1)+"<br>"+ content.substring(calucIndex, calucEnd));
 }
 
 function freshAudioContent1() {
@@ -212,8 +214,8 @@ function initAudioClick(audioNow) {
         totalTime = this.duration;
         startTime = new Date();
         nowAudio = this;
-        nowInterval = setInterval(freshAudioContent, 1000);
         translateToENCN($($(nowAudio).parent().find(".content")[0]).html());
+        nowInterval = setInterval(freshAudioContent, 2000);
     })
     console.log("加载第" + i + "个，完成")
     $(audioNow).on("pause", function () {

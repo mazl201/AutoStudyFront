@@ -66,10 +66,30 @@ router.post('/uploadFile', upload.single('file_data'), function (req, res, next)
                     return;
                 }
                 var buf = new Buffer(data, 'binary');
-                var str = iconv.decode(buf, 'GBK');
+                var txtContent = iconv.decode(buf, 'GBK');
                 var originName = file.originalname.replace("." + suffix, "");
-                word2voice(str, 3, 4, originName)
-                fs.unlink('./public/filetext/' + file.filename, function (err, ret) {
+                // word2voice(str, 3, 4, originName);
+                if (txtContent) {
+
+                    let waitWord2VoideComplete = async function(){
+
+                        let word2voiceResult = await word2voice(txtContent, 3, 4, originName);
+                        if(word2voiceResult == "success"){
+                            file['newfilename'] = '${file.filename}.${suffix}';
+                            ret['file'] = file;
+                            ret['error'] = ""
+                            res.send(ret);
+                        }else{
+                            ret['error'] = "文件为空,或者暂时不支持的文件类型."
+                            res.send(ret);
+                        }
+                    }
+                    waitWord2VoideComplete();
+                }else{
+                    ret['error'] = "文件为空,或者暂时不支持的文件类型."
+                    res.send(ret);
+                }
+                fs.unlink('./public/filetext/' + file.filename+"."+suffix, function (err, ret) {
                     if (err) {
                         console.log("delete file failed")
                         return;
@@ -77,10 +97,7 @@ router.post('/uploadFile', upload.single('file_data'), function (req, res, next)
                     return "delete txt file success";
                 })
             })
-            file['newfilename'] = '${file.filename}.${suffix}';
-            ret['file'] = file;
-            ret['error'] = ""
-            res.send(ret);
+
         }else if(suffix.toUpperCase().indexOf("PDF") > -1){
             //文件重命名
             fs.renameSync('./public/filetext/' + file.filename, './public/filetext/' + file.filename + "." + suffix);
@@ -626,10 +643,19 @@ router.get("/deleteMongoDB", function (req, res, next) {
 router.post("/baidu_api_down", function (req, res, next) {
     var response = res;
     if (req.body.content) {
-        word2voice(req.body.content, req.body.spd, req.body.per);
-        res.end("success")
+
+        let waitWord2VoideComplete = async function(){
+
+            let word2voiceResult = await word2voice(req.body.content, req.body.spd, req.body.per);
+            if(word2voiceResult == "success"){
+                res.end("success");
+            }
+            res.end("failed");
+        }
+        waitWord2VoideComplete();
+    }else{
+        res.end("failed");
     }
-    res.end("failed")
 });
 
 router.post("/retry_baidu_api_down", function (req, res, next) {

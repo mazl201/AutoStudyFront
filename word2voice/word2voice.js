@@ -38,7 +38,48 @@ function pad(num, n) {
     return num;
 }
 
-function pathImgFailedTxtUpload(pathTxt, fileName, pathImg, originContent) {
+function failedTxtPathImg2Mongodb(pathImg, db, chunksColl, id,resolveVoice) {
+//插入 上传图片
+    if (pathImg) {
+        fs.stat(pathImg, function (err, res) {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            var gridFSdb1 = new GridFSBucket(db);
+            var fileReadStream1 = fs.createReadStream(pathImg);
+            var openUploadStream1 = gridFSdb1.openUploadStream(pathImg);
+
+            var license = fs.readFileSync(pathImg);
+            var idImg = openUploadStream1.id;
+            openUploadStream1.once('finish', function () {
+                chunksColl.update({_id: id}, {
+                    $set: {
+                        fileImgPathId: idImg,
+                        path: pathImg
+                    }
+                }, function (err, result) {
+                    resolveVoice("success");
+                    console.log(result);
+                })
+
+                fs.unlink(pathImg, function (err, result) {
+                    if (err) {
+                        console.log("delete compress image file failed")
+                        return;
+                    }
+                    return "delete  compress image file success";
+                })
+            })
+            fileReadStream1.pipe(openUploadStream1)
+        })
+        return 1;
+    }else {
+        return 0;
+    }
+}
+
+function pathImgFailedTxtUpload(pathTxt, fileName, pathImg, originContent, resolveVoice) {
     if (pathTxt) {
         mongoClient.connect("mongodb://106.12.28.10:27017", function (err, conn) {
             var db = conn.db("baidu_voice");
@@ -77,39 +118,10 @@ function pathImgFailedTxtUpload(pathTxt, fileName, pathImg, originContent) {
                         }, function (err, result) {
                             console.log(result);
                         })
-                        //插入 上传图片
-                        if (pathImg) {
-                            fs.stat(pathImg, function (err, res) {
-                                if (err) {
-                                    console.log(err);
-                                    return;
-                                }
-                                var gridFSdb1 = new GridFSBucket(db);
-                                var fileReadStream1 = fs.createReadStream(pathImg);
-                                var openUploadStream1 = gridFSdb1.openUploadStream(pathImg);
+                        if (failedTxtPathImg2Mongodb(pathImg, db, chunksColl, id,resolveVoice) == 1){
 
-                                var license = fs.readFileSync(pathImg);
-                                var idImg = openUploadStream1.id;
-                                openUploadStream1.once('finish', function () {
-                                    chunksColl.update({_id: id}, {
-                                        $set: {
-                                            fileImgPathId: idImg,
-                                            path: pathImg
-                                        }
-                                    }, function (err, result) {
-                                        console.log(result);
-                                    })
-
-                                    fs.unlink(pathImg, function (err, result) {
-                                        if (err) {
-                                            console.log("delete compress image file failed")
-                                            return;
-                                        }
-                                        return "delete  compress image file success";
-                                    })
-                                })
-                                fileReadStream1.pipe(openUploadStream1)
-                            })
+                        }else{
+                            resolveVoice("success");
                         }
                     }
                 })
@@ -121,9 +133,9 @@ function pathImgFailedTxtUpload(pathTxt, fileName, pathImg, originContent) {
     }
 }
 
-function saveImgToMongodbIfHave(db, chunksColl, id, pathImg,resolveOut) {
-    console.log("start save img file to mongodb "+pathImg);
+function saveImgToMongodbIfHave(db, chunksColl, id, pathImg, resolveOut) {
     if (pathImg) {
+        console.log("start save img file to mongodb " + pathImg);
         let promiseImgFile = new Promise(function (resolve, reject) {
             fs.stat(pathImg, function (err, res) {
                 if (err) {
@@ -165,13 +177,13 @@ function saveImgToMongodbIfHave(db, chunksColl, id, pathImg,resolveOut) {
         }
         waitImgFile();
         return 1;
-    }else{
+    } else {
         return 0;
     }
 }
 
-function saveMp3File2Mongodb(path, content, pathImg,resolve,updateFileName,filename,callback) {
-    console.log("start save mp3 file 2 mongodb  "+updateFileName);
+function saveMp3File2Mongodb(path, content, pathImg, resolve, updateFileName, filename, callback) {
+    console.log("start save mp3 file 2 mongodb  " + updateFileName);
     mongoClient.connect("mongodb://106.12.28.10:27017", function (err, conn) {
 
         if (path) {
@@ -210,7 +222,7 @@ function saveMp3File2Mongodb(path, content, pathImg,resolve,updateFileName,filen
                             //插入 上传图片
                             let returnNum = saveImgToMongodbIfHave(db, chunksColl, id, pathImg);
 
-                            if(returnNum == 0){
+                            if (returnNum == 0) {
                                 resolve(1)
                             }
 
@@ -237,7 +249,7 @@ function saveMp3File2Mongodb(path, content, pathImg,resolve,updateFileName,filen
 
 function splitAndTranslate2voice(filename, index, pathImg, splitConten, spd, callback, retrys, per) {
 
-    return new Promise(function(resolve,reject){
+    return new Promise(function (resolve, reject) {
         var uuid2 = uuid();
         if (!filename) {
             filename = "undefined";
@@ -273,7 +285,7 @@ function splitAndTranslate2voice(filename, index, pathImg, splitConten, spd, cal
                         console.log("文字转语音,成功收到返回" + updateFileName)
                         fs.writeFile("./public/baidu_mp3/" + uuid1, result.data, function (err, ret) {
                             var path = "./public/baidu_mp3/" + uuid1;
-                            saveMp3File2Mongodb(path, content, pathImg,resolve,updateFileName,filename,callback);
+                            saveMp3File2Mongodb(path, content, pathImg, resolve, updateFileName, filename, callback);
                         })
                     } else {
                         console.log(result);
@@ -284,7 +296,15 @@ function splitAndTranslate2voice(filename, index, pathImg, splitConten, spd, cal
                     if (!retrys) {
                         retrys = 0;
                     }
-                    word2voice(splitConten, spd, per, updateFileName, retrys + 1, pathImg);
+
+                    let wordRetryFunc = async function(){
+                        let newVar = await word2voice(splitConten, spd, per, updateFileName, retrys + 1, pathImg);
+                        if(newVar == "success"){
+                            resolve(1);
+                        }
+                    }
+                    wordRetryFunc();
+
                 })
                 //     .
                 // then(function (path) {
@@ -297,66 +317,72 @@ function splitAndTranslate2voice(filename, index, pathImg, splitConten, spd, cal
 }
 
 function word2voice(originContent, spd, per, filename, retrys, pathImg, callback) {
-    try {
-        var spd = spd;
-        var per = per;
-        var pathImg = pathImg;
-        var length = originContent.length;
-        var splits = new Array();
-        var splitNum = 900;
-        if (retrys > 5) {
-            console.log("已经重试5次" + filename)
-            // console.log(originContent);
-            var fileName = filename + "  " + dateformat(new Date(), "yyyy-mm-dd HH:MM:ss");
-            if (dirExists("./public/failedTxt/")) {
-                var path2 = "./public/failedTxt/" + uuid() + ".txt";
-                if (originContent) {
-                    fs.writeFile(path2, originContent, function (err, ret) {
-                        if (err) {
-                            console.log(err)
-                        } else {
-                            pathImgFailedTxtUpload(path2, fileName, pathImg, originContent);
-                        }
-                    })
-                } else {
-                    sendMsg("failed word 2 voice txt don't have content");
-                }
-                if (callback) {
-                    callback("");
-                }
-            }
-        }
-        if (length > splitNum) {
-            //0 2048
-            sendMsg("文字转语音，开始拆分");
-            for (var index = 0; index < length; index += splitNum) {
-                if ((index + splitNum) < length) {
-                    splits.push(originContent.substring(index, index + splitNum))
-                } else {
-                    splits.push(originContent.substring(index, length));
+    return new Promise(function (resolveVoice, rejectVoice) {
+        try {
+            var spd = spd;
+            var per = per;
+            var pathImg = pathImg;
+            var length = originContent.length;
+            var splits = new Array();
+            var splitNum = 1000;
+            if (retrys > 5) {
+                console.log("已经重试5次" + filename)
+                // console.log(originContent);
+                var fileName = filename + "  " + dateformat(new Date(), "yyyy-mm-dd HH:MM:ss");
+                if (dirExists("./public/failedTxt/")) {
+                    var path2 = "./public/failedTxt/" + uuid() + ".txt";
+                    if (originContent) {
+                        fs.writeFile(path2, originContent, function (err, ret) {
+                            if (err) {
+                                console.log(err)
+                            } else {
+                                pathImgFailedTxtUpload(path2, fileName, pathImg, originContent, resolveVoice);
+                            }
+                        })
+                    } else {
+                        sendMsg("failed word 2 voice txt don't have content");
+                    }
+                    if (callback) {
+                        callback("");
+                    }
                 }
             }
-        } else {
-            splits.push(originContent);
-        }
-        sendMsg("文字转语音,开始foreach")
-        // splits.forEach(function (splitConten, index) {
-        //     splitAndTranslate2voice(filename, index, pathImg, splitConten, spd, callback, retrys, per)
-        // });
-        var index = 0;
-        let oneByOneWord2voice = async function(){
-            let newVar = await splitAndTranslate2voice(filename, index, pathImg, splits[index], spd, callback, retrys, per);
-            index = index + 1;
-            if(newVar == 1 && index <= (splits.length - 1)){
-                oneByOneWord2voice()
+            if (length > splitNum) {
+                //0 2048
+                sendMsg("文字转语音，开始拆分");
+                for (var index = 0; index < length; index += splitNum) {
+                    if ((index + splitNum) < length) {
+                        splits.push(originContent.substring(index, index + splitNum))
+                    } else {
+                        splits.push(originContent.substring(index, length));
+                    }
+                }
+            } else {
+                splits.push(originContent);
+            }
+            sendMsg("文字转语音,开始foreach")
+            // splits.forEach(function (splitConten, index) {
+            //     splitAndTranslate2voice(filename, index, pathImg, splitConten, spd, callback, retrys, per)
+            // });
+            var index = 0;
+            let oneByOneWord2voice = async function () {
+                let newVar = await splitAndTranslate2voice(filename, index, pathImg, splits[index], spd, callback, retrys, per);
+                index = index + 1;
+                if (newVar == 1 && index <= (splits.length - 1)) {
+                    oneByOneWord2voice()
+                }
+
+                if (splits.length == index) {
+                    resolveVoice("success");
+                }
+
             }
 
+            oneByOneWord2voice()
+        } catch (e) {
+            console.log(e);
         }
-
-        oneByOneWord2voice()
-    } catch (e) {
-        console.log(e);
-    }
+    })
 
 }
 
