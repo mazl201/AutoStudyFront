@@ -210,7 +210,7 @@ function oneByoneReadImgWord2Voice(fileName, path) {
                         resolveImg("cantvoice");
                     }
                 }
-
+                waitWord2voiceComplete();
 
             } else {
                 resolveImg("noWord");
@@ -238,12 +238,12 @@ try {
                     let result = await oneByoneReadImgWord2Voice(strings[index], path);
                     index = index + 1;
                     if (result == "success") {
-                        fs.unlink(paths.join(path, fileName), function (err, result) {
+                        fs.unlink(paths.join(path, strings[index]), function (err, result) {
                             if (err) {
                                 console.log("delete compress image file failed")
                                 return;
                             }
-                            return "delete  compress image file success "+fileName;
+                            return "delete  compress image file success "+strings[index];
                         })
                         oneByoneDisposeImg();
                     }else if(result == "noWord"){
