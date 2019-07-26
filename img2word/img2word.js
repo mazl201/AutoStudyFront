@@ -130,9 +130,9 @@ try {
                                 console.log("rotate split img file failed")
                                 fs.unlink(pathTxt, function (err) {
                                     if (err) {
-                                        console.log("删除转换失败文件，失败");
+                                        console.log("读取文件，长度和宽度失败");
                                     } else {
-                                        console.log("删除转换失败文件，成功");
+                                        console.log("读取文件，长度和宽度成功");
                                     }
                                 })
                             } else {
@@ -144,9 +144,9 @@ try {
                                             } else {
                                                 fs.unlink(pathTxt, function (err) {
                                                     if (!err) {
-                                                        console.log("删除临时图片文件成功");
+                                                        console.log("删除临时旋转图片成功");
                                                     } else {
-                                                        console.log("删除切割的图片失败");
+                                                        console.log("删除临时旋转图片失败");
                                                     }
                                                 })
                                             }
@@ -161,9 +161,9 @@ try {
                                             } else {
                                                 fs.unlink(pathTxt, function (err) {
                                                     if (!err) {
-                                                        console.log("删除临时图片文件成功");
+                                                        console.log("删除临时旋转图片成功");
                                                     } else {
-                                                        console.log("删除切割的图片失败");
+                                                        console.log("删除临时旋转图片失败");
                                                     }
                                                 })
                                             }
@@ -312,9 +312,9 @@ schedule.scheduleJob(ruleOut, function () {
 
                                 fs.unlink(pathTxt, function (err) {
                                     if (!err) {
-                                        console.log("删除临时图片文件成功");
+                                        console.log("删除临时裁剪图片文件成功");
                                     } else {
-                                        console.log("删除切割的图片失败");
+                                        console.log("删除临时裁剪图片文件失败");
                                     }
                                 })
                             })
