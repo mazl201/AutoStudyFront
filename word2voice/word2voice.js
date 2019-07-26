@@ -68,7 +68,7 @@ function failedTxtPathImg2Mongodb(pathImg, db, chunksColl, id,resolveVoice) {
                         console.log("delete compress image file failed")
                         return;
                     }
-                    return "delete  compress image file success";
+                    return "delete compress image file success";
                 })
             })
             fileReadStream1.pipe(openUploadStream1)
@@ -220,7 +220,7 @@ function saveMp3File2Mongodb(path, content, pathImg, resolve, updateFileName, fi
                             console.log("update mp3 related file success to mongodb " + filename);
 
                             //插入 上传图片
-                            let returnNum = saveImgToMongodbIfHave(db, chunksColl, id, pathImg);
+                            let returnNum = saveImgToMongodbIfHave(db, chunksColl, id, pathImg,resolve);
 
                             if (returnNum == 0) {
                                 resolve(1)
@@ -321,7 +321,7 @@ function word2voice(originContent, spd, per, filename, retrys, pathImg, callback
         try {
             var spd = spd;
             var per = per;
-            var pathImg = pathImg;
+            // var pathImg = pathImg;
             var length = originContent.length;
             var splits = new Array();
             var splitNum = 1000;

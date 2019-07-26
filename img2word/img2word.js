@@ -109,7 +109,10 @@ function pad(num, n) {
 //     console.log(err);
 // })
 try {
-    schedule.scheduleJob('1 * * * * *', function () {
+    var rule2 = new schedule.RecurrenceRule();
+    var times2 = [1, 3, 6, 9, 11, 13, 16, 19, 21, 23, 26, 29, 31, 33, 36, 39, 41, 43, 46, 49, 51, 53, 56];
+    rule2.second = times2;
+    schedule.scheduleJob(times2, function () {
         console.log('scheduleCronstyle:scanSplitImg ' + new Date());
         if (dirExists("./public/images/splitImg/")) {
             var path = "./public/images/splitImg/"
@@ -202,11 +205,11 @@ function oneByoneReadImgWord2Voice(fileName, path) {
                 sendMsg("开始，文字转语音");
                 var path = "./public/images/compress/" + fileName;
 
-                let waitWord2voiceComplete = async function(){
+                let waitWord2voiceComplete = async function () {
                     let word2voiceResult = await word2voice(content, 3, 3, dateformat(new Date(), "yyyy-mm-dd"), 0, path);
-                    if(word2voiceResult == "success"){
+                    if (word2voiceResult == "success") {
                         resolveImg("success");
-                    }else if(word2voiceResult == "failed"){
+                    } else if (word2voiceResult == "failed") {
                         resolveImg("cantvoice");
                     }
                 }
@@ -225,7 +228,7 @@ function oneByoneReadImgWord2Voice(fileName, path) {
 
 try {
     var rule2 = new schedule.RecurrenceRule();
-    var times2 = [1,3,6,9,11,13,16,19,21,23,26,29,31,33,36,39,41,43,46,49,51,53,56];
+    var times2 = [1, 3, 6, 9, 11, 13, 16, 19, 21, 23, 26, 29, 31, 33, 36, 39, 41, 43, 46, 49, 51, 53, 56];
     rule2.minute = times2;
     schedule.scheduleJob(times2, function () {
         console.log('scheduleCronstyle:compressImg ' + new Date());
@@ -238,19 +241,21 @@ try {
                     let result = await oneByoneReadImgWord2Voice(strings[index], path);
                     index = index + 1;
                     if (result == "success") {
-                        fs.unlink(paths.join(path, strings[index]), function (err, result) {
-                            if (err) {
-                                console.log("delete compress image file failed")
-                                return;
-                            }
-                            return "delete  compress image file success "+strings[index];
-                        })
+                        if(path && strings[index]){
+                            fs.unlink(paths.join(path, strings[index]), function (err, result) {
+                                if (err) {
+                                    console.log("delete compress image file failed")
+                                    return;
+                                }
+                                return "delete  compress image file success " + strings[index];
+                            })
+                        }
                         oneByoneDisposeImg();
-                    }else if(result == "noWord"){
+                    } else if (result == "noWord") {
                         oneByoneDisposeImg();
-                    }else if(result == "cantvoice"){
+                    } else if (result == "cantvoice") {
                         oneByoneDisposeImg();
-                    }else if(result == "cantgetImg2Word"){
+                    } else if (result == "cantgetImg2Word") {
                         console.log("接口 未能 返回 但仍然繼續 執行");
                         oneByoneDisposeImg();
                     }
@@ -263,8 +268,12 @@ try {
     console.log(e);
 }
 
-try {
-    schedule.scheduleJob('2 * * * * *', function () {
+
+var ruleOut = new schedule.RecurrenceRule();
+var ruleOut = [1, 3, 6, 9, 11, 13, 16, 19, 21, 23, 26, 29, 31, 33, 36, 39, 41, 43, 46, 49, 51, 53, 56];
+rule2.second = ruleOut;
+schedule.scheduleJob(ruleOut, function () {
+    try {
         console.log('scheduleCronstyle:scanSplitImgRotate ' + new Date());
         if (dirExists("./public/images/splitImgRotate/")) {
             var path = "./public/images/splitImgRotate/";
@@ -315,12 +324,11 @@ try {
                 })
             }
         }
+    } catch (e) {
+        console.log(e);
+    }
 
-
-    });
-} catch (e) {
-    console.log(e);
-}
+});
 
 
 function splitImgByPath(fileName, type, fileDirectory, splitDirectory) {
