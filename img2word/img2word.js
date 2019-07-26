@@ -404,7 +404,7 @@ function splitImgByPath(fileName, type, fileDirectory, splitDirectory) {
     })
 }
 
-function extracted(path, file) {
+function compressImgFile2CompressDir(path, file) {
     if (dirExists("./public/images/compress/")) {
         return new Promise(function (resolove, reject) {
             gm(path + file)
@@ -447,44 +447,65 @@ function compressOrSplitImg(path) {
                 console.log('error:\n' + err);
                 return;
             }
-            if (files) {
-                files.forEach(function (file) {
-                    fs.stat(path + file, function (err, stat) {
-                        if (err) {
-                            console.log(err);
-                            return;
-                        }
-                        if (stat.isDirectory()) {
-                            // 如果是文件夹遍历
-                            explorer(path + file);
-                        } else {
-                            // 读出所有的文件
-                            console.log('文件名:' + path + file);
-                            if (file.indexOf("\.") > -1) {
-                                // 将 文件 分解
-                                var files = file.split("\.");
-                                let splitImg = false;
-                                var extracted2 = false;
-                                let splitCompleteAsync = async function () {
-                                    splitImg = await splitImgByPath(files[0], files[1], path, "./public/images/splitImg/");
-                                    if (splitImg && extracted2) {
-                                        fs.unlinkSync(path + file)
-                                    }
-                                }
-                                lock.acquire("splitComplete", splitCompleteAsync)
-                                let extractAsync = async function () {
-                                    extracted2 = await extracted(path, file);
-                                    if (splitImg && extracted2) {
-                                        fs.unlinkSync(path + file)
-                                    }
-                                }
-                                lock.acquire("extractComplete", extractAsync)
+            if (files && files.length > 0) {
+                var index = 0;
+                function getCSpromise(){
+                    return new Promise(function(resolveCS, rejectCS){
+                        var file = files[index];
+                        fs.stat(path + file, function (err, stat) {
+                            if (err) {
+                                console.log(err);
+                                return;
                             }
+                            if (stat.isDirectory()) {
+                                // 如果是文件夹遍历
+                                explorer(path + file);
+                            } else {
+                                // 读出所有的文件
+                                console.log('文件名:' + path + file);
+                                if (file.indexOf("\.") > -1) {
+                                    // 将 文件 分解
+                                    var files = file.split("\.");
+                                    let splitResult = false;
+                                    var compressResult = false;
+                                    let splitCompleteAsync = async function () {
+                                        splitResult = await splitImgByPath(files[0], files[1], path, "./public/images/splitImg/");
+                                        if (splitResult && compressResult) {
+                                            resolveCS("yes")
+                                            fs.unlinkSync(path + file)
+                                        }
+                                    }
+                                    splitCompleteAsync();
+                                    let extractAsync = async function () {
+                                        compressResult = await compressImgFile2CompressDir(path, file);
+                                        if (splitResult && compressResult) {
+                                            resolveCS("yes")
+                                            fs.unlinkSync(path + file)
+                                        }
+                                    }
+                                    extractAsync()
+                                }
 
 
-                        }
-                    })
-                })
+                            }
+                        })
+                    });
+                }
+
+                // files.forEach()
+                let oneByoneCSdispose = async function(){
+                    let newVar = await getCSpromise();
+                    index = index + 1;
+                    if(newVar == "yes" && index < files.length){
+                        oneByoneCSdispose();
+                    }
+
+                    // if(index == files.length){
+                    //
+                    // }
+                }
+
+                oneByoneCSdispose();
             }
             // scanDirectory("./public/images/compress/")
         })
