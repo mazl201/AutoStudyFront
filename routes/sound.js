@@ -76,6 +76,10 @@ router.post('/uploadFile', upload.single('file_data'), function (req, res, next)
                 if (txtContent) {
 
                     let waitWord2VoideComplete = async function () {
+                        spd = 3;
+                        if(req.body.spd){
+                            spd = req.body.spd;
+                        }
 
                         let word2voiceResult = await word2voice(txtContent, 3, 4, originName);
                         if (word2voiceResult == "success") {

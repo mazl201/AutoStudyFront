@@ -26,6 +26,9 @@ block content
         font(size="6" id="contentDis")
     br
     br
+    select.selectpicker(id="myFilespd")
+        each name,key in spdSelect
+            option(value="#{name}") #{key}
     input(type="file" id="input-id" class="file")
     br
     a(href="javascript:void(0)" class='btn uploadFileButton') 上传文件-转储成MP3文件
