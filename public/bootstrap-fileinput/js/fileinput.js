@@ -2878,6 +2878,7 @@
             if (typeof self.uploadExtraData === 'function') {
                 data = self.uploadExtraData(fileId, index);
             }
+
             return data;
         },
         _initXhr: function (xhrobj, fileId, fileCount) {

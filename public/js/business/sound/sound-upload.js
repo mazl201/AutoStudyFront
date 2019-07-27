@@ -112,4 +112,6 @@ $(".uploadFileButton").on("click", function () {
     }
 })
 
-$("#input-id").fileinput({'showUpload':true, 'previewFileType':'any','uploadUrl':"/sound/uploadFile","uploadExtraData":{spd:$("#myFilespd").val()}});
+$("#input-id").fileinput({'showUpload':true, 'previewFileType':'any','uploadUrl':"/sound/uploadFile","uploadExtraData":function(){
+        return {spd:$("#myFilespd").val()}
+    }});
