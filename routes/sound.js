@@ -806,6 +806,10 @@ router.get('/img_list_count', function (req, res, next) {
 router.get('/mp3_list', function (req, res, next) {
     var content = new Array("1", "2", "3", "4", "5")
     var pageIndex;
+    var fileName = "";
+    if(req.query && req.query.fileName){
+        fileName = req.query.fileName;
+    }
     if (req.query && req.query.index) {
         pageIndex = parseInt(req.query.index);
     } else {
@@ -816,7 +820,7 @@ router.get('/mp3_list', function (req, res, next) {
             console.log("mongodb connect failed");
         } else {
             var collection = connect.db("baidu_voice").collection("fs.files");
-            collection.find({content: {$ne: null},"fileImgPathId":null}).sort({filename: 1}).skip((pageIndex - 1) * 5).limit(5).toArray(function (err, ret) {
+            collection.find({content: {$ne: null},"fileImgPathId":null,originFileName:fileName}).sort({filename: 1}).skip((pageIndex - 1) * 5).limit(5).toArray(function (err, ret) {
                 if (err) {
                     console.log("query mongodb baidu_voice.mp3_list failed");
                 } else {

@@ -22,14 +22,28 @@ $('.counter-value').each(function(){
     });
 });
 
+$(".everyFileName").click(function(){
+    debugger;
+    let fileName = $(this).find(".title").html();
+
+    $("#presentFileName").html("当前选中 "+fileName);
+
+    $("#mp3AlterIframe").attr("src","/sound/mp3_list?"+"fileName="+fileName);
+    $("#presentFileName").attr("var",fileName);
+})
+
 $(".showHidden").mouseover(function(){
 
     $(".showHiddenDiv").show();
 })
 
-$(".showHidden").mouseout(function(){
-
+$("#closeCountss").click(function(){
     $(".showHiddenDiv").hide();
 })
+
+/*$(".showHiddenDiv").mouseout(function(){
+    debugger;
+    $(".showHiddenDiv").hide();
+})*/
 
 var nowExternalDiv = $("#footerDivContent");

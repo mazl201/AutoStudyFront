@@ -79,8 +79,9 @@ function failedTxtPathImg2Mongodb(pathImg, db, chunksColl, id,resolveVoice) {
     }
 }
 
-function pathImgFailedTxtUpload(pathTxt, fileName, pathImg, originContent, resolveVoice) {
+function pathImgFailedTxtUpload(pathTxt, filename, pathImg, originContent, resolveVoice) {
     if (pathTxt) {
+        var fileName = filename + "  " + dateformat(new Date(), "yyyy-mm-dd HH:MM:ss");
         mongoClient.connect("mongodb://106.12.28.10:27017", function (err, conn) {
             var db = conn.db("baidu_voice");
             var gridFSdb = new GridFSBucket(db);
@@ -113,16 +114,17 @@ function pathImgFailedTxtUpload(pathTxt, fileName, pathImg, originContent, resol
                             $set: {
                                 filename: fileName + ".txt",
                                 "content": originContent,
-                                "originFileName": fileName
+                                "originFileName": filename
                             }
                         }, function (err, result) {
                             console.log(result);
-                        })
-                        if (failedTxtPathImg2Mongodb(pathImg, db, chunksColl, id,resolveVoice) == 1){
+                            if (failedTxtPathImg2Mongodb(pathImg, db, chunksColl, id,resolveVoice) == 1){
 
-                        }else{
-                            resolveVoice("success");
-                        }
+                            }else{
+                                resolveVoice("success");
+                            }
+                        })
+
                     }
                 })
 
@@ -328,7 +330,7 @@ function word2voice(originContent, spd, per, filename, retrys, pathImg, callback
             if (retrys > 5) {
                 console.log("已经重试5次" + filename)
                 // console.log(originContent);
-                var fileName = filename + "  " + dateformat(new Date(), "yyyy-mm-dd HH:MM:ss");
+
                 if (dirExists("./public/failedTxt/")) {
                     var path2 = "./public/failedTxt/" + uuid() + ".txt";
                     if (originContent) {
@@ -336,7 +338,7 @@ function word2voice(originContent, spd, per, filename, retrys, pathImg, callback
                             if (err) {
                                 console.log(err)
                             } else {
-                                pathImgFailedTxtUpload(path2, fileName, pathImg, originContent, resolveVoice);
+                                pathImgFailedTxtUpload(path2, filename, pathImg, originContent, resolveVoice);
                             }
                         })
                     } else {
