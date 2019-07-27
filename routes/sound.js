@@ -3,6 +3,7 @@ var http = require("http");
 var request1 = require("request");
 var urlencode = require("urlencode");
 var crypto = require("crypto");
+jschardet = require('jschardet');
 
 var fs = require("fs");
 var mongoClient = require("mongodb").MongoClient;
@@ -57,7 +58,7 @@ router.post('/uploadFile', upload.single('file_data'), function (req, res, next)
     if (file) {
         var fileNameArr = file.originalname.split('.');
         var suffix = fileNameArr[fileNameArr.length - 1];
-        if(suffix.toUpperCase().indexOf("TXT") > -1){
+        if (suffix.toUpperCase().indexOf("TXT") > -1) {
             //文件重命名
             fs.renameSync('./public/filetext/' + file.filename, './public/filetext/' + file.filename + "." + suffix);
             fs.readFile('./public/filetext/' + file.filename + "." + suffix, "binary", function (err, data) {
@@ -65,31 +66,34 @@ router.post('/uploadFile', upload.single('file_data'), function (req, res, next)
                     console.log("has error")
                     return;
                 }
+
                 var buf = new Buffer(data, 'binary');
-                var txtContent = iconv.decode(buf, 'GBK');
+                var txtContent = "";
+                var txtContent = iconv.decode(buf,jschardet.detect(data).encoding);
+
                 var originName = file.originalname.replace("." + suffix, "");
                 // word2voice(str, 3, 4, originName);
                 if (txtContent) {
 
-                    let waitWord2VoideComplete = async function(){
+                    let waitWord2VoideComplete = async function () {
 
                         let word2voiceResult = await word2voice(txtContent, 3, 4, originName);
-                        if(word2voiceResult == "success"){
+                        if (word2voiceResult == "success") {
                             file['newfilename'] = '${file.filename}.${suffix}';
                             ret['file'] = file;
                             ret['error'] = ""
                             res.send(ret);
-                        }else{
+                        } else {
                             ret['error'] = "文件为空,或者暂时不支持的文件类型."
                             res.send(ret);
                         }
                     }
                     waitWord2VoideComplete();
-                }else{
+                } else {
                     ret['error'] = "文件为空,或者暂时不支持的文件类型."
                     res.send(ret);
                 }
-                fs.unlink('./public/filetext/' + file.filename+"."+suffix, function (err, ret) {
+                fs.unlink('./public/filetext/' + file.filename + "." + suffix, function (err, ret) {
                     if (err) {
                         console.log("delete file failed")
                         return;
@@ -98,21 +102,21 @@ router.post('/uploadFile', upload.single('file_data'), function (req, res, next)
                 })
             })
 
-        }else if(suffix.toUpperCase().indexOf("PDF") > -1){
+        } else if (suffix.toUpperCase().indexOf("PDF") > -1) {
             //文件重命名
             fs.renameSync('./public/filetext/' + file.filename, './public/filetext/' + file.filename + "." + suffix);
 
-            if(dirExists("./public/pdf2imgsimg/") && dirExists("./public/filetext/")){
+            if (dirExists("./public/pdf2imgsimg/") && dirExists("./public/filetext/")) {
                 var time = (new Date()).getTime();
-                pdf2png.convert("./public/filetext/" + file.filename + "." + suffix, function(resp){
+                pdf2png.convert("./public/filetext/" + file.filename + "." + suffix, function (resp) {
 
-                    if(!resp.success){
+                    if (!resp.success) {
                         console.log("Something went wrong: " + resp.error);
                         return;
                     }
 
-                    fs.writeFile("./public/pdf2imgsimg/"+time+"-"+resp.number+".png", resp.data, function(err) {
-                        if(err) {
+                    fs.writeFile("./public/pdf2imgsimg/" + time + "-" + resp.number + ".png", resp.data, function (err) {
+                        if (err) {
                             console.log(err);
                         }
                         console.log("transfer success");
@@ -135,7 +139,7 @@ router.post('/uploadFile', upload.single('file_data'), function (req, res, next)
         }
 
 
-    }else{
+    } else {
         ret['error'] = "文件为空,或者暂时不支持的文件类型."
         res.send(ret);
     }
@@ -593,7 +597,7 @@ router.get("/deleteMongoDB", function (req, res, next) {
                 if (err) {
                     console.log("can't find fs.files")
                 } else {
-                    try{
+                    try {
                         if (ret[0].fileImgPathId) {
                             collection.find({_id: ret[0].fileImgPathId}).toArray(function (err, retImg) {
                                 try {
@@ -629,7 +633,7 @@ router.get("/deleteMongoDB", function (req, res, next) {
                             }
                             res.end("success");
                         })
-                    }catch(e){
+                    } catch (e) {
                         console.log("同时删除 file img 失败");
                     }
                 }
@@ -644,16 +648,16 @@ router.post("/baidu_api_down", function (req, res, next) {
     var response = res;
     if (req.body.content) {
 
-        let waitWord2VoideComplete = async function(){
+        let waitWord2VoideComplete = async function () {
 
             let word2voiceResult = await word2voice(req.body.content, req.body.spd, req.body.per);
-            if(word2voiceResult == "success"){
+            if (word2voiceResult == "success") {
                 res.end("success");
             }
             res.end("failed");
         }
         waitWord2VoideComplete();
-    }else{
+    } else {
         res.end("failed");
     }
 });
@@ -661,14 +665,15 @@ router.post("/baidu_api_down", function (req, res, next) {
 router.post("/retry_baidu_api_down", function (req, res, next) {
     var response = res;
     if (req.body.content) {
-        function callBack(id){
+        function callBack(id) {
             res.end(id.toString())
         }
+
         var filename = req.body.filename.trim().split(/\s+/g)[0];
-        if(filename.indexOf("@@") > -1){
+        if (filename.indexOf("@@") > -1) {
             filename = filename.split("@@")[0]
         }
-        word2voice(req.body.content, 3,3,filename,1,null,callBack);
+        word2voice(req.body.content, 3, 3, filename, 1, null, callBack);
     }
 });
 
@@ -720,7 +725,7 @@ router.get('/img_download', function (req, res, next) {
 
                         res.writeHead(200, {
                             'Content-Type': 'application/force-download',
-                            'Content-Disposition': 'attachment; filename=' + urlencode( ret[0].filename,"UTF-8"),
+                            'Content-Disposition': 'attachment; filename=' + urlencode(ret[0].filename, "UTF-8"),
                             'Content-Length': ret[0].length
                         });
                         downloadStream.pipe(res);
@@ -758,7 +763,7 @@ router.get('/img_download_big', function (req, res, next) {
 
                         res.writeHead(200, {
                             'Content-Type': 'application/force-download',
-                            'Content-Disposition': 'attachment; filename=' + urlencode( ret[0].filename,"UTF-8"),
+                            'Content-Disposition': 'attachment; filename=' + urlencode(ret[0].filename, "UTF-8"),
                             'Content-Length': ret[0].length
                         });
                         downloadStream.pipe(res);
@@ -807,7 +812,7 @@ router.get('/mp3_list', function (req, res, next) {
     var content = new Array("1", "2", "3", "4", "5")
     var pageIndex;
     var fileName = "";
-    if(req.query && req.query.fileName){
+    if (req.query && req.query.fileName) {
         fileName = req.query.fileName;
     }
     if (req.query && req.query.index) {
@@ -820,14 +825,18 @@ router.get('/mp3_list', function (req, res, next) {
             console.log("mongodb connect failed");
         } else {
             var collection = connect.db("baidu_voice").collection("fs.files");
-            collection.find({content: {$ne: null},"fileImgPathId":null,originFileName:fileName}).sort({filename: 1}).skip((pageIndex - 1) * 5).limit(5).toArray(function (err, ret) {
+            collection.find({
+                content: {$ne: null},
+                "fileImgPathId": null,
+                originFileName: fileName
+            }).sort({filename: 1}).skip((pageIndex - 1) * 5).limit(5).toArray(function (err, ret) {
                 if (err) {
                     console.log("query mongodb baidu_voice.mp3_list failed");
                 } else {
-                    ret.forEach(function(retSingle){
-                        if(retSingle.filename && retSingle.filename.indexOf("mp3") > -1){
+                    ret.forEach(function (retSingle) {
+                        if (retSingle.filename && retSingle.filename.indexOf("mp3") > -1) {
                             retSingle.isMp3 = true;
-                        }else{
+                        } else {
                             retSingle.isMp3 = false;
                         }
                     })
@@ -852,14 +861,17 @@ router.get('/mp3_img', function (req, res, next) {
             console.log("mongodb connect failed");
         } else {
             var collection = connect.db("baidu_voice").collection("fs.files");
-            collection.find({content: {$ne: null},"fileImgPathId":{$ne: null}}).sort({filename: 1}).skip((pageIndex - 1) * 5).limit(5).toArray(function (err, ret) {
+            collection.find({
+                content: {$ne: null},
+                "fileImgPathId": {$ne: null}
+            }).sort({filename: 1}).skip((pageIndex - 1) * 5).limit(5).toArray(function (err, ret) {
                 if (err) {
                     console.log("query mongodb baidu_voice.mp3_list failed");
                 } else {
-                    ret.forEach(function(retSingle){
-                        if(retSingle.filename && retSingle.filename.indexOf("mp3") > -1){
+                    ret.forEach(function (retSingle) {
+                        if (retSingle.filename && retSingle.filename.indexOf("mp3") > -1) {
                             retSingle.isMp3 = true;
-                        }else{
+                        } else {
                             retSingle.isMp3 = false;
                         }
                     })
@@ -877,7 +889,7 @@ router.get('/', function (req, res, next) {
             console.log("mongodb connect failed");
         } else {
             var collection = connect.db("baidu_voice").collection("fs.files");
-            collection.aggregate({"$group" : {_id:"$originFileName", countss:{$sum:1}}},function (err, ret) {
+            collection.aggregate({"$group": {_id: "$originFileName", countss: {$sum: 1}}}, function (err, ret) {
                 if (err) {
                     console.log("query mongodb baidu_voice.mp3_list failed");
                 } else {
@@ -886,7 +898,7 @@ router.get('/', function (req, res, next) {
                     // ret.each(function(err,item){
                     //     array.add(item);
                     // })
-                    ret.toArray(function(err, items) {
+                    ret.toArray(function (err, items) {
                         console.log("count: " + items.length);
                         res.render('tabView', {title: '解放你的双手', content: items});
                     });
@@ -912,7 +924,7 @@ router.get('/mp3_list_count', function (req, res, next) {
             console.log("mongodb connect failed");
         } else {
             var collection = connect.db("baidu_voice").collection("fs.files");
-            collection.count({content: {$ne: null},"fileImgPathId":null}, function (err, ret) {
+            collection.count({content: {$ne: null}, "fileImgPathId": null}, function (err, ret) {
                 if (err) {
                     console.log("query count failed")
                 } else {
@@ -939,7 +951,7 @@ router.get('/mp3_img_count', function (req, res, next) {
             console.log("mongodb connect failed");
         } else {
             var collection = connect.db("baidu_voice").collection("fs.files");
-            collection.count({content: {$ne: null},"fileImgPathId":{$ne: null}}, function (err, ret) {
+            collection.count({content: {$ne: null}, "fileImgPathId": {$ne: null}}, function (err, ret) {
                 if (err) {
                     console.log("query count failed")
                 } else {
@@ -975,12 +987,12 @@ router.get('/mp3_download', function (req, res, next) {
                         var downloadStream = bucket.openDownloadStream(id);
 
                         let str = ret[0].filename;
-                        if(!str){
-                            str="noName.mp3"
+                        if (!str) {
+                            str = "noName.mp3"
                         }
                         res.writeHead(200, {
                             'Content-Type': 'application/force-download',
-                            'Content-Disposition': 'attachment; filename=' +urlencode( str,"UTF-8"),
+                            'Content-Disposition': 'attachment; filename=' + urlencode(str, "UTF-8"),
                             'Content-Length': ret[0].length
                         });
                         downloadStream.pipe(res);

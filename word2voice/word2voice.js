@@ -259,6 +259,7 @@ function splitAndTranslate2voice(filename, index, pathImg, splitConten, spd, cal
         var updateFileName = "";
         if (filename.indexOf("@@") > -1) {
             updateFileName = filename;
+            filename = filename.split("@@")[0];
         } else {
             updateFileName = filename + "@@" + pad(index, 6);
             updateFileName = updateFileName + "  " + dateformat(new Date(), "yyyy-mm-dd HH:MM:ss");
