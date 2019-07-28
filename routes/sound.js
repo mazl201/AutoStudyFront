@@ -113,19 +113,20 @@ router.post('/uploadFile', upload.single('file_data'), function (req, res, next)
             if (dirExists("./public/pdf2imgsimg/") && dirExists("./public/filetext/")) {
                 var time = (new Date()).getTime();
                 pdf2png.convert("./public/filetext/" + file.filename + "." + suffix, function (resp) {
-
-                    if (!resp.success) {
-                        console.log("Something went wrong: " + resp.error);
-                        return;
-                    }
-
-                    fs.writeFile("./public/pdf2imgsimg/" + time + "-" + resp.number + ".png", resp.data, function (err) {
-                        if (err) {
-                            console.log(err);
-                        }
-                        console.log("transfer success");
-                        // func.scanCompression("./public/pdf2imgsimg/");
-                    });
+                    //
+                    // if (!resp.success) {
+                    //     console.log("Something went wrong: " + resp.error);
+                    //     return;
+                    // }
+                    //
+                    // fs.writeFile("./public/pdf2imgsimg/" + time + "-" + resp.number + ".png", resp.data, function (err) {
+                    //     if (err) {
+                    //         console.log(err);
+                    //     }
+                    //     console.log("transfer success");
+                    //     // func.scanCompression("./public/pdf2imgsimg/");
+                    // });
+                    console.log("有一个文件转换成功")
                 });
             }
             func.scanCompression("./public/pdf2imgsimg/");

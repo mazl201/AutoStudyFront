@@ -26,7 +26,7 @@ block content
         font(size="6" id="contentDis")
     br
     br
-    select.selectpicker(id="myFilespd")
+    select.selectpicker(id="myFilespd" onchange="myFileSpdChange()")
         each name,key in spdSelect
             option(value="#{name}") #{key}
     input(type="file" id="input-id" class="file")

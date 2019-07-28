@@ -31,8 +31,8 @@ $('.selectpicker').selectpicker();
 
 function translateToENCN1(text) {
     var data = {
-        content: text,
-    }
+            content: text,
+        }
     ;
     $.ajax({
         url: "/sound/translate",
@@ -112,6 +112,18 @@ $(".uploadFileButton").on("click", function () {
     }
 })
 
-$("#input-id").fileinput({'showUpload':true, 'previewFileType':'any','uploadUrl':"/sound/uploadFile","uploadExtraData":function(){
-        return {spd:$("#myFilespd").val()}
-    }});
+var inputFile = $("#input-id").fileinput({
+    'showUpload': true, 'previewFileType': 'any', 'uploadUrl': "/sound/uploadFile", "uploadExtraData": function () {
+        debugger;
+        return {spd: $("#myFilespd").val()}
+    }
+});
+
+// function myFileSpdChange() {
+//     inputFile.refresh({
+//         'showUpload': true, 'previewFileType': 'any', 'uploadUrl': "/sound/uploadFile", "uploadExtraData": function () {
+//             debugger;
+//             return {spd: $("#myFilespd").val()}
+//         }
+//     });
+// }

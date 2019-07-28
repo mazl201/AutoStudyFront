@@ -4,6 +4,7 @@ var fs = require('fs');
 var filesource = require('filesource');
 var initialized = false;
 var pdfPageCount = require("./pdfPageCount.js");
+var fund = require("../img2word/img2word");
 
 var async = require("async-lock");
 var lock = new async();
@@ -122,16 +123,22 @@ exports.convert = function () {
                 //         end = totalPage;
                 //     }
                 // console.log("start for each for " + start + "---" + end);
-                for (var i = 1; i <= totalPage; i++) {
+                // for (var i = 1; i <= totalPage; i++) {
 
-                    var result = new Object();
-                    result.data = [];
-                    var her = 1;
-                    let promiseTmp = new Promise(function(resolve,reject){
+                var result = new Object();
+                result.data = [];
+                var her = 1;
+                var i = 0;
+
+                function getPromise() {
+                    return new Promise(function (resolve, reject) {
                         tmp.file({postfix: ".png"}, function (err, imageFilepath, fd) {
                             console.log("enter tmp file func");
                             if (err) {
-                                callback({success: false, error: "Error getting second temporary filepath: " + err});
+                                callback({
+                                    success: false,
+                                    error: "Error getting second temporary filepath: " + err
+                                });
                                 reject(false);
                                 return;
                             }
@@ -147,22 +154,47 @@ exports.convert = function () {
                                 }, options, imageFilepath, resp, her++);
                                 let result = await imagePromise;
                                 console.log("getted function callback")
-                                callback(result);
-                                resolve(true);
+                                // callback(result);
+                                var respss = result
+                                if (!respss.success) {
+                                    console.log("Something went wrong: " + respss.error);
+                                    resolve(false);
+                                }
+                                var time = (new Date()).getTime();
+                                fs.writeFile("./public/pdf2imgsimg/" + time + "-" + respss.number + ".png", respss.data, function (err) {
+                                    if (err) {
+                                        console.log(err);
+                                    }
+                                    console.log("transfer success");
+                                    fund.scanCompression("./public/pdf2imgsimg/")
+                                    resolve(true);
+                                    callback()
+                                    // func.scanCompression("./public/pdf2imgsimg/");
+                                });
+
                             }
                             console.log("start function callback")
 
-                            lock.acquire("img2pdf",getImageCall)
+                            lock.acquire("img2pdf", getImageCall)
                         });
                     })
-                    var waitTmp = async function(){
-                        let tmp = await promiseTmp
-                        console.log("now tmp "+tmp);
-                    }
-                    waitTmp();
                 }
-                // }
+
+                var waitTmp = async function () {
+                    let tmp = await getPromise();
+                    if (tmp == true) {
+                        waitTmp();
+                    }
+                    i = i + 1;
+                    if (i < totalPage) {
+                        return;
+                    }
+                    console.log("now tmp " + tmp);
+                }
+                waitTmp();
             }
+            // }
+            // }
 
         }, filepathOrData);
 
