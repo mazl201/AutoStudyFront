@@ -5,6 +5,8 @@ var nowAudio;
 var nowInterval;
 var nowEnCnContent;
 
+$('#viewer').viewer();
+
 document.addEventListener('copy', function(event){
     setClipboardText(event);
 });
