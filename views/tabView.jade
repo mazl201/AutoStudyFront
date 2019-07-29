@@ -20,8 +20,13 @@ block content
                                         span.counter-value #{index.countss}
                                     h3.title #{index._id}
 
-        button(id="closeCountss") 关闭
+        button(id="closeCountss" class="btn") 关闭
     p(id="presentFileName" var="") 当前选中
+
+    button(onclick="showFullScreen1()" class="btn") 1屏
+    button(onclick="showFullScreen2()" class="btn") 2屏
+    button(onclick="showFullScreen3()" class="btn") 3屏
+    button(onclick="showFullScreen4()" class="btn") 4屏
 
     //div(class="thumbnail")
     //    div(class="caption")
@@ -40,13 +45,13 @@ block content
                 a(href="#split_img" role="tab" data-toggle="tab") 分割图片
         div(class="tab-content"  )
             div(role="tabpanel" class="tab-pane active" id="upload" )
-                iframe(src="/sound/upload"  height="80%"  style="position: absolute" width="90%" )
+                iframe(src="/sound/upload" allowfullscreen   height="80%" id="fullScreen1"  style="position: absolute" width="90%" )
             div(role="tabpanel" class="tab-pane" id="mp3_list")
-                iframe(src="/sound/mp3_list" height="80%"  width="90%" style="position: absolute" id="mp3AlterIframe")
+                iframe(src="/sound/mp3_list" allowfullscreen  height="80%"  width="90%" style="position: absolute" id="mp3AlterIframe")
             div(role="tabpanel" class="tab-pane" id="pic_upload")
-                iframe(src="/sound/mp3_img" height="80%"  width="90%" style="position: absolute" )
+                iframe(src="/sound/mp3_img" allowfullscreen  height="80%" id="fullScreen3" width="90%" style="position: absolute" )
             div(role="tabpanel" class="tab-pane" id="split_img")
-                iframe(src="/sound/img_list" height="80%"   width="90%" style="position: absolute" )
+                iframe(src="/sound/img_list" allowfullscreen  height="80%" id="fullScreen4"  width="90%" style="position: absolute" )
 
 
 
