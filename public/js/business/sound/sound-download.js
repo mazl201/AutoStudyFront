@@ -78,9 +78,17 @@ function freshAudioContent() {
     }
     // translateToENCN(content)
 
-    debugger;
-    $("#footerDivContent").html(nowEnCnContent.substring(calucIndex, calucEnd1)+"<br>"+ content.substring(calucIndex, calucEnd));
-    $($(nowAudio).parent().find(".contentDis")[0]).html(nowEnCnContent.substring(calucIndex, calucEnd1)+"<br>"+ content.substring(calucIndex, calucEnd));
+    if(nowEnCnContent){
+        debugger;
+        $("#contentModalDis").html(nowEnCnContent.substring(calucIndex, calucEnd1)+"<br>"+ content.substring(calucIndex, calucEnd));
+        $("#footerDivContent").html(nowEnCnContent.substring(calucIndex, calucEnd1)+"<br>"+ content.substring(calucIndex, calucEnd));
+        $($(nowAudio).parent().find(".contentDis")[0]).html(nowEnCnContent.substring(calucIndex, calucEnd1)+"<br>"+ content.substring(calucIndex, calucEnd));
+    }else if(content){
+        debugger;
+        $("#contentModalDis").html(content.substring(calucIndex, calucEnd));
+        $("#footerDivContent").html(content.substring(calucIndex, calucEnd));
+        $($(nowAudio).parent().find(".contentDis")[0]).html(content.substring(calucIndex, calucEnd));
+    }
 }
 
 function freshAudioContent1() {
@@ -108,7 +116,8 @@ function freshAudioContent1() {
     if (calucEnd1 > contentLength) {
         calucEnd1 = contentLength;
     }
-
+    debugger;
+    $("#contentModalDis").html(nowEnCnContent.substring(calucIndex, calucEnd1)+"<br>"+ content.substring(calucIndex, calucEnd));
     $("#footerDivContent").html(calucEnd1+"<br>"+ content.substring(calucIndex, calucEnd));
     $($(nowAudio).parent().find(".contentDis")[0]).html(nowEnCnContent.substring(calucIndex, calucEnd1)+"<br>"+ content.substring(calucIndex, calucEnd) );
 }

@@ -6,6 +6,7 @@ var nowInterval;
 
 $('#viewer1').viewer();
 
+$("#myModal").modal();
 function freshAudioContent() {
     layer.msg("当前播放进度(实时)" + nowAudio.currentTime);
     console.log("总长度（实时）" + nowAudio.duration);
@@ -23,7 +24,6 @@ function freshAudioContent() {
     if (calucEnd > contentLength) {
         calucEnd = contentLength;
     }
-
     $($(nowAudio).parent().find(".contentDis")[0]).html(content.substring(calucIndex, calucEnd));
 }
 
