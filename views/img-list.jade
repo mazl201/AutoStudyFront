@@ -1,19 +1,32 @@
 extends layout
 
 block content
-    a(href="javascript:void(0)" class='button clearAllButton')  清空当前页
-    br
-    br
-    a(href="javascript:void(0)" class='button flushAllButton')  刷新
+    section.container
+        a(href="javascript:void(0)" class='button clearAllButton')  清空当前页
+        br
+        br
+        a(href="javascript:void(0)" class='button flushAllButton')  刷新
 
-    div(id="content")
-        each index in content
-            a(class="example1" href="img_download?id=#{index._id}")
-                img(href="img_download?id=#{index._id}")
+        ul.home.post-list(id="viewer1")
+            each index in content
+                div(class="tab-h2")
+                    font(size="6",font-family:"STKaiti" class="contentDis")
+                    font(size="3",font-family:"STKaiti" hidden class="content") #{index.content}
+                    br
+                    a(href="javascript:void(0)" class='button submitButton')  #{index.filename}
+                    a(href="javascript:void(0)" class='button deleteButton')  删除
+                    p(class='ids' hidden) #{index._id}
+                    br
+                    a(href="javascript:void(0)" class='button left')  左翻转
+                    a(href="javascript:void(0)" class='button right')  右翻转
+                    a(href="javascript:void(0)" class='button vertical')  翻转
+                    a(href="javascript:void(0)" class='button origin')  复原
+                    br
+                    br
+                    br
+                    img(src='img_download?id=#{index._id}&datetime=111')
 
-    ul.pagination( id="pagination")
+        ul.pagination( id="pagination")
 block append scripts
     //script(type="text/javascript" src='https://code.jquery.com/jquery-3.4.1.min.js')
-    script(type="text/javascript" src='/jquery-plugin/jqueryLibrary.min.js')
-    script(type="text/javascript" src='/jquery-plugin/jquery.imgbox.pack.js')
     script(type="text/javascript" src='/js/business/sound/img-download.js')

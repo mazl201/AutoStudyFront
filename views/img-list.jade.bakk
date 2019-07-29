@@ -1,0 +1,19 @@
+extends layout
+
+block content
+    a(href="javascript:void(0)" class='button clearAllButton')  清空当前页
+    br
+    ul(id="viewer1")
+        each index in content
+            img(src="img_download?id=#{index._id}")
+    br
+    a(href="javascript:void(0)" class='button flushAllButton')  刷新
+
+
+
+    ul.pagination( id="pagination")
+block append scripts
+    //script(type="text/javascript" src='https://code.jquery.com/jquery-3.4.1.min.js')
+    script(type="text/javascript" src='/jquery-plugin/jqueryLibrary.min.js')
+    script(type="text/javascript" src='/jquery-plugin/jquery.imgbox.pack.js')
+    script(type="text/javascript" src='/js/business/sound/img-download.js')
