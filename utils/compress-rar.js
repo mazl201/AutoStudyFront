@@ -1,18 +1,38 @@
 const fs = require('fs');
 const exec = require('child_process').exec;
+const cp = require('child_process');
 
 /**
  * 执行cmd
  * @param cmd
  */
-function execute(cmd) {
-    exec(cmd, {encoding: 'binary'}, function (err, stdout, stderr) {
+function execute(cmd, resolve) {
+    cp.exec(cmd, {encoding: 'binary'}, function (err, stdout, stderr) {
         if (err) {
             console.log(`err:${err}`);
         }
         if (stderr) {
             console.log(`stderr:${stderr}`);
         }
+        if (resolve) {
+            resolve(true);
+        }
+    });
+}
+
+function spawnExec(cmd1,cmd2,resolve){
+    var ls = cp.spawn(cmd1,cmd2,{encoding: 'binary'} );
+    ls.stdout.on('data', function (data) {
+        console.log('stdout: ' + data);
+    });
+
+    ls.stderr.on('data', function (data) {
+        console.log('stderr: ' + data);
+    });
+
+    ls.on('exit', function (code) {
+        resolve(true);
+        console.log('child process exited with code ' + code);
     });
 }
 
@@ -49,21 +69,32 @@ const rar = {
      * @param config
      */
     decompress: function (config) {
-        // let cmd = `rar x ${config.rarPath} ${config.destPath} -y`;
-        let cmd = `rar x ${config.rarPath}`;
-        exist(config.rarPath, () => {
-            exist(config.destPath, () => {
-                execute(cmd);
-            }, () => {
-                fs.mkdir(config.destPath, (err) => {
-                    if (err) {
-                        console.log(err);
-                    } else {
-                        execute(cmd);
-                    }
-                });
-            });
-        });
+        let cmd = `rar x ${config.rarPath} ${config.destPath} -y`;
+        // let cmd1 = `rar r ${config.rarPath}`;
+        let cmd2 = [``];
+        // exist(config.rarPath, () => {
+        //     exist(config.destPath, () => {
+        //         execute(cmd);
+        //     }, () => {
+        //         fs.mkdir(config.destPath, (err) => {
+        //             if (err) {
+        //                 console.log(err);
+        //             } else {
+        //                 execute(cmd);
+        //             }
+        //         });
+        //     });
+        // });
+        return new Promise(function (resolve, reject) {
+            exist(config.rarPath, () => {
+                    // spawnExec(cmd1,cmd2, resolve);
+                    execute(cmd,resolve);
+                },
+                () => {
+                    console.log("rar file doesn't exit");
+                }
+            )
+        })
     }
 };
 

@@ -15,7 +15,6 @@ router.get("/initMove", function (req, res, next) {
 })
 
 
-
 /**
  * 读取路径信息
  * @param {string} path 路径
@@ -31,6 +30,16 @@ function getStat(path) {
         }
     }
 }
+
+function pad(num, n) {
+    var len = num.toString().length;
+    while (len < n) {
+        num = "0" + num;
+        len++;
+    }
+    return num;
+}
+
 
 /**
  * 创建路径
@@ -70,8 +79,47 @@ function dirExists(dir) {
     return mkdirStatus;
 }
 
-router.post("/finallyRMVedio", function (req, res, next) {
+router.post("/mergeForVoice", function (req, res, next) {
     if (req.body.filePath) {
+        var scanFileDir = req.body.filePath;
+
+        groupAndOneByOne(scanFileDir);
+    }
+})
+
+function groupAndOneByOne(path){
+    var strings = fs.readdirSync(path);
+    var result = [];
+    string.forEach(function(data,index){
+        var dirName = data.split("@@@")[0];
+        if(result[dirName]){
+            result[dirName].push(data)
+        }else{
+            result[dirName] = new Array();
+            result[dirName].push(data);
+        }
+    })
+    for(var i in result){
+        if (readyToMergeArr.length && readyToMergeArr.length > 0) {
+            //调用 多个 文件 合并为 一个文件
+            let waitMergeToOnFile = async function () {
+                let waitPromise = new Promise(function (resolve, reject) {
+                    multiVedioMergeToOneFile(result[i], resolve);
+                })
+                let newVar = await waitPromise;
+                if(newVar == true){
+                    console.log("file compress success");
+                }
+            }
+            waitMergeToOnFile();
+        }
+    }
+
+
+}
+
+router.post("/finallyRMVedio", function (req, res, next) {
+    if (req.body.filePath && req.body.fileDestPath) {
         var dirPath = req.body.filePath;
 
         var vedioArr = new Array();
@@ -82,14 +130,16 @@ router.post("/finallyRMVedio", function (req, res, next) {
 
 
         // var vedioDestDir = dirPath + "\\copyVedio";
-        var vedioDestDir = "I:\\ai";
+        var vedioDestDir = req.body.fileDestPath;
         if (dirExists(vedioDestDir)) {
             var stats = fs.statSync(dirPath);
 
             if (stats.isDirectory()) {
-                recursiveUnzip(dirPath, vedioArr, vedioDestDir, weHavedSuffix, 0);
                 //进入 循环
                 recursiveDir(dirPath, vedioArr, vedioDestDir, weHavedSuffix, 0);
+
+                recursiveUnzip(dirPath, vedioArr, vedioDestDir, weHavedSuffix, 0);
+
                 let array = new Array();
                 weHavedSuffix.forEach(function (suffix) {
                     array = array.filter(word => word != suffix);
@@ -105,7 +155,7 @@ router.post("/finallyRMVedio", function (req, res, next) {
 
 var nowSuffix;
 
-function recursiveUnzip(dirPath, vedioArr, vedioDestDir, weHavedSuffix, nowIndex){
+function recursiveUnzip(dirPath, vedioArr, vedioDestDir, weHavedSuffix, nowIndex) {
     try {
         var prefixFileName = "";
         var dateformat1 = dateformat(new Date(), "yyyy-mm-dd");
@@ -117,77 +167,121 @@ function recursiveUnzip(dirPath, vedioArr, vedioDestDir, weHavedSuffix, nowIndex
 
         if (filesUnderDir && filesUnderDir.length > 0) {
             var fileIndex = 0;
-            filesUnderDir.forEach(function (fileOrDirName, index) {
+            // filesUnderDir.forEach(function (fileOrDirName, index) {
+            //
+            // })
+            var index = 0;
 
-                let forEachStat = fs.statSync(dirPath + "\\" + fileOrDirName)
+            function oneByOneUnzipFile() {
+                return new Promise(function (resolveUnzip, rejectUnzip) {
+                    var fileOrDirName = filesUnderDir[index]
+                    let forEachStat = fs.statSync(dirPath + "\\" + fileOrDirName)
 
-                if (forEachStat.isDirectory()) {
-                    recursiveUnzip(dirPath + "\\" + fileOrDirName, vedioArr, vedioDestDir, weHavedSuffix, nowIndex);
-                } else if (forEachStat.isFile()) {
-                    let lastDotIndexOf = fileOrDirName.lastIndexOf("\.")
-                    let suffix = ""
-                    if (lastDotIndexOf) {
-                        suffix = fileOrDirName.substring(lastDotIndexOf + 1, fileOrDirName.length).toLowerCase();
-                        // weHavedSuffix = weHavedSuffix.filter(word => word != suffix);
-                        weHavedSuffix.push(suffix);
-                        console.log(suffix + "can be is");
-                    }
-
-                    let newPath = dirPath + "\\" + fileOrDirName.replace(/\s+/g, "");
-                    fs.renameSync(dirPath + "\\" + fileOrDirName,newPath)
-                    //判断是否是 压缩文件
-                    if (suffix == "gz" || suffix == "gz2") {
-                        var promiseZip = compressing.rar.uncompress(newPath,dirPath + "\\" + fileOrDirName.toLowerCase().replace("."+suffix,"").replace(/\s+/g, ""));
-                        async function unCompress(){
-                            await promiseZip;
-                            // recursiveDir()
-                        }
-                        unCompress();
-                        //留存记录
-                        vedioArr.push(dirPath + "\\" + fileOrDirName);
-                    }
-                    //判断是否是 压缩文件
-                    if (suffix == "tgz") {
-
-                        var promiseTgz = compressing.tar.uncompress(newPath,dirPath + "\\" + fileOrDirName.toLowerCase().replace("."+suffix,"").replace(/\s+/g, ""));
-
-                        async function unCompress(){
-                            await promiseTgz;
-                            // recursiveDir()
-                        }
-                        unCompress();
-                        //留存记录
-                        vedioArr.push(dirPath + "\\" + fileOrDirName);
-                    }
-                    if(suffix == "zip") {
-                        var promiseRar = compressing.zip.uncompress(newPath, dirPath + "\\" + fileOrDirName.toLowerCase().replace("." + suffix, "").replace(/\s+/g, ""));
-
-                        async function unCompress() {
-                            await promiseRar;
-                            // recursiveDir()
+                    if (forEachStat.isDirectory()) {
+                        recursiveUnzip(dirPath + "\\" + fileOrDirName, vedioArr, vedioDestDir, weHavedSuffix, nowIndex);
+                        resolveUnzip(true);
+                    } else if (forEachStat.isFile()) {
+                        let lastDotIndexOf = fileOrDirName.lastIndexOf("\.")
+                        let suffix = ""
+                        if (lastDotIndexOf) {
+                            suffix = fileOrDirName.substring(lastDotIndexOf + 1, fileOrDirName.length).toLowerCase();
+                            // weHavedSuffix = weHavedSuffix.filter(word => word != suffix);
+                            weHavedSuffix.push(suffix);
+                            console.log(suffix + "can be is");
                         }
 
-                        unCompress();
-                        //留存记录
-                        vedioArr.push(dirPath + "\\" + fileOrDirName);
-                    }
+                        let newDirPath = dirPath.replace(/\s+/g, "");
+                        let newPath = newDirPath + "\\" + fileOrDirName.replace(/\s+/g, "");
+                        if (dirExists(newDirPath)) {
+                            //判断是否是 压缩文件
+                            if (suffix == "gz" || suffix == "gz2") {
+                                fs.renameSync(dirPath + "\\" + fileOrDirName, newPath);
+                                var promiseZip = compressing.rar.uncompress(newPath, dirPath + "\\" + fileOrDirName.toLowerCase().replace("." + suffix, "").replace(/\s+/g, ""));
 
-                    if(suffix == "rar"){
-                        rar.decompress({
-                            rarPath:newPath,
-                            destPath:dirPath + "\\" + fileOrDirName.toLowerCase().replace("." + suffix, "").replace(/\s+/g, "")
-                        })
+                                async function unCompress() {
+                                    await promiseZip;
+                                    resolveUnzip(true);
+                                    // recursiveDir()
+                                }
 
-                        //留存记录
-                        vedioArr.push(dirPath + "\\" + fileOrDirName);
+                                unCompress();
+                                //留存记录
+                                vedioArr.push(dirPath + "\\" + fileOrDirName);
+                            } else if (suffix == "tgz") {
+                                fs.renameSync(dirPath + "\\" + fileOrDirName, newPath);
+                                var promiseTgz = compressing.tar.uncompress(newPath, dirPath + "\\" + fileOrDirName.toLowerCase().replace("." + suffix, "").replace(/\s+/g, ""));
+
+                                async function unCompress() {
+                                    await promiseTgz;
+                                    resolveUnzip(true);
+                                    // recursiveDir()
+                                }
+
+                                unCompress();
+                                //留存记录
+                                vedioArr.push(dirPath + "\\" + fileOrDirName);
+                            } else if (suffix == "zip") {
+                                fs.renameSync(dirPath + "\\" + fileOrDirName, newPath);
+                                var promiseRar = compressing.zip.uncompress(newPath, dirPath + "\\" + fileOrDirName.toLowerCase().replace("." + suffix, "").replace(/\s+/g, ""));
+
+                                async function unCompress() {
+                                    await promiseRar;
+                                    resolveUnzip(true);
+                                    // recursiveDir()
+                                }
+
+                                unCompress();
+                                //留存记录
+                                vedioArr.push(dirPath + "\\" + fileOrDirName);
+                            } else if (suffix == "rar") {
+                                fs.renameSync(dirPath + "\\" + fileOrDirName, newPath);
+
+                                async function oneByoneUncompressFile() {
+                                    let destPath = newDirPath + "\\" + fileOrDirName.toLowerCase().replace("." + suffix, "").replace(/\s+/g, "");
+                                    if (dirExists(destPath)) {
+                                        let newVar1 = await rar.decompress({
+                                            rarPath: newPath,
+                                            resolve: resolveUnzip,
+                                            destPath: destPath
+                                        });
+                                        if (newVar1 == true) {
+                                            resolveUnzip(true);
+                                        }
+                                    }
+
+                                }
+
+                                oneByoneUncompressFile()
+                                //留存记录
+                                vedioArr.push(dirPath + "\\" + fileOrDirName);
+                            } else {
+                                console.log("don't need uncompress,so go away");
+                                resolveUnzip(true);
+                            }
+                        }
+                    } else {
+                        console.log("文件既不是文件，也不是文件夹");
+                        return true;
                     }
-                } else {
-                    console.log("文件既不是文件，也不是文件夹");
+                })
+            }
+
+            async function executeOneByOne() {
+                let newVar = await oneByOneUnzipFile();
+                index = index + 1;
+                if (newVar == true && index < filesUnderDir.length) {
+                    executeOneByOne();
                 }
-            })
+                if (index == filesUnderDir.length) {
+                    return;
+                }
+            }
+
+            executeOneByOne();
         } else {
-            console.log(filesUnderDir + " 是一个空文件夹")
-            return;
+            console.log(filesUnderDir + " 是一个空文件夹");
+            return true;
+            ;
         }
     } catch (e) {
         console.log(e);
@@ -206,8 +300,11 @@ function recursiveDir(dirPath, vedioArr, vedioDestDir, weHavedSuffix, nowIndex) 
 
         if (filesUnderDir && filesUnderDir.length > 0) {
             var fileIndex = 0;
+            var readyToMergeArr = new Array();
             filesUnderDir.forEach(function (fileOrDirName, index) {
-
+            // function nextExecute(){
+            //
+            // }
                 let forEachStat = fs.statSync(dirPath + "\\" + fileOrDirName)
 
                 if (forEachStat.isDirectory()) {
@@ -234,7 +331,11 @@ function recursiveDir(dirPath, vedioArr, vedioDestDir, weHavedSuffix, nowIndex) 
 
                             prefixFileName.replace()
                             fileIndex = fileIndex + 1;
-                            fs.renameSync(dirPath + "\\" + fileOrDirName, tempVedioDestDir + "\\" + prefixFileName + "@@@" + fileOrDirName.replace("."+nowSuffix,"") + "@@@" + fileIndex+"."+nowSuffix);
+                            let indexFileName = pad(fileIndex, 4)
+                            let newPath = tempVedioDestDir + "\\" + prefixFileName + "@@@" + fileOrDirName.replace("." + nowSuffix, "") + "@@@" + indexFileName + "." + nowSuffix;
+                            fs.renameSync(dirPath + "\\" + fileOrDirName, newPath);
+                            //准备 待 合并
+                            readyToMergeArr.push(newPath);
                         }
                         //留存记录
                         vedioArr.push(dirPath + "\\" + fileOrDirName);
@@ -243,6 +344,20 @@ function recursiveDir(dirPath, vedioArr, vedioDestDir, weHavedSuffix, nowIndex) 
                     console.log("文件既不是文件，也不是文件夹");
                 }
             })
+
+            if (readyToMergeArr.length && readyToMergeArr.length > 0) {
+                //调用 多个 文件 合并为 一个文件
+                let waitMergeToOnFile = async function () {
+                    let waitPromise = new Promise(function (resolve, reject) {
+                        multiVedioMergeToOneFile(readyToMergeArr, resolve);
+                    })
+                    let newVar = await waitPromise;
+                    if(newVar == true){
+                        console.log("file compress success");
+                    }
+                }
+                waitMergeToOnFile();
+            }
         } else {
             console.log(filesUnderDir + " 是一个空文件夹")
             return;
@@ -251,6 +366,39 @@ function recursiveDir(dirPath, vedioArr, vedioDestDir, weHavedSuffix, nowIndex) 
         console.log(e);
     }
 }
+
+function multiVedioMergeToOneFile(readyToMergeArr, resolve) {
+    //建立 合并原文件
+    let fileName = readyToMergeArr[0].substring(readyToMergeArr[0].lastIndexOf("\\") + 1, readyToMergeArr[0].length);
+    let filePath = readyToMergeArr[0].substring(0, readyToMergeArr[0].lastIndexOf("\\") + 1);
+    let mergeStream = fs.createWriteStream(filePath + "merge" + fileName);
+
+    // Sort 排序filePath
+    readyToMergeArr.sort(function (a, b) {
+        return a - b;
+    });
+
+    let currentfile = "";
+    // recursive function
+    function main() {
+        if (!readyToMergeArr.length) {
+            mergeStream.end("Done");
+            if(resolve){
+                resolve(true);
+            }
+            return;
+        }
+        currentfile = readyToMergeArr.shift;
+        stream = fs.createReadStream(currentfile);
+        stream.pipe(mergeStream, {end: false});
+        stream.on("end", function() {
+            console.log(currentfile + ' appended');
+            main();
+        });
+    }
+    main();
+}
+
 
 function isVedioFile(fileOrDirName) {
     if (fileOrDirName) {
@@ -273,19 +421,19 @@ function isVedioFile(fileOrDirName) {
                 return true;
             } else if (suffix == "3gp") {
                 return true;
-            }else if(suffix == "asf"){
+            } else if (suffix == "asf") {
                 return true;
-            }else if(suffix == "mkv"){
+            } else if (suffix == "mkv") {
                 return true;
-            }else if(suffix == "f4v"){
+            } else if (suffix == "f4v") {
                 return true;
-            }else if(suffix == "rmhd"){
+            } else if (suffix == "rmhd") {
                 return true;
-            }else if(suffix == "webm"){
+            } else if (suffix == "webm") {
                 return true;
-            }else if(suffix == "qsv"){
+            } else if (suffix == "qsv") {
                 return true;
-            }else if(suffix == "swf"){
+            } else if (suffix == "swf") {
                 return true;
             }
             return false;
