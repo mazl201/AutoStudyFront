@@ -80,39 +80,47 @@ function dirExists(dir) {
 }
 
 router.post("/mergeForVoice", function (req, res, next) {
-    if (req.body.filePath) {
+    if (req.body.filePath && req.body.fileDestPath) {
         var scanFileDir = req.body.filePath;
-
-        groupAndOneByOne(scanFileDir);
+        if(dirExists(req.body.fileDestPath)){
+            groupAndOneByOne(scanFileDir,req.body.fileDestPath);
+        }
     }
 })
 
-function groupAndOneByOne(path){
+function groupAndOneByOne(path,destDir) {
     var strings = fs.readdirSync(path);
+    // let dir = path.substring(0,path.lastIndexOf("\\")+1);
     var result = [];
-    string.forEach(function(data,index){
-        var dirName = data.split("@@@")[0];
-        if(result[dirName]){
-            result[dirName].push(data)
-        }else{
-            result[dirName] = new Array();
-            result[dirName].push(data);
-        }
-    })
-    for(var i in result){
-        if (readyToMergeArr.length && readyToMergeArr.length > 0) {
-            //调用 多个 文件 合并为 一个文件
-            let waitMergeToOnFile = async function () {
-                let waitPromise = new Promise(function (resolve, reject) {
-                    multiVedioMergeToOneFile(result[i], resolve);
-                })
-                let newVar = await waitPromise;
-                if(newVar == true){
-                    console.log("file compress success");
-                }
+    strings.forEach(function (data, index) {
+        if(isVedioFile(data)){
+            let suffix = data.substring(data.lastIndexOf("."),data.length);
+            var newFileName =data.split("@@@")[0]+"@@@"+data.split("@@@")[1]+"@@@"+ pad(parseInt(data.split("@@@")[2]),4)+ suffix;
+
+            fs.renameSync(path+"\\"+data,path+"\\"+newFileName);
+            var dirName = data.split("@@@")[0]+suffix;
+            if (result[dirName]) {
+                result[dirName].push(path +"\\"+ newFileName)
+            } else {
+                result[dirName] = new Array();
+                result[dirName].push(path +"\\"+ newFileName);
             }
-            waitMergeToOnFile();
         }
+
+    })
+    for (var i in result) {
+        multiVedioMergeToOneFile(result[i], destDir);
+        // //调用 多个 文件 合并为 一个文件
+        // let waitMergeToOnFile = async function () {
+        //     let waitPromise = new Promise(function (resolve, reject) {
+        //         multiVedioMergeToOneFile(result[i], destDir);
+        //     })
+        //     let newVar = await waitPromise;
+        //     if (newVar == true) {
+        //         console.log("file compress success");
+        //     }
+        // }
+        // waitMergeToOnFile();
     }
 
 
@@ -302,9 +310,9 @@ function recursiveDir(dirPath, vedioArr, vedioDestDir, weHavedSuffix, nowIndex) 
             var fileIndex = 0;
             var readyToMergeArr = new Array();
             filesUnderDir.forEach(function (fileOrDirName, index) {
-            // function nextExecute(){
-            //
-            // }
+                // function nextExecute(){
+                //
+                // }
                 let forEachStat = fs.statSync(dirPath + "\\" + fileOrDirName)
 
                 if (forEachStat.isDirectory()) {
@@ -346,17 +354,18 @@ function recursiveDir(dirPath, vedioArr, vedioDestDir, weHavedSuffix, nowIndex) 
             })
 
             if (readyToMergeArr.length && readyToMergeArr.length > 0) {
-                //调用 多个 文件 合并为 一个文件
-                let waitMergeToOnFile = async function () {
-                    let waitPromise = new Promise(function (resolve, reject) {
-                        multiVedioMergeToOneFile(readyToMergeArr, resolve);
-                    })
-                    let newVar = await waitPromise;
-                    if(newVar == true){
-                        console.log("file compress success");
-                    }
-                }
-                waitMergeToOnFile();
+                multiVedioMergeToOneFile(readyToMergeArr);
+                // //调用 多个 文件 合并为 一个文件
+                // let waitMergeToOnFile = async function () {
+                //     let waitPromise = new Promise(function (resolve, reject) {
+                //
+                //     })
+                //     let newVar = await waitPromise;
+                //     if (newVar == true) {
+                //         console.log("file compress success");
+                //     }
+                // }
+                // waitMergeToOnFile();
             }
         } else {
             console.log(filesUnderDir + " 是一个空文件夹")
@@ -367,10 +376,13 @@ function recursiveDir(dirPath, vedioArr, vedioDestDir, weHavedSuffix, nowIndex) 
     }
 }
 
-function multiVedioMergeToOneFile(readyToMergeArr, resolve) {
+function multiVedioMergeToOneFile(readyToMergeArr, destDir) {
     //建立 合并原文件
     let fileName = readyToMergeArr[0].substring(readyToMergeArr[0].lastIndexOf("\\") + 1, readyToMergeArr[0].length);
     let filePath = readyToMergeArr[0].substring(0, readyToMergeArr[0].lastIndexOf("\\") + 1);
+    if(destDir){
+        filePath = destDir+"\\";
+    }
     let mergeStream = fs.createWriteStream(filePath + "merge" + fileName);
 
     // Sort 排序filePath
@@ -379,23 +391,22 @@ function multiVedioMergeToOneFile(readyToMergeArr, resolve) {
     });
 
     let currentfile = "";
+
     // recursive function
     function main() {
         if (!readyToMergeArr.length) {
             mergeStream.end("Done");
-            if(resolve){
-                resolve(true);
-            }
             return;
         }
-        currentfile = readyToMergeArr.shift;
+        currentfile = readyToMergeArr.shift();
         stream = fs.createReadStream(currentfile);
         stream.pipe(mergeStream, {end: false});
-        stream.on("end", function() {
+        stream.on("end", function () {
             console.log(currentfile + ' appended');
             main();
         });
     }
+
     main();
 }
 
