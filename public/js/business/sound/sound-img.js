@@ -11,7 +11,7 @@ function pringCANVAS() {
     var cc = "1";
     event.preventDefault();
 
-    html2canvas(document.getElementById("containerPrint-" + cc), {
+    html2canvas(document.getElementById("containerPrint-1"), {
         allowTaint: true,
         taintTest: false,
         onrendered: function (canvas) {
