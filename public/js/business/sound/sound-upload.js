@@ -13,16 +13,36 @@ $(".submitButton").on("click", function () {
         type: "POST",
         // context:null,
         success: function (res) {
-            if (res == "success") {
-                $(".upload-content").attr("disabled", false);
-                $(".submitButton").attr("disabled", false);
-                $(".upload-content").val("")
-            } else if (res == "failed") {
-                alert("内容为空")
-                $(".upload-content").attr("disabled", false);
-                $(".submitButton").attr("disabled", false);
-                $(".upload-content").val("")
-            }
+            // if (res == "success") {
+            //     $(".upload-content").attr("disabled", false);
+            //     $(".submitButton").attr("disabled", false);
+            //     $(".upload-content").val("")
+            // } else if (res == "failed") {
+            //     alert("内容为空")
+            //     $(".upload-content").attr("disabled", false);
+            //     $(".submitButton").attr("disabled", false);
+            //     $(".upload-content").val("")
+            // }
+        }
+    })
+})
+
+$(".translateButton").on("click", function () {
+
+    var data = {
+        content: $(".upload-content").val(),
+        spd: $(".myselectionspd").val(),
+        per: $(".myselectionper").val()
+    };
+    // $(".upload-content").attr("disabled", true);
+    // $(".submitButton").attr("disabled", true);
+    $.ajax({
+        url: "/sound/en_cn_trans",
+        data: data,
+        type: "POST",
+        // context:null,
+        success: function (res) {
+
         }
     })
 })

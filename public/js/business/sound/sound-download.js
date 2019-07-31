@@ -281,6 +281,7 @@ $(".submitButton").on("click", function () {
 })
 
 
+
 $(".deleteButton").on("click", function () {
 
     var data = {id: $(this).parent().find(".ids").html()};

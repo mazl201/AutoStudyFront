@@ -76,6 +76,12 @@ function showFullScreen4() {
     launchFullscreen(elm);
 }
 
+//全屏按钮上调用的方法
+function showFullScreen5() {
+    var elm = document.getElementById("fullScreen5");
+    launchFullscreen(elm);
+}
+
 // 全屏，退出按esc或参考参考参考注释代码写退出全屏按钮
 function launchFullscreen(element) {
     if (element.requestFullscreen) {

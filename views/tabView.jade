@@ -27,6 +27,7 @@ block content
     button(onclick="showFullScreen2()" class="btn") 2屏
     button(onclick="showFullScreen3()" class="btn") 3屏
     button(onclick="showFullScreen4()" class="btn") 4屏
+    button(onclick="showFullScreen5()" class="btn") 5屏
 
     //div(class="thumbnail")
     //    div(class="caption")
@@ -43,15 +44,19 @@ block content
                 a(href="#pic_upload" role="tab" data-toggle="tab") 图片
             li(role="presentation")
                 a(href="#split_img" role="tab" data-toggle="tab") 分割图片
+            li(role="presentation")
+                a(href="#transfer_vedio" role="tab" data-toggle="tab") 转换or合并图片
         div(class="tab-content"  )
             div(role="tabpanel" class="tab-pane active" id="upload" )
                 iframe(src="/sound/upload" allowfullscreen   height="80%" id="fullScreen1"  style="position: absolute" width="90%" )
             div(role="tabpanel" class="tab-pane" id="mp3_list")
-                iframe(src="/sound/mp3_list" allowfullscreen  height="80%"  width="90%" style="position: absolute" id="mp3AlterIframe")
+                iframe(src="/sound/mp3_list" allowfullscreen  height="80%" id="mp3AlterIframe" width="90%" style="position: absolute" )
             div(role="tabpanel" class="tab-pane" id="pic_upload")
                 iframe(src="/sound/mp3_img" allowfullscreen  height="80%" id="fullScreen3" width="90%" style="position: absolute" )
             div(role="tabpanel" class="tab-pane" id="split_img")
                 iframe(src="/sound/img_list" allowfullscreen  height="80%" id="fullScreen4"  width="90%" style="position: absolute" )
+            div(role="tabpanel" class="tab-pane" id="transfer_vedio")
+                iframe(src="/move/initMove" allowfullscreen  height="80%" id="fullScreen5"  width="90%" style="position: absolute" )
 
 
 
