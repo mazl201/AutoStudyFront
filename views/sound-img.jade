@@ -10,9 +10,8 @@ block content
         a(href="javascript:void(0)" class='button allFailedFlush')  刷新失败
 
         div(id="printView" class="tab-h2")
-            ul
-                each index1 in content
-                    p(class="tab-p") #{index1.content}
+            each index1 in content
+                p(class="tab-p") #{index1.content}
 
         button(id="printViewDis" class="btn") 关闭
 
