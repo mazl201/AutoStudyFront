@@ -51,6 +51,7 @@ var word2voice = require("../word2voice/word2voice");
 
 var iconv = require('iconv-lite');
 var upload = multer({dest: './public/filetext'});//设置上传文件存储地址
+var uploadTrans = multer({dest: './public/filetext'});//设置上传文件存储地址
 router.post('/uploadFile', upload.single('file_data'), function (req, res, next) {
 
     var ret = {};
@@ -152,7 +153,7 @@ router.post('/uploadFile', upload.single('file_data'), function (req, res, next)
 
 })
 
-router.post('/translateFile', upload.single('file'), function (req, res, next) {
+router.post('/translateFile', uploadTrans.single('file'), function (req, res, next) {
     var file = req.file;
     if (file) {
         var fileNameArr = file.originalname.split('.');
