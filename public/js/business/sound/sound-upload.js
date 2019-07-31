@@ -124,13 +124,15 @@ $(".uploadFileButton").on("click", function () {
         // form.append('file', file);
         $.ajax({
             // url:"http://localhost:3005",
-            url: "/sound/uploadFile",
+            url: "/sound/translateFile",
             data: form,
             type: "POST",
             processData: false,
             contentType: false,
             success: function (res) {
-                alert(res);
+                if(res.indexOf("success") > -1){
+                    window.location.href = "/sound/downloadTxt?path=" + res.replace("success","");
+                }
             }
         })
     }

@@ -151,6 +151,48 @@ router.post('/uploadFile', upload.single('file_data'), function (req, res, next)
     }
 
 })
+
+router.post('/translateFile', upload.single('file'), function (req, res, next) {
+    var file = req.file;
+    if (file) {
+        var fileNameArr = file.originalname.split('.');
+        var suffix = fileNameArr[fileNameArr.length - 1];
+        if (suffix.toUpperCase().indexOf("TXT") > -1) {
+            //文件重命名
+            fs.renameSync('./public/filetext/' + file.filename, './public/filetext/' + file.filename + "." + suffix);
+            fs.readFile('./public/filetext/' + file.filename + "." + suffix, "binary", function (err, data) {
+                if (err) {
+                    console.log("has error")
+                    return;
+                }
+
+                var buf = new Buffer(data, 'binary');
+                var txtContent = "";
+                var txtContent = iconv.decode(buf, jschardet.detect(data).encoding);
+
+                var originName = file.originalname.replace("." + suffix, "");
+                // word2voice(str, 3, 4, originName);
+                if (txtContent) {
+
+                    contentToTransfile(txtContent,res);
+                } else {
+                    res.end("failed");
+                }
+                fs.unlink('./public/filetext/' + file.filename + "." + suffix, function (err, ret) {
+                    if (err) {
+                        console.log("delete file failed")
+                        return;
+                    }
+                    return "delete ready to transfer txt file success";
+                })
+            })
+        }
+    } else {
+        res.end("empty");
+    }
+
+})
+
 router.get("/clearAllImg", function (req, res, next) {
     if (req.query.id) {
         var arrIds = new Array();

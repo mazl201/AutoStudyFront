@@ -33,7 +33,8 @@ block content
             option(value="#{name}") #{key}
     input(type="file" id="input-id" class="file")
     br
-    a(href="javascript:void(0)" class='btn uploadFileButton') 上传文件-转储成MP3文件
+    input(type="file" id="fileId")
+    a(href="javascript:void(0)" class='btn uploadFileButton') 上传文件-转储成 翻译后文件
 block append scripts
     //script(type="text/javascript" src='https://code.jquery.com/jquery-3.4.1.min.js')
     script(type="text/javascript" src='/js/business/sound/md5.js')
