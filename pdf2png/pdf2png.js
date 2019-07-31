@@ -167,6 +167,7 @@ exports.convert = function () {
                                     }
                                     console.log("transfer success");
                                     fund.scanCompression("./public/pdf2imgsimg/")
+
                                     resolve(true);
                                     callback()
                                     // func.scanCompression("./public/pdf2imgsimg/");

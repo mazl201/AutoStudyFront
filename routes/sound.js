@@ -639,7 +639,7 @@ router.post("/baidu_api_down", function (req, res, next) {
 
         let waitWord2VoideComplete = async function () {
 
-            let word2voiceResult = await word2voice(req.body.content, req.body.spd, req.body.per);
+            let word2voiceResult = await word2voice(req.body.content, req.body.spd, req.body.per,dateformat(new Date(),"yyyymmdd"));
             if (word2voiceResult == "success") {
                 res.end("success");
             }
