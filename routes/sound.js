@@ -608,36 +608,40 @@ router.post("/baidu_api_down", function (req, res, next) {
     }
 });
 
+function contentToTransfile(content, res) {
+    content.replace("\\n", "");
+    let contents = content.split(/[.!\?。？！]/);
+
+    var index = 0;
+
+    // const bufFile = Buffer.alloc(content.length * 3);
+    let writeFile = ""
+    let waitSentenceOneByOne = async function () {
+        var sentence = contents[index];
+        console.log("start translate " + index + "**********" + sentence);
+        let translateResult = await baiduTranslateMet(sentence);
+        if (translateResult && index < contents.length) {
+            writeFile = writeFile + translateResult + "->" + sentence + ".";
+            index = index + 1;
+            waitSentenceOneByOne()
+            // waitSentenceOneByOne()
+        }
+        if (index == contents.length) {
+            let fileName = (new Date()).getTime() + ".txt";
+
+            fs.writeFileSync(fileName, writeFile);
+
+            res.end("success" + fileName)
+            return;
+        }
+    }
+    waitSentenceOneByOne();
+}
+
 router.post("/en_cn_trans", function (req, res, next) {
     if (req.body.content) {
         let content = req.body.content;
-        content.replace("\\n", "");
-        let contents = content.split(/[.!\?。？！]/);
-
-        var index = 0;
-
-        // const bufFile = Buffer.alloc(content.length * 3);
-        let writeFile = ""
-        let waitSentenceOneByOne = async function () {
-            var sentence = contents[index];
-            console.log("start translate " + index + "**********" + sentence);
-            let translateResult = await baiduTranslateMet(sentence);
-            if (translateResult && index < contents.length) {
-                writeFile = writeFile + translateResult + "->" + sentence + ".";
-                index = index + 1;
-                waitSentenceOneByOne()
-                // waitSentenceOneByOne()
-            }
-            if (index == contents.length) {
-                let fileName = (new Date()).getTime() + ".txt";
-
-                fs.writeFileSync(fileName, writeFile);
-
-                res.end("success" + fileName)
-                return;
-            }
-        }
-        waitSentenceOneByOne();
+        contentToTransfile(content, res);
     }
 })
 
