@@ -13,16 +13,17 @@ $(".submitButton").on("click", function () {
         type: "POST",
         // context:null,
         success: function (res) {
-            // if (res == "success") {
-            //     $(".upload-content").attr("disabled", false);
-            //     $(".submitButton").attr("disabled", false);
-            //     $(".upload-content").val("")
-            // } else if (res == "failed") {
-            //     alert("内容为空")
-            //     $(".upload-content").attr("disabled", false);
-            //     $(".submitButton").attr("disabled", false);
-            //     $(".upload-content").val("")
-            // }
+
+            if (res == "success") {
+                $(".upload-content").attr("disabled", false);
+                $(".submitButton").attr("disabled", false);
+                $(".upload-content").val("")
+            } else if (res == "failed") {
+                alert("内容为空")
+                $(".upload-content").attr("disabled", false);
+                $(".submitButton").attr("disabled", false);
+                $(".upload-content").val("")
+            }
         }
     })
 })
@@ -42,7 +43,10 @@ $(".translateButton").on("click", function () {
         type: "POST",
         // context:null,
         success: function (res) {
-
+            debugger;
+            if(res.indexOf("success") > -1){
+                window.location.href = "/sound/downloadTxt?path=" + res.replace("success","");
+            }
         }
     })
 })

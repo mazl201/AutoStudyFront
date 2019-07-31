@@ -335,7 +335,7 @@ router.post("/translateDsttranslateDst", function (req, res, next) {
 function baiduTranslateMet(content) {
     // var content = req.body.word;
     return new Promise(function (resolveTrans, rejectTrans) {
-        if(content){
+        if (content) {
             crypto.randomBytes(16, function (ex, buf) {
                 if (ex) throw ex;
                 var salt = buf.toString('hex');
@@ -422,7 +422,7 @@ function baiduTranslateMet(content) {
                     console.log("log started ")
                 })
             });
-        }else{
+        } else {
             resolveTrans("null");
         }
 
@@ -622,29 +622,39 @@ router.post("/en_cn_trans", function (req, res, next) {
             var sentence = contents[index];
             console.log("start translate " + index + "**********" + sentence);
             let translateResult = await baiduTranslateMet(sentence);
-            if (!sentence && index < contents.length) {
-                index = index + 1;
-                waitSentenceOneByOne();
-            } else if (translateResult && index < contents.length) {
+            if (translateResult && index < contents.length) {
                 writeFile = writeFile + translateResult + "->" + sentence + ".";
                 index = index + 1;
                 waitSentenceOneByOne()
                 // waitSentenceOneByOne()
             }
             if (index == contents.length) {
-                let fileName = dateformat(new Date(), "yyyy-mm-dd HH:MM:ss") + ".txt";
-                // fs.createReadStream(writeFile);
-                var buffer = Buffer.from(writeFile);
-                res.writeHead(200, {
-                    'Content-Type': 'application/force-download',
-                    'Content-Disposition': 'attachment; filename=' + fileName,
-                    'Content-Length': writeFile.length
-                });
+                let fileName = (new Date()).getTime() + ".txt";
 
-                res.write(writeFile);
+                fs.writeFileSync(fileName, writeFile);
+
+                res.end("success" + fileName)
+                return;
             }
         }
         waitSentenceOneByOne();
+    }
+})
+
+router.get("/downloadTxt", function (req, res, next) {
+    if (req.query.path) {
+        var downloadStream = fs.createReadStream(req.query.path);
+
+        res.writeHead(200, {
+            'Content-Type': 'application/force-download',
+            'Content-Disposition': 'attachment; filename=' + req.query.path
+            // 'Content-Length':
+        });
+        downloadStream.pipe(res);
+        downloadStream.on("end",function(){
+            fs.unlinkSync(req.query.path);
+        })
+
     }
 })
 
