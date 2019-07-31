@@ -8,6 +8,7 @@ var nowEnCnContent;
 $('#viewer').viewer();
 
 $("#printViewDis").click(function(){
+    debugger;
     html2canvas(document.getElementById("printView"), {
         allowTaint: true,
         taintTest: false,
