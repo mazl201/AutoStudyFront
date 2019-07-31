@@ -7,10 +7,7 @@ var nowEnCnContent;
 
 $('#viewer').viewer();
 
-function pringCANVAS() {
-    var cc = "1";
-    event.preventDefault();
-
+$("#printViewDis").click(function(){
     html2canvas(document.getElementById("printView"), {
         allowTaint: true,
         taintTest: false,
@@ -31,7 +28,8 @@ function pringCANVAS() {
             });
         }
     })
-}
+})
+
 
 document.addEventListener('copy', function(event){
     setClipboardText(event);
