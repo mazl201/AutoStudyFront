@@ -19,11 +19,11 @@ function pringCANVAS() {
             //生成base64图片数据
             var dataUrl = canvas.toDataURL();
             var newImg = document.createElement("img");
-            newImg.id = "printImg-" + cc;
+            newImg.id = "printImg-1";
             newImg.src = dataUrl;
-            $('.printImg-' + cc).show();
-            document.getElementById('printImgBox-' + cc).appendChild(newImg);
-            $('#printImg-' + cc).jqprint({
+            $('#printImg-1').show();
+            document.getElementById('printImgBox1').appendChild(newImg);
+            $('#printImg-1').jqprint({
                 debug: false,
                 importCSS: true,
                 printContainer: true,
