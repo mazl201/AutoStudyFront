@@ -7,6 +7,32 @@ var nowEnCnContent;
 
 $('#viewer').viewer();
 
+function pringCANVAS() {
+    var cc = "1";
+    event.preventDefault();
+
+    html2canvas(document.getElementById("containerPrint-" + cc), {
+        allowTaint: true,
+        taintTest: false,
+        onrendered: function (canvas) {
+            canvas.id = "mycanvas";
+            //生成base64图片数据
+            var dataUrl = canvas.toDataURL();
+            var newImg = document.createElement("img");
+            newImg.id = "printImg-" + cc;
+            newImg.src = dataUrl;
+            $('.printImg-' + cc).show();
+            document.getElementById('printImgBox-' + cc).appendChild(newImg);
+            $('#printImg-' + cc).jqprint({
+                debug: false,
+                importCSS: true,
+                printContainer: true,
+                operaSupport: false
+            });
+        }
+    })
+}
+
 document.addEventListener('copy', function(event){
     setClipboardText(event);
 });

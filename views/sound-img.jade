@@ -9,6 +9,15 @@ block content
 
         a(href="javascript:void(0)" class='button allFailedFlush')  刷新失败
 
+        div(id="printView")
+            ul
+                each index1 in content
+                    p #{index1.content}
+
+        section(class="panel printImg" style="display: none;")
+            header(class="panel-heading") 本地图片
+            div(class="panel-body" id="printImgBox1")
+
         ul.home.post-list(id="viewer")
             each index in content
                 div(class="tab-h2")
@@ -30,13 +39,6 @@ block content
 
                     br
                     if index.fileImgPathId
-                        a(href="javascript:void(0)" class='btn left')  左翻转
-                        a(href="javascript:void(0)" class='btn right')  右翻转
-                        a(href="javascript:void(0)" class='btn vertical')  翻转
-                        a(href="javascript:void(0)" class='btn origin')  复原
-                        br
-                        br
-                        br
                         img(src='mp3_download?id=#{index.fileImgPathId}')
 
 
@@ -47,3 +49,6 @@ block content
 block append scripts
     //script(type="text/javascript" src='https://code.jquery.com/jquery-3.4.1.min.js')
     script(type="text/javascript" src='/js/business/sound/sound-img.js')
+    script(type="text/javascript" src='/print/html2canvas.min.js')
+    script(type="text/javascript" src='/print/jquery.jqprint-0.3.js')
+    script(type="text/javascript" src='/print/jquery-migrate-1.2.1.min.js')
