@@ -5,6 +5,7 @@ const numCPUs = require('os').cpus().length;
 var readyToResolve = [];
 var alreadyToResolving = [];
 var working = false;
+var paDestDir = "";
 // Fork workers.
 var childs = [];
 for (var i = 0; i < numCPUs; i++) {
@@ -21,7 +22,7 @@ for (var i = 0; i < numCPUs; i++) {
                 readyToResolve.splice(0, 1);
                 alreadyToResolving[resolvingName] = readyToResolveElement;
                 //删除原有的 元素
-                childs[cid].send({hasWork: "yes", workContent: readyToResolveElement});
+                childs[cid].send({hasWork: "yes", workContent: readyToResolveElement,destDir:paDestDir,resolvingName:resolvingName});
                 working = false;
             } else {
                 childs[cid].send({hasWork: "no"});
@@ -53,6 +54,6 @@ for (var i = 0; i < numCPUs; i++) {
 module.exports = function (readyToMergeArr, destDir) {
     //插入到 待处理数组中
     readyToResolve.push(readyToMergeArr);
-
+    paDestDir = destDir;
 
 }
