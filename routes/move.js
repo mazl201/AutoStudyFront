@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var fs = require("fs");
-
+var saveToQueue = require("../child/parent_merge_vedio");
 var rar = require("../utils/compress-rar");
 var compressing = require("compressing");
 
@@ -109,7 +109,7 @@ function groupAndOneByOne(path,destDir) {
 
     })
     for (var i in result) {
-        multiVedioMergeToOneFile(result[i], destDir);
+        saveToQueue(result[i], destDir);
     }
 
 
