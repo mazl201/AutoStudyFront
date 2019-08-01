@@ -110,17 +110,6 @@ function groupAndOneByOne(path,destDir) {
     })
     for (var i in result) {
         multiVedioMergeToOneFile(result[i], destDir);
-        // //调用 多个 文件 合并为 一个文件
-        // let waitMergeToOnFile = async function () {
-        //     let waitPromise = new Promise(function (resolve, reject) {
-        //         multiVedioMergeToOneFile(result[i], destDir);
-        //     })
-        //     let newVar = await waitPromise;
-        //     if (newVar == true) {
-        //         console.log("file compress success");
-        //     }
-        // }
-        // waitMergeToOnFile();
     }
 
 
