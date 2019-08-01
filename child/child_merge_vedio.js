@@ -5,6 +5,13 @@ console.log("进程 " + process.argv[2] + " 执行。" );
 
 process.on('message', function(m) {
     console.log('第'+ process.argv[2]+'个子进程，正在监听父进程消息', m);
+    if(m.hasWork){
+        if(m.hasWork == "yes"){
+
+        }else if(m.hasWork == "no"){
+
+        }
+    }
 });
 
 try {
