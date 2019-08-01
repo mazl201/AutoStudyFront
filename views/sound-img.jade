@@ -2,6 +2,19 @@ extends layout
 
 block content
     section.container
+        div(class="modal fade bs-example-modal-lg" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+            div(class="modal-dialog modal-lg")
+                div(class="modal-content")
+                    div(class="modal-header")
+                        button(type="button" class="close" data-dismiss="modal" aria-hidden="true") &times
+                        h4(class="modal-title" id="myModalLabel") 模态框（Modal）标题
+                    div(class="modal-body" style="background:#49998D;")
+                        font(size="8" id="contentModalDisAll") 在这里添加一些文本
+                    div(class="modal-footer")
+                        button(type="button" class="btn btn-default" data-dismiss="modal") 关闭
+                        button(class='btn voiceMp3Pause') 暂停
+                        button(class='btn voiceMp3Resume') 恢复
+
         a(href="javascript:void(0)" class='button clearAllButton')  清空当前页
         br
         br
@@ -13,7 +26,13 @@ block content
             each index1 in content
                 p(class="tab-p") #{index1.content}
 
-        button(id="printViewDis" class="btn") 关闭
+        button(class='btn voiceMp3Failed') 朗读本段
+        button(class='btn voiceMp3Pause') 暂停
+        button(class='btn voiceMp3Resume') 恢复
+
+        button(class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal") 查看朗读内容
+
+        button(id="printViewDis" class="btn") 打印
 
         section(class="panel printImg" style="display: none;")
             header(class="panel-heading") 本地图片
@@ -23,7 +42,7 @@ block content
             each index in content
                 div(class="tab-h2")
                     p(size="6",font-family:"STKaiti" class="tab-p contentDis")
-                    font(size="3",font-family:"STKaiti" hidden class="content") #{index.content}
+                    font(size="3" font-family:"STKaiti" hidden class="content") #{index.content}
                     br
                     a(href="javascript:void(0)" class='btn submitButton')  #{index.filename}
                     a(href="javascript:void(0)" class='btn deleteButton')  删除

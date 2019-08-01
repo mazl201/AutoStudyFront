@@ -7,12 +7,15 @@ var nowEnCnContent;
 
 $('#viewer').viewer();
 
-$("#printViewDis").click(function(){
+$("#printViewDis").click(function(a,b,c){
+    a.preventDefault();
     debugger;
-    html2canvas(document.getElementById("printView"), {
+    // html2canvas(document.getElementById("printView"), {
+    html2canvas($("#printView"), {
         allowTaint: true,
         taintTest: false,
         onrendered: function (canvas) {
+            debugger;
             canvas.id = "mycanvas";
             //生成base64图片数据
             var dataUrl = canvas.toDataURL();
@@ -103,6 +106,8 @@ function freshAudioContent() {
         calucEnd1 = contentLength;
     }
     // translateToENCN(content)
+    debugger;
+    $("#contentModalDisAll").html(nowEnCnContent.substring(calucIndex, calucEnd1)+"<br>"+ content.substring(calucIndex, calucEnd));
     $($(nowAudio).parent().find(".contentDis")[0]).html(nowEnCnContent.substring(calucIndex, calucEnd1)+"<br>"+ content.substring(calucIndex, calucEnd));
 }
 
@@ -131,6 +136,8 @@ function freshAudioContent1() {
     if (calucEnd1 > contentLength) {
         calucEnd1 = contentLength;
     }
+    $("#contentModalDisAll").html(nowEnCnContent.substring(calucIndex, calucEnd1)+"<br>"+ content.substring(calucIndex, calucEnd));
+    debugger;
     $($(nowAudio).parent().find(".contentDis")[0]).html(nowEnCnContent.substring(calucIndex, calucEnd1)+"<br>"+ content.substring(calucIndex, calucEnd) );
 }
 
@@ -380,6 +387,46 @@ $(".allFailedFlush").on("click",function(){
     }
 })
 
+$(".voiceMp3Pause").on("click",function(){
+    window.speechSynthesis.pause();
+})
+$(".voiceMp3Resume").on("click",function(){
+    window.speechSynthesis.resume();
+})
+
+$(".voiceMp3All").on("click", function () {
+    debugger;
+    nowContentDis = $("#printView");
+
+    var speech = new SpeechSynthesisUtterance();
+
+    var content = $(this).parent().find("p").html();
+    var contents = content.split(/[.,!\?。，？！]/);
+    ;
+    var index = 0;
+    //设置朗读内容和属性
+    speech.text = contents[index];
+    // $("#contentDis").html(speech.text);
+    translateToENCN2(speech.text);
+    speech.volume = 1;
+    speech.rate = 1;
+    speech.pitch = 1;
+
+    speech.onend = function (event) {
+        index++;
+        if (index >= contents.length) {
+            return;
+        }
+        speech.text = contents[index];
+
+        // $("#contentDis").html(speech.text);
+        translateToENCN2(speech.text);
+        window.speechSynthesis.speak(speech);
+    }
+
+    window.speechSynthesis.speak(speech);
+})
+
 $(".voiceMp3Failed").on("click", function () {
     nowContentDis = $(this).parent().find(".contentDis");
 
@@ -424,7 +471,8 @@ function translateToENCN2(text) {
         // context:null,
         success: function (res) {
             if (res) {
-                $(nowContentDis).html(res);
+                $("#contentModalDisAll").html(res+text);
+                $(nowContentDis).html(res+text);
             }
         }
     })

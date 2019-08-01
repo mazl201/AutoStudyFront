@@ -265,95 +265,103 @@ router.get("/clearAllImg", function (req, res, next) {
 router.post("/translate", function (req, res, next) {
     if (req.body && req.body.content) {
         var content = req.body.content;
-        crypto.randomBytes(16, function (ex, buf) {
-            if (ex) throw ex;
-            var salt = buf.toString('hex');
 
-            var appid = '20190626000310542';
-            //appid+q+salt+密钥
-
-            // var sign =  md5(appid + content + salt + 'oxAgDeBYrc8xDwCyzXvs');
-
-            content = content.replace(/[\'\"\\\/\b\f\n\r\t]/g, '');
-            // 去掉特殊字符
-            content = content.replace(/[\@\#\$\%\^\&\*\(\)\{\}\:\"\L\<\>\?\[\]]/, "");
-            content = content.replace(/\s+/g, "");
-            var md5 = crypto.createHash("md5");
-            var sign = md5.update(appid + content + salt + 'oxAgDeBYrc8xDwCyzXvs').digest('hex');
-            var request2 = request1({
-                url: "http://api.fanyi.baidu.com/api/trans/vip/language?" + "q=" + urlencode(content, "UTF-8") + "&appid=20190626000310542&salt=" + salt + "&sign=" + sign,
-                method: 'GET',
-                timeout: 5000,
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                // body: JSON.stringify({
-                //     q:urlencode(content,"UTF-8"),
-                //     appid:urlencode(appid,"UTF-8"),
-                //     salt:urlencode(req.body.salt,"UTF-8"),
-                //     from:urlencode("en","UTF-8"),
-                //     to:urlencode("zh","UTF-8"),
-                //     // sign:sign
-                //     sign:urlencode(req.body.md5,"UTF-8")
-                // })
-            }, function (err, response, body) {
-                if (err) {
-                    console.log("baidu translate language failed")
-                } else {
-                    try {
-                        console.log("baidu translate language received");
-                        if (body && eval("(" + body + ")").data) {
-                            var from = "";
-                            var to = "";
-                            if (eval("(" + body + ")").data.src == "en") {
-                                from = "en";
-                                to = "cn"
-                            } else if (eval("(" + body + ")").data.src == "zh") {
-                                from = "zh";
-                                to = "en";
-                            } else {
-                                res.end("当前不支持其他语言转换");
-                                return;
-                            }
-
-                            var requestTO = request1({
-                                url: "http://api.fanyi.baidu.com/api/trans/vip/translate?" + "q=" + urlencode(content, "UTF-8") + "&from=" + from + "&to=" + to + "&appid=20190626000310542&salt=" + salt + "&sign=" + sign,
-                                method: 'GET',
-                                timeout: 5000,
-                                headers: {
-                                    'Content-Type': 'application/x-www-form-urlencoded'
-                                },
-                            }, function (err, response, body) {
-                                if (err) {
-                                    console.log("baidu translate failed")
-                                } else {
-                                    try {
-                                        console.log("start receive translate result");
-                                        if (body && eval("(" + body + ")").trans_result && eval("(" + body + ")").trans_result.length > 0) {
-                                            res.end(eval("(" + body + ")").trans_result[0].src + "<BR>" + eval("(" + body + ")").trans_result[0].dst)
-                                        }
-                                    } catch (e) {
-                                        console.log("返回结果，取不到对应值");
-                                    }
-                                }
-                            });
-
-                            requestTO.on("end", function (data) {
-                                console.log("log started ")
-                            })
-                        }
-                    } catch (e) {
-                        console.log("返回结果，取不到对应值");
-                    }
-                }
-            });
-
-            request2.on("end", function (data) {
-                console.log("log started ")
-            })
+        async function waitTranslateComplete(){
+            let translateContent = await baiduTranslateMet(content);
+            res.end(translateContent);
+        }
+        waitTranslateComplete();
 
 
-        });
+        // crypto.randomBytes(16, function (ex, buf) {
+        //     if (ex) throw ex;
+        //     var salt = buf.toString('hex');
+        //
+        //     var appid = '20190626000310542';
+        //     //appid+q+salt+密钥
+        //
+        //     // var sign =  md5(appid + content + salt + 'oxAgDeBYrc8xDwCyzXvs');
+        //
+        //     content = content.replace(/[\'\"\\\/\b\f\n\r\t]/g, '');
+        //     // 去掉特殊字符
+        //     content = content.replace(/[\@\#\$\%\^\&\*\(\)\{\}\:\"\L\<\>\?\[\]]/, "");
+        //     content = content.replace(/\s+/g, "");
+        //     var md5 = crypto.createHash("md5");
+        //     var sign = md5.update(appid + content + salt + 'oxAgDeBYrc8xDwCyzXvs').digest('hex');
+        //     var request2 = request1({
+        //         url: "http://api.fanyi.baidu.com/api/trans/vip/language?" + "q=" + urlencode(content, "UTF-8") + "&appid=20190626000310542&salt=" + salt + "&sign=" + sign,
+        //         method: 'GET',
+        //         timeout: 5000,
+        //         headers: {
+        //             'Content-Type': 'application/x-www-form-urlencoded'
+        //         },
+        //         // body: JSON.stringify({
+        //         //     q:urlencode(content,"UTF-8"),
+        //         //     appid:urlencode(appid,"UTF-8"),
+        //         //     salt:urlencode(req.body.salt,"UTF-8"),
+        //         //     from:urlencode("en","UTF-8"),
+        //         //     to:urlencode("zh","UTF-8"),
+        //         //     // sign:sign
+        //         //     sign:urlencode(req.body.md5,"UTF-8")
+        //         // })
+        //     }, function (err, response, body) {
+        //         if (err) {
+        //             console.log("baidu translate language failed")
+        //         } else {
+        //             try {
+        //                 console.log("baidu translate language received");
+        //                 if (body && eval("(" + body + ")").data) {
+        //                     var from = "";
+        //                     var to = "";
+        //                     if (eval("(" + body + ")").data.src == "en") {
+        //                         from = "en";
+        //                         to = "cn"
+        //                     } else if (eval("(" + body + ")").data.src == "zh") {
+        //                         from = "zh";
+        //                         to = "en";
+        //                     } else {
+        //                         res.end("当前不支持其他语言转换");
+        //                         return;
+        //                     }
+        //
+        //                     var requestTO = request1({
+        //                         url: "http://api.fanyi.baidu.com/api/trans/vip/translate?" + "q=" + urlencode(content, "UTF-8") + "&from=" + from + "&to=" + to + "&appid=20190626000310542&salt=" + salt + "&sign=" + sign,
+        //                         method: 'GET',
+        //                         timeout: 5000,
+        //                         headers: {
+        //                             'Content-Type': 'application/x-www-form-urlencoded'
+        //                         },
+        //                     }, function (err, response, body) {
+        //                         if (err) {
+        //                             console.log("baidu translate failed")
+        //                         } else {
+        //                             try {
+        //                                 console.log("start receive translate result");
+        //                                 if (body && eval("(" + body + ")").trans_result && eval("(" + body + ")").trans_result.length > 0) {
+        //                                     res.end(eval("(" + body + ")").trans_result[0].src + "<BR>" + eval("(" + body + ")").trans_result[0].dst)
+        //                                 }
+        //                             } catch (e) {
+        //                                 console.log("返回结果，取不到对应值");
+        //                             }
+        //                         }
+        //                     });
+        //
+        //                     requestTO.on("end", function (data) {
+        //                         console.log("log started ")
+        //                     })
+        //                 }
+        //             } catch (e) {
+        //                 console.log("返回结果，取不到对应值");
+        //             }
+        //         }
+        //     });
+        //
+        //     request2.on("end", function (data) {
+        //         console.log("log started ")
+        //     })
+        //
+        //
+        // });
     }
 })
 

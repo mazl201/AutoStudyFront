@@ -32,7 +32,7 @@ $(".everyFileName").click(function () {
     $("#presentFileName").attr("var", fileName);
 })
 
-$(".showHidden").mouseover(function () {
+$(".showHidden").click(function () {
 
     $(".showHiddenDiv").show();
 })
