@@ -17,7 +17,7 @@ process.on('message', function(m) {
                 }
 
             }
-            child_wait_complete
+            child_wait_complete()
         }else if(m.hasWork == "no"){
 
         }

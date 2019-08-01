@@ -8,8 +8,8 @@ var working = false;
 var paDestDir = "";
 // Fork workers.
 var childs = [];
-for (var i = 0; i < numCPUs; i++) {
-    childs[i] = child_process.fork("./child/child_merge_vedio.js", [i]);
+for (var i = 0; i < 4; i++) {
+    childs[i] = child_process.fork("./child/child_merge_vedio.js", [i],{ execArgv: ['--inspect=' + (process.debugPort + i+1)] });
 
     childs[i].on('message', function (m) {
         if (m.indexOf("leisure-") > -1 && !working) {
