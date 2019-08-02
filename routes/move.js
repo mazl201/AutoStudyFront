@@ -88,6 +88,45 @@ router.post("/mergeForVoice", function (req, res, next) {
     }
 })
 
+function splitIntoBySuffix(path, destDir) {
+    var strings = fs.readdirSync(path);
+    // let dir = path.substring(0,path.lastIndexOf("\\")+1);
+    var result = [];
+    strings.forEach(function (data, index) {
+        if(isVedioFile(data)){
+            let suffix = data.substring(data.lastIndexOf("."),data.length);
+            var newFileName =data.split("@@@")[0]+"@@@"+data.split("@@@")[1]+"@@@"+ pad(parseInt(data.split("@@@")[2]),4)+ suffix;
+
+            fs.renameSync(path+"\\"+data,path+"\\"+newFileName);
+            var dirName = suffix;
+            if (result[dirName]) {
+                result[dirName].push(path +"\\"+ newFileName)
+            } else {
+                result[dirName] = new Array();
+                result[dirName].push(path +"\\"+ newFileName);
+            }
+        }
+
+    })
+    for (var i in result) {
+        var dontainedDir = result[i];
+        for(var j in dontainedDir){
+            if(dirExists(destDir+"\\"+i)){
+                fs.copyFileSync(dontainedDir[j],destDir+"\\"+i+"\\"+dontainedDir[j].substring(dontainedDir[j].lastIndexOf("\\"),dontainedDir[j].length));
+            }
+        }
+    }
+}
+
+router.post("/mergeBySuffix", function (req, res, next) {
+    if (req.body.filePath && req.body.fileDestPath) {
+        var scanFileDir = req.body.filePath;
+        if(dirExists(req.body.fileDestPath)){
+            splitIntoBySuffix(scanFileDir,req.body.fileDestPath);
+        }
+    }
+})
+
 function groupAndOneByOne(path,destDir) {
     var strings = fs.readdirSync(path);
     // let dir = path.substring(0,path.lastIndexOf("\\")+1);
