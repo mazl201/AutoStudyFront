@@ -8,30 +8,31 @@ var nowEnCnContent;
 $('#viewer').viewer();
 
 $("#printViewDis").click(function(a,b,c){
-    a.preventDefault();
-    debugger;
-    // html2canvas(document.getElementById("printView"), {
-    html2canvas($("#printView"), {
-        allowTaint: true,
-        taintTest: false,
-        onrendered: function (canvas) {
-            debugger;
-            canvas.id = "mycanvas";
-            //生成base64图片数据
-            var dataUrl = canvas.toDataURL();
-            var newImg = document.createElement("img");
-            newImg.id = "printImg-1";
-            newImg.src = dataUrl;
-            $('#printImg-1').show();
-            document.getElementById('printImgBox1').appendChild(newImg);
-            $('#printImg-1').jqprint({
-                debug: false,
-                importCSS: true,
-                printContainer: true,
-                operaSupport: false
-            });
-        }
-    })
+    // a.preventDefault();
+    // debugger;
+    // // html2canvas(document.getElementById("printView"), {
+    // html2canvas($("#printView"), {
+    //     allowTaint: true,
+    //     taintTest: false,
+    //     onrendered: function (canvas) {
+    //         debugger;
+    //         canvas.id = "mycanvas";
+    //         //生成base64图片数据
+    //         var dataUrl = canvas.toDataURL();
+    //         var newImg = document.createElement("img");
+    //         newImg.id = "printImg-1";
+    //         newImg.src = dataUrl;
+    //         $('#printImg-1').show();
+    //         document.getElementById('printImgBox1').appendChild(newImg);
+    //         $('#printImg-1').jqprint({
+    //             debug: false,
+    //             importCSS: true,
+    //             printContainer: true,
+    //             operaSupport: false
+    //         });
+    //     }
+    // })
+    $("#printView").jqprint();
 })
 
 
