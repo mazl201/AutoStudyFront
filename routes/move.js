@@ -88,12 +88,50 @@ router.post("/mergeForVoice", function (req, res, next) {
     }
 })
 
+function restoreFileName(data,path) {
+    if (data.lastIndexOf("avi") > -1) {
+        fs.renameSync(path+data,path+data.replace("avi","")+".avi");
+    } else if (data.lastIndexOf("mp4") > -1) {
+        fs.renameSync(path+data,path+data.replace("mp4","")+".mp4");
+    } else if (data.lastIndexOf("wmv") > -1) {
+        fs.renameSync(path+data,path+data.replace("wmv","")+".wmv");
+    } else if (data.lastIndexOf("flv") > -1) {
+        fs.renameSync(path+data,path+data.replace("flv","")+".flv");
+    } else if (data.lastIndexOf("mov") > -1) {
+        fs.renameSync(path+data,path+data.replace("mov","")+".mov");
+    } else if (data.lastIndexOf("rmvb") > -1) {
+        fs.renameSync(path+data,path+data.replace("rmvb","")+".rmvb");
+    } else if (data.lastIndexOf("rm") > -1) {
+        fs.renameSync(path+data,path+data.replace("rm","")+".rm");
+    } else if (data.lastIndexOf("3gp") > -1) {
+        fs.renameSync(path+data,path+data.replace("3gp","")+".3gp");
+    } else if (data.lastIndexOf("asf") > -1) {
+        fs.renameSync(path+data,path+data.replace("asf","")+".asf");
+    } else if (data.lastIndexOf("mkv") > -1) {
+        fs.renameSync(path+data,path+data.replace("mkv","")+".mkv");
+    } else if (data.lastIndexOf("f4v") > -1) {
+        fs.renameSync(path+data,path+data.replace("f4v","")+".f4v");
+    } else if (data.lastIndexOf("mp4") > -1) {
+        fs.renameSync(path+data,path+data.replace("mp4","")+".mp4");
+    } else if (data.lastIndexOf("webm") > -1) {
+        fs.renameSync(path+data,path+data.replace("webm","")+".webm");
+    } else if (data.lastIndexOf("qsv") > -1) {
+        fs.renameSync(path+data,path+data.replace("qsv","")+".qsv");
+    } else if (data.lastIndexOf("swf") > -1) {
+        fs.renameSync(path+data,path+data.replace("swf","")+".swf");
+    }
+}
+
 function splitIntoBySuffix(path, destDir) {
     var strings = fs.readdirSync(path);
     // let dir = path.substring(0,path.lastIndexOf("\\")+1);
     var result = [];
+    var suffixs = new Array();
     strings.forEach(function (data, index) {
         if(isVedioFile(data)){
+
+            // restoreFileName(data,path+"\\");
+
             let suffix = data.substring(data.lastIndexOf("."),data.length);
             var newFileName =data.split("@@@")[0]+"@@@"+data.split("@@@")[1]+"@@@"+ pad(parseInt(data.split("@@@")[2]),4)+ suffix;
 
@@ -102,17 +140,18 @@ function splitIntoBySuffix(path, destDir) {
             if (result[dirName]) {
                 result[dirName].push(path +"\\"+ newFileName)
             } else {
+                suffixs.push(dirName)
                 result[dirName] = new Array();
                 result[dirName].push(path +"\\"+ newFileName);
             }
         }
 
     })
-    for (var i in result) {
-        var dontainedDir = result[i];
+    for (var suf in suffixs) {
+        var dontainedDir = result[suffixs[suf]];
         for(var j in dontainedDir){
-            if(dirExists(destDir+"\\"+i)){
-                fs.copyFileSync(dontainedDir[j],destDir+"\\"+i+"\\"+dontainedDir[j].substring(dontainedDir[j].lastIndexOf("\\"),dontainedDir[j].length));
+            if(dirExists(destDir+"\\"+suffixs[suf])){
+                fs.copyFileSync(dontainedDir[j],destDir+"\\"+suffixs[suf]+"\\"+dontainedDir[j].substring(dontainedDir[j].lastIndexOf("\\"),dontainedDir[j].length));
             }
         }
     }
