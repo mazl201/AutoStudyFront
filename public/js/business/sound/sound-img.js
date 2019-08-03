@@ -523,7 +523,12 @@ $(".voiceMp3Failed").on("click", function () {
 
     var speech = new SpeechSynthesisUtterance();
 
-    var content = $("#printView").html();
+    debugger;
+    var content = "";
+    let finds = $("#printView").find("p");
+    for(var i = 0;i < finds.length-1;i++){
+        content = content +$(finds[i]).html()+"。"
+    }
     var contents = content.split(/[.,!\?。，？！]/);
     ;
     var index = 0;
@@ -564,10 +569,10 @@ function translateToENCN2(text) {
         success: function (res) {
             debugger;
             if (res) {
-                $("#contentModalDisAll").html($("#contentModalDisAll").html()+"<br>"+res+text);
+                $("#contentModalDisAll").html($("#contentModalDisAll").html()+"<br>"+res);
                 var contentDivId = document.getElementById("contentDiv");
                 contentDivId.scrollTop = contentDivId.scrollHeight
-                $(nowContentDis).html(res+text);
+                $(nowContentDis).html(res);
             }
         }
     })
