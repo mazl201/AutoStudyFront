@@ -158,6 +158,14 @@ function freshAudioContent() {
     }
 }
 
+function fontColorChange(){
+    $("#contentModalDis").attr("color",$("#fontColorId").val())
+}
+$("#contentModalDis").attr("color",$("#fontColorId").val())
+function backgroundColorChange(){
+    $("#contentDiv").attr("style","overflow:auto; height: 350px; width: 100%; border: 1px solid #999;background:"+$("#backgroundColorId").val())
+}
+$("#contentDiv").attr("style","overflow:auto; height: 350px; width: 100%; border: 1px solid #999;background:"+$("#backgroundColorId").val())
 function freshAudioContent1() {
     // layer.msg("当前播放进度(实时)" + nowAudio.currentTime);
     console.log("总长度（实时）" + nowAudio.duration);
