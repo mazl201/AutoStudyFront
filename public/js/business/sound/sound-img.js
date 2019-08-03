@@ -295,6 +295,8 @@ for (var i = 0; i < audios.length; i++) {
 
 }
 
+
+
 function initAudioClick(audioNow) {
     $(audioNow).on("play", function () {
         $("#audioSpeedId").val();

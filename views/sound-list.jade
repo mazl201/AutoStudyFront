@@ -19,7 +19,10 @@ block content
                     div(class="modal-body" id="contentDiv" style="overflow:auto; height: 350px; width: 100%; border: 1px solid #999;background:#49998D;" )
                         font(size="6" id="contentModalDis") 在这里添加一些文本
                     div(class="modal-footer")
+                        button(type="button" class="btn" id="pauseAudio") 暂停
+                        button(type="button" class="btn" id="resumeAudio") 恢复
                         button(type="button" class="btn btn-default" data-dismiss="modal") 关闭
+
                         //button(type="button" class="btn btn-primary")提交更改
 
 
@@ -48,7 +51,10 @@ block content
                     button(class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal") 查看朗读内容
                     br
                     if item.isMp3
-                        audio(src="mp3_download?id=#{item._id}" name='#{item.filename}' id="audioindex-#{index}" controls ) #{item.filename}
+                        if index == 0
+                            audio(src="mp3_download?id=#{item._id}" name='#{item.filename}' id="audioindex-#{index}" controls autoplay="autoplay") #{item.filename}
+                        unless index == 0
+                            audio(src="mp3_download?id=#{item._id}" name='#{item.filename}' id="audioindex-#{index}" controls ) #{item.filename}
 
                     unless item.isMp3
                         div(class="tab-h2")

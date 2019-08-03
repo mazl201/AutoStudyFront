@@ -368,6 +368,16 @@ function initAudioClick(audioNow) {
 
     })
 }
+$("#pauseAudio").on("click",function(){
+    debugger;
+    nowAudio.pause();
+})
+
+
+$("#resumeAudio").on("click",function(){
+    debugger;
+    nowAudio.play();
+})
 
 function initAudioClick1(audioNow) {
     $(audioNow).on("play", function () {
