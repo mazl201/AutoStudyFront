@@ -2,7 +2,7 @@ extends layout
 
 block content
     section.container
-        //div(id="firstmodal" class="modal container fade" tabindex="-1")
+        //div(id="firstmodal" class="modal container fade" tabitem="-1")
         //    div(class="modal-header")
         //        button(type="button" class="close" data-dismiss="modal" aria-hidden="true") ×
         //        h4(class="modal-title") 第一层模态窗口
@@ -10,7 +10,7 @@ block content
         //    div(class="modal-body")
         //        p TESTTESTTETSTET
 
-        div(class="modal fade bs-example-modal-lg" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+        div(class="modal fade bs-example-modal-lg" id="myModal" tabitem="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
             div(class="modal-dialog modal-lg")
                 div(class="modal-content")
                     div(class="modal-header")
@@ -34,22 +34,22 @@ block content
 
 
         ul.home.post-list
-            each index in content
+            each item,index in content
                 div(class="tab-h2")
                     p(size="6"  class="tab-p contentDis")
-                    font(size="3",font-family:"STKaiti" hidden class="content") #{index.content}
+                    font(size="3",font-family:"STKaiti" hidden class="content") #{item.content}
                     br
-                    a(href="javascript:void(0)" class='btn submitButton')  #{index.filename}
-                    p(class='ids') #{index._id}
+                    a(href="javascript:void(0)" class='btn submitButton')  #{item.filename}
+                    p(class='ids') #{item._id}
                     br
                     button(class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal") 查看朗读内容
                     br
-                    if index.isMp3
-                        audio(src="mp3_download?id=#{index._id}" name='#{index.filename}' controls ) #{index.filename}
+                    if item.isMp3
+                        audio(src="mp3_download?id=#{item._id}" name='#{item.filename}' id="audioindex-#{index}" controls ) #{item.filename}
 
-                    unless index.isMp3
+                    unless item.isMp3
                         div(class="tab-h2")
-                            p(class="tab-p contentvoice") #{index.content}
+                            p(class="tab-p contentvoice") #{item.content}
                             a(href="javascript:void(0)" class='btn voiceMp3Failed') 朗读本段
                             p(size="6" class="tab-p contentDis")
                             a(href="javascript:void(0)" class='btn retryTranslate') 再次翻译
@@ -58,9 +58,9 @@ block content
 
                             br
                             br
-                            #{index.filename}
+                            #{item.filename}
                     a(href="javascript:void(0)" class='btn deleteButton')  删除
-                    if index.fileImgPathId
+                    if item.fileImgPathId
                         a(href="javascript:void(0)" class='btn left')  左翻转
                         a(href="javascript:void(0)" class='btn right')  右翻转
                         a(href="javascript:void(0)" class='btn vertical')  翻转
@@ -68,7 +68,7 @@ block content
                         br
                         br
                         br
-                        img(class="imgCamera" src='mp3_download?id=#{index.fileImgPathId}' onmouseover="this.style.cursor='pointer';this.style.cursor='hand'" onmouseout="this.style.cursor='default'"   onclick="javascript:showimage('mp3_download?id=#{index.fileImgPathId}');")
+                        img(class="imgCamera" src='mp3_download?id=#{item.fileImgPathId}' onmouseover="this.style.cursor='pointer';this.style.cursor='hand'" onmouseout="this.style.cursor='default'"   onclick="javascript:showimage('mp3_download?id=#{item.fileImgPathId}');")
                         div(id="ShowImage_Form" class="modal hide")
                             div.modal-header
                                 button(class="close" data-dismiss="modal" type="button")

@@ -10,6 +10,7 @@ var beforeTwo = "";
 var beforeNo = "";
 var nowIndex = 0;
 var nextSentence = "";
+var pagesize = 5;
 
 document.addEventListener('copy', function (event) {
     setClipboardText(event);
@@ -39,8 +40,8 @@ function setClipboardText(event) {
 };
 
 function fissionToS(nowEnCnContent) {
-    debugger;
-    var setences = nowEnCnContent.split(/[.!\?。？！，,]/)
+
+    var setences = nowEnCnContent.split(/[.,!\?。，？！]/)
 
     var returSentences = [];
     var arrIndex = 0;
@@ -75,7 +76,7 @@ function translateToENCN(contents) {
 }
 
 function getFiveSentence(calucIndex) {
-    debugger;
+
     if (beforeOne) {
         beforeTwo = beforeOne
     }
@@ -221,7 +222,7 @@ $.ajax({
             if ($("#pagination")) {
 
                 var pagecount = res.total;
-                var pagesize = 5;
+                // var pagesize = 5;
                 var currentpage = parseInt(res.page);
                 var counts, pagehtml = "";
                 if (pagecount % pagesize == 0) {
@@ -334,11 +335,27 @@ function initAudioClick(audioNow) {
 
     $(audioNow).on("ended", function () {
         console.log("第" + i + "个，音频结束了。");
+        debugger;
+        let indexOfAudio = parseInt($(this).attr("id").replace("audioindex-",""));
+
+        if(indexOfAudio < pagesize - 1){
+            document.getElementById("audioindex-"+(indexOfAudio+1)).play();
+        }else if(indexOfAudio == (pagesize -1)){
+
+            setTimeout(function(){
+                var nowFileNamev = $(window.parent.document.getElementById("presentFileName")).attr("var");
+                window.location.href = '/sound/mp3_list?fileName=' + nowFileNamev + '&index=' + (currentpage + 1);
+            },5000)
+        }
+
         nowEnCnContent = "";
         beforeNo = "";
         beforeOne = "";
         beforeTwo = "";
         nowSentences = "";
+        nowIndex = 0;
+
+
 
 
 

@@ -96,7 +96,8 @@ $(".voiceButton").on("click", function () {
         // $("#contentDis").html(speech.text);
         translateToENCN1(speech.text);
         speech.volume = 1;
-        speech.rate = 1;
+        debugger;
+        speech.rate = $("#speechSpdId").val();
         speech.pitch = 1;
 
         speech.onend = function (event) {

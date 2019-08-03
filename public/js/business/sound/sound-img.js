@@ -12,7 +12,7 @@ var nowIndex = 0;
 var nextSentence = "";
 
 function fissionToS(nowEnCnContent) {
-    debugger;
+
     var setences = nowEnCnContent.split(/[.!\?。？！，,]/)
 
     var returSentences = [];
@@ -27,7 +27,7 @@ function fissionToS(nowEnCnContent) {
 }
 
 function getFiveSentence(calucIndex) {
-    debugger;
+
     if (beforeOne) {
         beforeTwo = beforeOne
     }
@@ -518,6 +518,7 @@ $(".voiceMp3Failed").on("click", function () {
     // $("#contentDis").html(speech.text);
     translateToENCN2(speech.text);
     speech.volume = 1;
+    //$("#speechSpdId").val()
     speech.rate = 1;
     speech.pitch = 1;
 

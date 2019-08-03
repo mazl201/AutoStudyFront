@@ -1,6 +1,7 @@
 extends layout
 
 block content
+    - var speechSpdSelect = {"慢":"0.8","稍慢":"0.9","正常":"1","快":"1.1","加快":"1.2"}
     section.container
         div(class="modal fade bs-example-modal-lg" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
             div(class="modal-dialog modal-lg")
@@ -26,6 +27,10 @@ block content
             each index1 in content
                 p(class="tab-p") #{index1.content}
 
+        select.selectpicker(id="speechSpdId")
+            each name,key in speechSpdSelect
+                option(value="#{name}") #{key}
+        br
         button(class='btn voiceMp3Failed') 朗读本段
         button(class='btn voiceMp3Pause') 暂停
         button(class='btn voiceMp3Resume') 恢复
