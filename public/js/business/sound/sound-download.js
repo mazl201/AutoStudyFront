@@ -4,39 +4,60 @@ var currentTime;
 var nowAudio;
 var nowInterval;
 var nowEnCnContent;
+var nowSentences;
+var beforeOne;
+var beforeTwo = "";
+var beforeNo = "";
+var nowIndex = 0;
+var nextSentence = "";
 
-document.addEventListener('copy', function(event){
+document.addEventListener('copy', function (event) {
     setClipboardText(event);
 });
 
 //处理单词
-function setClipboardText(event){
+function setClipboardText(event) {
     event.preventDefault();
     var result = window.getSelection(0).toString();
 
     $.ajax({
         url: "/sound/translateEnEn",
-        data: {word:result},
+        data: {word: result},
         type: "POST",
         async: true,
         success: function (res) {
             if (res) {
-               layer.msg(result+"---"+res,{
-                   icon: 6,
-                   time: 10000, //2秒关闭（如果不配置，默认是3秒）
-                   offset: ['10px', '10px']
-               })
+                layer.msg(result + "---" + res, {
+                    icon: 6,
+                    time: 10000, //2秒关闭（如果不配置，默认是3秒）
+                    offset: ['10px', '10px']
+                })
             }
         }
     })
     layer.msg(result);
 };
 
+function fissionToS(nowEnCnContent) {
+    debugger;
+    var setences = nowEnCnContent.split(/[.!\?。？！，,]/)
+
+    var returSentences = [];
+    var arrIndex = 0;
+    for (var index in setences) {
+        let sentenceLength = setences[index].length;
+        arrIndex = parseInt(arrIndex) + parseInt(sentenceLength) + 1;
+        returSentences[arrIndex] = setences[index];
+    }
+
+    return returSentences;
+}
+
 function translateToENCN(contents) {
     var data = {
-            content: contents,
-        }
-    ;
+        content: contents,
+    }
+
     $.ajax({
         url: "/sound/translateDst",
         data: data,
@@ -46,10 +67,49 @@ function translateToENCN(contents) {
         success: function (res) {
             if (res) {
                 nowEnCnContent = res;
+
                 freshAudioContent();
             }
         }
     })
+}
+
+function getFiveSentence(calucIndex) {
+    debugger;
+    if (beforeOne) {
+        beforeTwo = beforeOne
+    }
+
+    if (beforeNo) {
+        beforeOne = beforeNo;
+    }
+    for (var startIndex in nowSentences) {
+        if(nowIndex > calucIndex){
+            nextSentence = nowSentences[startIndex];
+            return;
+        }
+        if (parseInt(startIndex) > parseInt(calucIndex)) {
+            let nowSentence = nowSentences[startIndex];
+            nowIndex = startIndex;
+            beforeNo = nowSentence;
+            $.ajax({
+                url: "/sound/translate",
+                data: {content: beforeNo},
+                type: "POST",
+                async: false,
+                // context:null,
+                success: function (res) {
+                    if (res) {
+                        beforeNo = res;
+                    }
+                }
+            })
+
+        }
+
+    }
+
+    return;
 }
 
 function freshAudioContent() {
@@ -62,6 +122,15 @@ function freshAudioContent() {
     var content = $($(nowAudio).parent().find(".content")[0]).html();
     var contentLength = content.length;
     var calucIndex = parseInt((nowAudio.currentTime / nowAudio.duration) * contentLength) - 10;
+
+    if (calucIndex > nowIndex) {
+        //取 5句话 回来
+        let fiveSentence = getFiveSentence(calucIndex);
+        $("#contentModalDis").html($("#contentModalDis").html() + beforeTwo + "。。<br>" + beforeOne + "。。<br>" + beforeNo+"。。。<br>"+nextSentence);
+        var contentDivId = document.getElementById("contentDiv");
+        contentDivId.scrollTop = contentDivId.scrollHeight
+    }
+
     var calucEnd = (calucIndex + 40)
     if (calucIndex < 0) {
         calucIndex = 0;
@@ -76,17 +145,13 @@ function freshAudioContent() {
     if (calucEnd1 > contentLength) {
         calucEnd1 = contentLength;
     }
-    // translateToENCN(content)
 
-    if(nowEnCnContent){
-        debugger;
-        $("#contentModalDis").html(nowEnCnContent.substring(calucIndex, calucEnd1)+"<br>"+ content.substring(calucIndex, calucEnd));
-        $("#footerDivContent").html(nowEnCnContent.substring(calucIndex, calucEnd1)+"<br>"+ content.substring(calucIndex, calucEnd));
-        $($(nowAudio).parent().find(".contentDis")[0]).html(nowEnCnContent.substring(calucIndex, calucEnd1)+"<br>"+ content.substring(calucIndex, calucEnd));
-    }else if(content){
-        debugger;
-        $("#contentModalDis").html(content.substring(calucIndex, calucEnd));
-        $("#footerDivContent").html(content.substring(calucIndex, calucEnd));
+    if (nowEnCnContent) {
+        // $("#contentModalDis").html(nowEnCnContent.substring(calucIndex, calucEnd1)+"<br>"+ content.substring(calucIndex, calucEnd));
+        $($(nowAudio).parent().find(".contentDis")[0]).html(nowEnCnContent.substring(calucIndex, calucEnd1) + "<br>" + content.substring(calucIndex, calucEnd));
+    } else if (content) {
+
+        // $("#contentModalDis").html(content.substring(calucIndex, calucEnd));
         $($(nowAudio).parent().find(".contentDis")[0]).html(content.substring(calucIndex, calucEnd));
     }
 }
@@ -116,10 +181,19 @@ function freshAudioContent1() {
     if (calucEnd1 > contentLength) {
         calucEnd1 = contentLength;
     }
-    debugger;
-    $("#contentModalDis").html(nowEnCnContent.substring(calucIndex, calucEnd1)+"<br>"+ content.substring(calucIndex, calucEnd));
-    $("#footerDivContent").html(calucEnd1+"<br>"+ content.substring(calucIndex, calucEnd));
-    $($(nowAudio).parent().find(".contentDis")[0]).html(nowEnCnContent.substring(calucIndex, calucEnd1)+"<br>"+ content.substring(calucIndex, calucEnd) );
+
+    if (calucIndex > nowIndex) {
+        //取 5句话 回来
+        let fiveSentence = getFiveSentence(calucIndex);
+
+        $("#contentModalDis").html($("#contentModalDis").html() + beforeTwo + "。。<br>" + beforeOne + "。。<br>" + beforeNo+"。。。<br>"+nextSentence);
+        var contentDivId = document.getElementById("contentDiv");
+        contentDivId.scrollTop = contentDivId.scrollHeight
+    }
+
+    // $("#contentModalDis").html(nowEnCnContent.substring(calucIndex, calucEnd1) + "<br>" + content.substring(calucIndex, calucEnd));
+    // $("#footerDivContent").html(calucEnd1 + "<br>" + content.substring(calucIndex, calucEnd));
+    $($(nowAudio).parent().find(".contentDis")[0]).html(nowEnCnContent.substring(calucIndex, calucEnd1) + "<br>" + content.substring(calucIndex, calucEnd));
 }
 
 
@@ -159,26 +233,26 @@ $.ajax({
                 if (pagecount <= pagesize) {
                     pagehtml = "";
                 }
-                debugger;
+
                 var nowFileNamev = $(window.parent.document.getElementById("presentFileName")).attr("var");
                 //大于一页内容
                 if (pagecount > pagesize) {
                     // window.parent
                     if (currentpage > 1) {
-                        pagehtml += '<li class="page-item"><a class="page-link" href="/sound/mp3_list?fileName='+ nowFileNamev +'&index=' + (currentpage - 1) + '">上一页</a></li>';
+                        pagehtml += '<li class="page-item"><a class="page-link" href="/sound/mp3_list?fileName=' + nowFileNamev + '&index=' + (currentpage - 1) + '">上一页</a></li>';
                     }
                     for (var i = 0; i < counts; i++) {
                         if (i >= (currentpage - 3) && i < (currentpage + 3)) {
                             if (i == currentpage - 1) {
-                                pagehtml += '<li class="active page-item"><a class="page-link" href="/sound/mp3_list?fileName='+ nowFileNamev +'&index=' + (i + 1) + '">' + (i + 1) + '</a></li>';
+                                pagehtml += '<li class="active page-item"><a class="page-link" href="/sound/mp3_list?fileName=' + nowFileNamev + '&index=' + (i + 1) + '">' + (i + 1) + '</a></li>';
                             } else {
-                                pagehtml += '<li class="page-item"><a class="page-link" href="/sound/mp3_list?fileName='+ nowFileNamev +'&index=' + (i + 1) + '">' + (i + 1) + '</a></li>';
+                                pagehtml += '<li class="page-item"><a class="page-link" href="/sound/mp3_list?fileName=' + nowFileNamev + '&index=' + (i + 1) + '">' + (i + 1) + '</a></li>';
                             }
 
                         }
                     }
                     if (currentpage < counts) {
-                        pagehtml += '<li class="page-item"><a class="page-link" href="/sound/mp3_list?fileName='+ nowFileNamev +'&index=' + (currentpage + 1) + '">下一页</a></li>';
+                        pagehtml += '<li class="page-item"><a class="page-link" href="/sound/mp3_list?fileName=' + nowFileNamev + '&index=' + (currentpage + 1) + '">下一页</a></li>';
                     }
                 }
                 $("#pagination").html(pagehtml);
@@ -222,11 +296,13 @@ function initAudioClick(audioNow) {
         console.log(audioName + "百分比" + number * 100)
         var contentLength = $($(this).parent().find(".content")[0]).html().length;
         console.log(audioName + "目前字数" + parseInt(contentLength * number))
+
         currentTime = this.currentTime;
         totalTime = this.duration;
         startTime = new Date();
         nowAudio = this;
-        translateToENCN($($(nowAudio).parent().find(".content")[0]).html());
+        // translateToENCN($($(nowAudio).parent().find(".content")[0]).html());
+        nowSentences = fissionToS($($(nowAudio).parent().find(".content")[0]).html());
         nowInterval = setInterval(freshAudioContent, 2000);
     })
     console.log("加载第" + i + "个，完成")
@@ -243,12 +319,28 @@ function initAudioClick(audioNow) {
         var endIndex = 30;
         clearInterval(nowInterval);
         nowEnCnContent = "";
+        beforeNo = "";
+        beforeOne = "";
+        beforeTwo = "";
+        nowSentences = "";
+
         if (startIndex < 0) {
             startIndex = 0;
         }
         if (endIndex > contentLength) {
             endIndex = contentLength;
         }
+    })
+
+    $(audioNow).on("ended", function () {
+        console.log("第" + i + "个，音频结束了。");
+        nowEnCnContent = "";
+        beforeNo = "";
+        beforeOne = "";
+        beforeTwo = "";
+        nowSentences = "";
+
+
 
     })
 }
@@ -259,14 +351,20 @@ function initAudioClick1(audioNow) {
         nowAudio = this;
         // translateToENCN(content)
         nowInterval = setInterval(freshAudioContent1, 1000);
-        translateToENCN($($(nowAudio).parent().find(".contentvoice")[0]).html());
+        nowSentences = fissionToS($($(nowAudio).parent().find(".content")[0]).html());
+        // translateToENCN($($(nowAudio).parent().find(".contentvoice")[0]).html());
     })
     console.log("加载第" + i + "个，完成")
     $(audioNow).on("pause", function () {
         clearInterval(nowInterval);
         nowEnCnContent = "";
+        beforeNo = "";
+        beforeOne = "";
+        beforeTwo = "";
+        nowSentences = "";
     })
 }
+
 //显示大图
 function showimage(source) {
     $("#ShowImage_Form").find("#img_show").html("<image src='" + source + "' class='carousel-inner img-responsive img-rounded' />");
@@ -279,7 +377,6 @@ $(".submitButton").on("click", function () {
 
     window.location.href = "/sound/mp3_download?id=" + $(this).parent().find(".ids").html();
 })
-
 
 
 $(".deleteButton").on("click", function () {
@@ -363,10 +460,10 @@ $(".retryTranslate").on("click", function () {
     })
 })
 
-$(".allFailedFlush").on("click",function(){
+$(".allFailedFlush").on("click", function () {
     var $retryTranslate = $(".retryTranslate");
-    if($retryTranslate){
-        for(var i = 0;i<$retryTranslate.length-1;i++){
+    if ($retryTranslate) {
+        for (var i = 0; i < $retryTranslate.length - 1; i++) {
             $($retryTranslate[i]).click();
         }
     }
@@ -406,9 +503,8 @@ $(".voiceMp3Failed").on("click", function () {
 
 function translateToENCN2(text) {
     var data = {
-            content: text,
-        }
-    ;
+        content: text,
+    };
     $.ajax({
         url: "/sound/translate",
         data: data,
@@ -427,34 +523,31 @@ function translateToENCN2(text) {
 
 
 function launchIntoFullscreen(element) {
-    if(element.requestFullscreen){
+    if (element.requestFullscreen) {
         element.requestFullscreen();
-    }
-    else if(element.mozRequestFullScreen) {
+    } else if (element.mozRequestFullScreen) {
         element.mozRequestFullScreen();
-    }
-    else if(element.webkitRequestFullscreen) {
+    } else if (element.webkitRequestFullscreen) {
         element.webkitRequestFullscreen();
-    }
-    else if(element.msRequestFullscreen) {
+    } else if (element.msRequestFullscreen) {
         element.msRequestFullscreen();
     }
 }
 
 function exitFullscreen() {
-    if(document.exitFullscreen) {
+    if (document.exitFullscreen) {
         document.exitFullscreen();
-    } else if(document.mozCancelFullScreen) {
+    } else if (document.mozCancelFullScreen) {
         document.mozCancelFullScreen();
-    } else if(document.webkitExitFullscreen) {
+    } else if (document.webkitExitFullscreen) {
         document.webkitExitFullscreen();
     }
 }
 
-function isFullscreen(){
-    if(navigator.userAgent.indexOf("Firefox")!=-1) {
+function isFullscreen() {
+    if (navigator.userAgent.indexOf("Firefox") != -1) {
         return document.mozFullScreen;
-    } else if(navigator.userAgent.indexOf("Chrome")!=-1) {
+    } else if (navigator.userAgent.indexOf("Chrome") != -1) {
         return document.webkitIsFullScreen;
     }
     return document.fullscreen;

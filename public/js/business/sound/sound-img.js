@@ -4,18 +4,77 @@ var currentTime;
 var nowAudio;
 var nowInterval;
 var nowEnCnContent;
+var nowSentences;
+var beforeOne;
+var beforeTwo = "";
+var beforeNo = "";
+var nowIndex = 0;
+var nextSentence = "";
+
+function fissionToS(nowEnCnContent) {
+    debugger;
+    var setences = nowEnCnContent.split(/[.!\?。？！，,]/)
+
+    var returSentences = [];
+    var arrIndex = 0;
+    for (var index in setences) {
+        let sentenceLength = setences[index].length;
+        arrIndex = parseInt(arrIndex) + parseInt(sentenceLength) + 1;
+        returSentences[arrIndex] = setences[index];
+    }
+
+    return returSentences;
+}
+
+function getFiveSentence(calucIndex) {
+    debugger;
+    if (beforeOne) {
+        beforeTwo = beforeOne
+    }
+
+    if (beforeNo) {
+        beforeOne = beforeNo;
+    }
+    for (var startIndex in nowSentences) {
+        if(nowIndex > calucIndex){
+            nextSentence = nowSentences[startIndex];
+            return;
+        }
+        if (parseInt(startIndex) > parseInt(calucIndex)) {
+            let nowSentence = nowSentences[startIndex];
+            nowIndex = startIndex;
+            beforeNo = nowSentence;
+            $.ajax({
+                url: "/sound/translate",
+                data: {content: beforeNo},
+                type: "POST",
+                async: false,
+                // context:null,
+                success: function (res) {
+                    if (res) {
+                        beforeNo = res;
+                    }
+                }
+            })
+
+        }
+
+    }
+
+    return;
+}
 
 $('#viewer').viewer();
 
 $("#printViewDis").click(function(a,b,c){
     // a.preventDefault();
-    // debugger;
+    //
     // // html2canvas(document.getElementById("printView"), {
     // html2canvas($("#printView"), {
     //     allowTaint: true,
     //     taintTest: false,
     //     onrendered: function (canvas) {
-    //         debugger;
+    //
     //         canvas.id = "mycanvas";
     //         //生成base64图片数据
     //         var dataUrl = canvas.toDataURL();
@@ -107,8 +166,15 @@ function freshAudioContent() {
         calucEnd1 = contentLength;
     }
     // translateToENCN(content)
-    debugger;
-    $("#contentModalDisAll").html(nowEnCnContent.substring(calucIndex, calucEnd1)+"<br>"+ content.substring(calucIndex, calucEnd));
+    if (calucIndex > nowIndex) {
+        //取 5句话 回来
+        let fiveSentence = getFiveSentence(calucIndex);
+        $("#contentModalDisAll").html($("#contentModalDisAll").html() + beforeTwo + "。。<br>" + beforeOne + "。。<br>" + beforeNo+"。。。<br>"+nextSentence);
+        var contentDivId = document.getElementById("contentDiv");
+        contentDivId.scrollTop = contentDivId.scrollHeight
+    }
+
+    // $("#contentModalDisAll").html(nowEnCnContent.substring(calucIndex, calucEnd1)+"<br>"+ content.substring(calucIndex, calucEnd));
     $($(nowAudio).parent().find(".contentDis")[0]).html(nowEnCnContent.substring(calucIndex, calucEnd1)+"<br>"+ content.substring(calucIndex, calucEnd));
 }
 
@@ -138,7 +204,7 @@ function freshAudioContent1() {
         calucEnd1 = contentLength;
     }
     $("#contentModalDisAll").html(nowEnCnContent.substring(calucIndex, calucEnd1)+"<br>"+ content.substring(calucIndex, calucEnd));
-    debugger;
+
     $($(nowAudio).parent().find(".contentDis")[0]).html(nowEnCnContent.substring(calucIndex, calucEnd1)+"<br>"+ content.substring(calucIndex, calucEnd) );
 }
 
@@ -244,7 +310,8 @@ function initAudioClick(audioNow) {
         startTime = new Date();
         nowAudio = this;
         nowInterval = setInterval(freshAudioContent, 1000);
-        translateToENCN($($(nowAudio).parent().find(".content")[0]).html());
+        nowSentences = fissionToS($($(nowAudio).parent().find(".content")[0]).html());
+        // translateToENCN($($(nowAudio).parent().find(".content")[0]).html());
     })
     console.log("加载第" + i + "个，完成")
     $(audioNow).on("pause", function () {
@@ -260,6 +327,10 @@ function initAudioClick(audioNow) {
         var endIndex = 30;
         clearInterval(nowInterval);
         nowEnCnContent = "";
+        beforeNo = "";
+        beforeOne = "";
+        beforeTwo = "";
+        nowSentences = "";
         if (startIndex < 0) {
             startIndex = 0;
         }
@@ -276,12 +347,17 @@ function initAudioClick1(audioNow) {
         nowAudio = this;
         // translateToENCN(content)
         nowInterval = setInterval(freshAudioContent1, 1000);
-        translateToENCN($($(nowAudio).parent().find(".contentvoice")[0]).html());
+        // translateToENCN($($(nowAudio).parent().find(".contentvoice")[0]).html());
+        nowSentences = fissionToS($($(nowAudio).parent().find(".content")[0]).html());
     })
     console.log("加载第" + i + "个，完成")
     $(audioNow).on("pause", function () {
         clearInterval(nowInterval);
         nowEnCnContent = "";
+        beforeNo = "";
+        beforeOne = "";
+        beforeTwo = "";
+        nowSentences = "";
     })
 }
 //显示大图
@@ -396,7 +472,7 @@ $(".voiceMp3Resume").on("click",function(){
 })
 
 $(".voiceMp3All").on("click", function () {
-    debugger;
+
     nowContentDis = $("#printView");
 
     var speech = new SpeechSynthesisUtterance();
@@ -472,7 +548,9 @@ function translateToENCN2(text) {
         // context:null,
         success: function (res) {
             if (res) {
-                $("#contentModalDisAll").html(res+text);
+                $("#contentModalDisAll").html($("#contentModalDisAll").html()+"<br>"+res+text);
+                var contentDivId = document.getElementById("contentDiv");
+                contentDivId.scrollTop = contentDivId.scrollHeight
                 $(nowContentDis).html(res+text);
             }
         }

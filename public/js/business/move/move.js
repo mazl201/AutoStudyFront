@@ -1,5 +1,5 @@
 $(".submitFileTransfer").click(function() {
-    debugger;
+
     $.ajax({
         //几个参数需要注意一下
         type: "POST",//方法类型
@@ -20,7 +20,7 @@ $(".submitFileTransfer").click(function() {
 })
 
 $(".submitFileTransfer1").click(function() {
-    debugger;
+
     $.ajax({
         //几个参数需要注意一下
         type: "POST",//方法类型

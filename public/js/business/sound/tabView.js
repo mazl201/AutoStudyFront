@@ -23,7 +23,7 @@ $('.counter-value').each(function () {
 });
 
 $(".everyFileName").click(function () {
-    debugger;
+
     let fileName = $(this).find(".title").html();
 
     $("#presentFileName").html("当前选中 " + fileName);
@@ -42,7 +42,7 @@ $("#closeCountss").click(function () {
 })
 
 /*$(".showHiddenDiv").mouseout(function(){
-    debugger;
+
     $(".showHiddenDiv").hide();
 })*/
 

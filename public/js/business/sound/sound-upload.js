@@ -43,7 +43,7 @@ $(".translateButton").on("click", function () {
         type: "POST",
         // context:null,
         success: function (res) {
-            debugger;
+
             if(res.indexOf("success") > -1){
                 window.location.href = "/sound/downloadTxt?path=" + res.replace("success","");
             }
@@ -140,7 +140,7 @@ $(".uploadFileButton").on("click", function () {
 
 var inputFile = $("#input-id").fileinput({
     'showUpload': true, 'previewFileType': 'any', 'uploadUrl': "/sound/uploadFile", "uploadExtraData": function () {
-        debugger;
+
         return {spd: $("#myFilespd").val()}
     }
 });
@@ -148,7 +148,7 @@ var inputFile = $("#input-id").fileinput({
 // function myFileSpdChange() {
 //     inputFile.refresh({
 //         'showUpload': true, 'previewFileType': 'any', 'uploadUrl': "/sound/uploadFile", "uploadExtraData": function () {
-//             debugger;
+//
 //             return {spd: $("#myFilespd").val()}
 //         }
 //     });
