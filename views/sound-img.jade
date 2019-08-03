@@ -1,7 +1,8 @@
 extends layout
 
 block content
-    - var speechSpdSelect = {"慢":"0.8","稍慢":"0.9","正常":"1","快":"1.1","加快":"1.2"}
+    - var speechSpdSelect = {"正常":"1","慢":"0.8","稍慢":"0.9","快":"1.1","加快":"1.2"}
+    - var audioSpdSelect = {"正常":"1","慢":"0.8","稍慢":"0.9","快":"1.1","加快":"1.2","灰常快":1.5,"超级快":"2"}
     section.container
         div(class="modal fade bs-example-modal-lg" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
             div(class="modal-dialog modal-lg")
@@ -27,7 +28,7 @@ block content
             each index1 in content
                 p(class="tab-p") #{index1.content}
 
-        select.selectpicker(id="speechSpdId")
+        select.selectpicker(id="speechSpdId") 朗读速度
             each name,key in speechSpdSelect
                 option(value="#{name}") #{key}
         br
@@ -44,6 +45,10 @@ block content
             div(class="panel-body" id="printImgBox1")
 
         ul.home.post-list(id="viewer")
+            select.selectpicker(id="audioSpeedId" )  audio速度
+                each name,key in audioSpdSelect
+                    option(value="#{name}") #{key}
+            br
             each index in content
                 div(class="tab-h2")
                     p(size="6",font-family:"STKaiti" class="tab-p contentDis")
