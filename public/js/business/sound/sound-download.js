@@ -293,7 +293,7 @@ for (var i = 0; i < audios.length; i++) {
 function initAudioClick(audioNow) {
     $(audioNow).on("play", function () {
         $("#audioSpeedId").val();
-        this.playbackRate = $("#audioSpeedId").val();;
+        this.playbackRate = $("#audioSpeedId").val();
         console.log("当前播放速度 === "+this.playbackRate)
         var audioName = $(this).attr("name");
         console.log(audioName + "开始播放")
@@ -371,6 +371,9 @@ function initAudioClick(audioNow) {
 
 function initAudioClick1(audioNow) {
     $(audioNow).on("play", function () {
+
+        $("#audioSpeedId").val();
+        this.playbackRate = $("#audioSpeedId").val();
 
         nowAudio = this;
         // translateToENCN(content)

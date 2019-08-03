@@ -297,6 +297,9 @@ for (var i = 0; i < audios.length; i++) {
 
 function initAudioClick(audioNow) {
     $(audioNow).on("play", function () {
+        $("#audioSpeedId").val();
+        this.playbackRate = $("#audioSpeedId").val();
+
         var audioName = $(this).attr("name");
         console.log(audioName + "开始播放")
         console.log(audioName + "当前播放进度" + this.currentTime)
@@ -344,6 +347,8 @@ function initAudioClick(audioNow) {
 function initAudioClick1(audioNow) {
     $(audioNow).on("play", function () {
 
+        $("#audioSpeedId").val();
+        this.playbackRate = $("#audioSpeedId").val();
         nowAudio = this;
         // translateToENCN(content)
         nowInterval = setInterval(freshAudioContent1, 1000);
