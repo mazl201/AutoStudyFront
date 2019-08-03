@@ -3,7 +3,7 @@ extends layout
 block content
     - var audioSpdSelect = {"正常":"1","慢":"0.8","稍慢":"0.9","快":"1.1","加快":"1.2","灰常快":"1.5","超级快":"2"}
     - var fontColor = {"黒":"#000000","赤":"#EF5F61","橙色":"#F19F48","黄":"#F1E723","绿":"#57F131","青":"#08F15C","蓝":"#37F1BD","紫":"#7F77F1","白":"#FFFFFF"}
-    - var backgroundColor = {"墨绿":"#49998D","绿":"#43F14E","赤":"#EF211E","橙色":"#F18567","黄":"#F1EB3F","青":"#23F18C","蓝":"#3F7CF1","紫":"#7220F1","黒":"#000000","白":"#FFFFFF"}
+    - var backgroundColor = {"墨绿":"#49998D","绿":"#a3f178","赤":"#ef6b74","橙色":"#f19b6d","黄":"#F1EB3F","青":"#23F18C","蓝":"#3F7CF1","紫":"#7220F1","黒":"#000000","白":"#FFFFFF"}
     section.container
         //div(id="firstmodal" class="modal container fade" tabitem="-1")
         //    div(class="modal-header")
@@ -18,10 +18,10 @@ block content
                     div(class="modal-header")
                         button(type="button" class="close" data-dismiss="modal" aria-hidden="true") &times
                         p(class="modal-title" id="myModalLabel") 实时
-                        select.selectpicker(id="fontColorId" onchange="fontColorChange()")
+                        select.selectpicker(id="fontColorId" onchange="fontColorChange1()")
                             each name,key in fontColor
                                 option(value="#{name}") #{key}
-                        select.selectpicker(id="backgroundColorId" onchange="backgroundColorChange()")
+                        select.selectpicker(id="backgroundColorId" onchange="backgroundColorChange1()")
                             each name,key in backgroundColor
                                 option(value="#{name}") #{key}
                     div(class="modal-body" id="contentDiv" style="overflow:auto; height: 350px; width: 100%; border: 1px solid #999;background:#49998D;" )

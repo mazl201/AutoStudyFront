@@ -158,11 +158,11 @@ function freshAudioContent() {
     }
 }
 
-function fontColorChange(){
+function fontColorChange1(){
     $("#contentModalDis").attr("color",$("#fontColorId").val())
 }
 $("#contentModalDis").attr("color",$("#fontColorId").val())
-function backgroundColorChange(){
+function backgroundColorChange1(){
     $("#contentDiv").attr("style","overflow:auto; height: 350px; width: 100%; border: 1px solid #999;background:"+$("#backgroundColorId").val())
 }
 $("#contentDiv").attr("style","overflow:auto; height: 350px; width: 100%; border: 1px solid #999;background:"+$("#backgroundColorId").val())

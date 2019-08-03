@@ -295,7 +295,14 @@ for (var i = 0; i < audios.length; i++) {
 
 }
 
-
+function fontColorChange(){
+    $("#contentModalDisAll").attr("color",$("#fontColorId").val())
+}
+$("#contentModalDisAll").attr("color",$("#fontColorId").val())
+function backgroundColorChange(){
+    $("#contentDiv").attr("style","overflow:auto; height: 350px; width: 100%; border: 1px solid #999;background:"+$("#backgroundColorId").val())
+}
+$("#contentDiv").attr("style","overflow:auto; height: 350px; width: 100%; border: 1px solid #999;background:"+$("#backgroundColorId").val())
 
 function initAudioClick(audioNow) {
     $(audioNow).on("play", function () {
@@ -516,7 +523,7 @@ $(".voiceMp3Failed").on("click", function () {
 
     var speech = new SpeechSynthesisUtterance();
 
-    var content = $(this).parent().find("p").html();
+    var content = $("#printView").html();
     var contents = content.split(/[.,!\?。，？！]/);
     ;
     var index = 0;
@@ -555,6 +562,7 @@ function translateToENCN2(text) {
         type: "POST",
         // context:null,
         success: function (res) {
+            debugger;
             if (res) {
                 $("#contentModalDisAll").html($("#contentModalDisAll").html()+"<br>"+res+text);
                 var contentDivId = document.getElementById("contentDiv");
