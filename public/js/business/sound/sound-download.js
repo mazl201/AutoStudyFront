@@ -11,6 +11,7 @@ var beforeNo = "";
 var nowIndex = 0;
 var nextSentence = "";
 var pagesize = 5;
+var nowPage = 0;
 
 document.addEventListener('copy', function (event) {
     setClipboardText(event);
@@ -224,6 +225,8 @@ $.ajax({
                 var pagecount = res.total;
                 // var pagesize = 5;
                 var currentpage = parseInt(res.page);
+                nowPage = currentpage;
+                console.log("当前页为 &&&&"+currentpage);
                 var counts, pagehtml = "";
                 if (pagecount % pagesize == 0) {
                     counts = parseInt(pagecount / pagesize);
@@ -289,6 +292,9 @@ for (var i = 0; i < audios.length; i++) {
 
 function initAudioClick(audioNow) {
     $(audioNow).on("play", function () {
+        $("#audioSpeedId").val();
+        this.playbackRate = $("#audioSpeedId").val();;
+        console.log("当前播放速度 === "+this.playbackRate)
         var audioName = $(this).attr("name");
         console.log(audioName + "开始播放")
         console.log(audioName + "当前播放进度" + this.currentTime)
@@ -343,8 +349,9 @@ function initAudioClick(audioNow) {
         }else if(indexOfAudio == (pagesize -1)){
 
             setTimeout(function(){
+                nowPage = nowPage + 1;
                 var nowFileNamev = $(window.parent.document.getElementById("presentFileName")).attr("var");
-                window.location.href = '/sound/mp3_list?fileName=' + nowFileNamev + '&index=' + (currentpage + 1);
+                window.location.href = '/sound/mp3_list?fileName=' + nowFileNamev + '&index=' + nowPage;
             },5000)
         }
 

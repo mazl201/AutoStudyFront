@@ -40,6 +40,9 @@ $(".showHidden").click(function () {
 $("#closeCountss").click(function () {
     $(".showHiddenDiv").hide();
 })
+$("#closeCountss1").click(function () {
+    $(".showHiddenDiv").hide();
+})
 
 /*$(".showHiddenDiv").mouseout(function(){
 

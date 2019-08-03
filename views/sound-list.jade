@@ -1,6 +1,7 @@
 extends layout
 
 block content
+    - var audioSpdSelect = {"慢":"0.8","稍慢":"0.9","正常":"1","快":"1.1","加快":"1.2","超级快":"2"}
     section.container
         //div(id="firstmodal" class="modal container fade" tabitem="-1")
         //    div(class="modal-header")
@@ -9,7 +10,6 @@ block content
         //
         //    div(class="modal-body")
         //        p TESTTESTTETSTET
-
         div(class="modal fade bs-example-modal-lg" id="myModal" tabitem="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
             div(class="modal-dialog modal-lg")
                 div(class="modal-content")
@@ -23,7 +23,10 @@ block content
                         //button(type="button" class="btn btn-primary")提交更改
 
 
-
+        select.selectpicker(id="audioSpeedId" )
+            each name,key in audioSpdSelect
+                option(value="#{name}") #{key}
+        br
         a(href="javascript:void(0)" class='button clearAllButton')  清空当前页
         br
         br
