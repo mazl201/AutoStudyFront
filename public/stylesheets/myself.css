@@ -33,7 +33,7 @@
 
   text-align:left;
 
-  color: #666;
+  color: #4a1266;
 
   margin:10px 0px 10px 0px;
 
@@ -182,4 +182,8 @@ p::first-letter {
 #firstmodal {
   width: 98%;
   height: 98%;
+}
+
+#contentDiv{
+  filter:alpha(Opacity=60);-moz-opacity:0.6;opacity: 0.6
 }
