@@ -153,7 +153,7 @@
 .counter.purple .title{ background: #a98ceb; }
 
 p::first-letter {
-  font-size: 30px;
+  font-size: 25px;
   margin-right: 5px;
   color: brown;
   float: left; /*文字环绕*/
