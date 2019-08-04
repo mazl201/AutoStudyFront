@@ -125,7 +125,7 @@ function freshAudioContent() {
     var contentLength = content.length;
     var calucIndex = parseInt((nowAudio.currentTime / nowAudio.duration) * contentLength) - 10;
 
-    if (calucIndex > nowIndex-3) {
+    if (calucIndex > nowIndex) {
         //取 5句话 回来
         let fiveSentence = getFiveSentence(calucIndex);
         $("#contentModalDis").html($("#contentModalDis").html() + beforeTwo + "。。<br>" + beforeOne + "。。<br>" + beforeNo+"。。。<br>"+nextSentence);
