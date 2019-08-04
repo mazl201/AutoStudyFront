@@ -87,26 +87,26 @@ function getFiveSentence(calucIndex) {
     }
     for (var startIndex in nowSentences) {
         if(nowIndex > calucIndex){
+            debugger
             nextSentence = nowSentences[startIndex];
+            $.ajax({
+                url: "/sound/translate",
+                data: {content: nextSentence},
+                type: "POST",
+                // async: false,
+                // context:null,
+                success: function (res) {
+                    if (res) {
+                        nextSentence = res;
+                    }
+                }
+            })
             return;
         }
         if (parseInt(startIndex) > parseInt(calucIndex)) {
             let nowSentence = nowSentences[startIndex];
             nowIndex = startIndex;
-            beforeNo = nowSentence;
-            $.ajax({
-                url: "/sound/translate",
-                data: {content: beforeNo},
-                type: "POST",
-                async: false,
-                // context:null,
-                success: function (res) {
-                    if (res) {
-                        beforeNo = res;
-                    }
-                }
-            })
-
+            beforeNo = nextSentence;
         }
 
     }
@@ -360,7 +360,7 @@ function initAudioClick(audioNow) {
                 nowPage = nowPage + 1;
                 var nowFileNamev = $(window.parent.document.getElementById("presentFileName")).attr("var");
                 window.location.href = '/sound/mp3_list?fileName=' + nowFileNamev + '&index=' + nowPage;
-            },5000)
+            },8000)
         }
 
         nowEnCnContent = "";
