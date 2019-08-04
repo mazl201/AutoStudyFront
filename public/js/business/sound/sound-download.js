@@ -387,6 +387,17 @@ $("#resumeAudio").on("click",function(){
     nowAudio.play();
 })
 
+function pauseOrPlay(){
+    if(nowAudio){
+
+        if(nowAudio.paused){
+            nowAudio.play();
+        }else{
+            nowAudio.pause()
+        }
+    }
+}
+
 function initAudioClick1(audioNow) {
     $(audioNow).on("play", function () {
 

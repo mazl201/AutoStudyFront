@@ -24,7 +24,7 @@ block content
                         select.selectpicker(id="backgroundColorId" onchange="backgroundColorChange1()")
                             each name,key in backgroundColor
                                 option(value="#{name}") #{key}
-                    div(class="modal-body" id="contentDiv" style="overflow:auto; height: 350px; width: 100%; border: 1px solid #999;background:#49998D;" )
+                    div(class="modal-body" id="contentDiv" style="overflow:auto; height: 350px; width: 100%; border: 1px solid #999;background:#49998D;" ondblclick="pauseOrPlay()")
                         font(size="6" id="contentModalDis") 在这里添加一些文本
                     div(class="modal-footer")
                         button(type="button" class="btn" id="pauseAudio") 暂停
