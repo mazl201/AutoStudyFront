@@ -185,5 +185,5 @@ p::first-letter {
 }
 
 #contentDiv{
-  filter:alpha(Opacity=60);-moz-opacity:0.6;opacity: 0.6
+  filter:alpha(Opacity=80);-moz-opacity:0.8;opacity: 0.8
 }
