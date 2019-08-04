@@ -269,7 +269,7 @@ router.post("/translate", function (req, res, next) {
 
         async function waitTranslateComplete(){
             let translateContent = await baiduTranslateMet(content);
-            res.end(translateContent+"<br>"+content);
+            res.end("<p class=\"tab-p contentDis\" size='6'>"+translateContent+"</p>"+content);
         }
         waitTranslateComplete();
     }
