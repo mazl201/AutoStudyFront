@@ -128,7 +128,7 @@ function freshAudioContent() {
     if (calucIndex > nowIndex) {
         //取 5句话 回来
         let fiveSentence = getFiveSentence(calucIndex);
-        $("#contentModalDis").html($("#contentModalDis").html() + beforeTwo + "。。<br>" + beforeOne + "。。<br>" + beforeNo+"。。。<br>"+nextSentence);
+        $("#contentModalDis").html($("#contentModalDis").html() + beforeTwo + beforeOne  + beforeNo+nextSentence);
         var contentDivId = document.getElementById("contentDiv");
         contentDivId.scrollTop = contentDivId.scrollHeight
     }
@@ -196,7 +196,7 @@ function freshAudioContent1() {
         //取 5句话 回来
         let fiveSentence = getFiveSentence(calucIndex);
 
-        $("#contentModalDis").html($("#contentModalDis").html() + beforeTwo + "。。<br>" + beforeOne + "。。<br>" + beforeNo+"。。。<br>"+nextSentence);
+        $("#contentModalDis").html($("#contentModalDis").html() + beforeTwo + beforeOne  + beforeNo+nextSentence);
         var contentDivId = document.getElementById("contentDiv");
         contentDivId.scrollTop = contentDivId.scrollHeight
     }

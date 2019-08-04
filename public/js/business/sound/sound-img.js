@@ -169,7 +169,7 @@ function freshAudioContent() {
     if (calucIndex > nowIndex) {
         //取 5句话 回来
         let fiveSentence = getFiveSentence(calucIndex);
-        $("#contentModalDisAll").html($("#contentModalDisAll").html() + beforeTwo + "。。<br>" + beforeOne + "。。<br>" + beforeNo+"。。。<br>"+nextSentence);
+        $("#contentModalDisAll").html($("#contentModalDisAll").html() + beforeTwo  + beforeOne  + beforeNo+nextSentence);
         var contentDivId = document.getElementById("contentDiv");
         contentDivId.scrollTop = contentDivId.scrollHeight
     }
