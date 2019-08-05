@@ -30,6 +30,50 @@ $(".submitButton").on("click", function () {
     })
 })
 
+// function paste_img(e) {
+//     debugger;
+//
+// }
+
+document.addEventListener("paste",function(e){
+    debugger
+    if (e.clipboardData.items) {
+        // google-chrome
+        alert('support clipboardData.items(chrome ...)');
+        ele = e.clipboardData.items
+        for (var i = 0; i < ele.length; ++i) {
+            // if (ele[i].kind == 'file' && ele[i].type.indexOf('image/') !== -1) {
+            //     var blob = ele[i].getAsFile();
+            //     window.URL = window.URL || window.webkitURL;
+            //     var blobUrl = window.URL.createObjectURL(blob);
+            //     console.log(blobUrl);
+            //
+            //     var new_img = document.createElement('img');
+            //     new_img.setAttribute('src', blobUrl);
+            //     var new_img_intro = document.createElement('p');
+            //     new_img_intro.innerHTML = 'the pasted img url(open it in new tab): <br /><a target="_blank" href="' + blobUrl + '">' + blobUrl + '</a>';
+            //
+            //     document.getElementById('editable').appendChild(new_img);
+            //     document.getElementById('editable').appendChild(new_img_intro);
+            // }
+            if (ele[i].type == 'text/html') {
+                ele[i].getAsString(function(str){
+                    $("#contentDiv").append(str)
+                })
+            }
+            if(ele[i].type == "text/plain"){
+                ele[i].getAsString(function(str){
+                    $("#modalHideContent").html(str);
+                    debugger;
+                })
+            }
+
+        }
+    } else {
+        alert('non-chrome');
+    }
+})
+
 function pauseOrResume1() {
     if (window.speechSynthesis.paused) {
         window.speechSynthesis.resume();
@@ -79,7 +123,68 @@ function translateToENCN1(text) {
     })
 }
 
+function translateToENCN2(text) {
+    var data = {
+        content: text,
+    };
+    $.ajax({
+        url: "/sound/translate",
+        data: data,
+        type: "POST",
+        // context:null,
+        success: function (res) {
+            if (res) {
+                layer.closeAll();
+                layer.msg(res, {icon: 6,time: 20000,area: '100%',offset:'lt',btn: ['暂停','关闭'],yes:function(){
+                        if( window.speechSynthesis.paused){
+                            window.speechSynthesis.resume()
+                        }else{
+                            window.speechSynthesis.pause()
+                        }
+                    },no:function(){
+                        layer.closeAll();
+                    }})
+                // layer.open({
+                //     type: 2,
+                //     content: res,
+                //     offset:"rb"
+                // })
+            }
+        }
+    })
+}
 
+
+$("#modalContentStart").on("click", function () {
+
+    if ($("#modalHideContent").html()) {
+        debugger;
+        var contents = $("#modalHideContent").html().split(/[.,!\?。，？！]/);
+        var index = 0;
+        var speech = new SpeechSynthesisUtterance(contents[index]);
+        translateToENCN2(speech.text);
+        speech.volume = 1;
+        debugger;
+        speech.rate = $("#speechModalSpdId").val();
+        speech.pitch = 1;
+
+        speech.onend = function (event) {
+            index++;
+            if (index == contents.length) {
+                return;
+            }
+            speech.text = contents[index];
+            speech.rate = $("#speechModalSpdId").val();
+            // $("#contentDis").html(speech.text);
+            translateToENCN2(speech.text);
+            window.speechSynthesis.speak(speech);
+        }
+
+
+        window.speechSynthesis.speak(speech);
+    }
+
+})
 $(".voiceButton").on("click", function () {
 
     if ($(".upload-content").val()) {
@@ -188,7 +293,8 @@ $(".uploadFileButton").on("click", function () {
     }
 })
 
-var inputFile = $("#input-id").fileinput({'showUpload': true, 'previewFileType': 'any', 'uploadUrl': "/sound/uploadFile", "uploadExtraData": function () {
+var inputFile = $("#input-id").fileinput({
+    'showUpload': true, 'previewFileType': 'any', 'uploadUrl': "/sound/uploadFile", "uploadExtraData": function () {
         return {spd: $("#myFilespd").val()}
     }
 });
