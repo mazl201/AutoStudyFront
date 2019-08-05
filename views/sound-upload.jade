@@ -26,11 +26,15 @@ block content
         each name,key in speechSpdSelect
             option(value="#{name}") #{key}
     br
-    a(href="javascript:void(0)" class='btn voiceButton') 朗读
+    button(class='btn voiceButton') 朗读
+    button(class='btn')
+    button(class='btn previousVoice') 上一句
+    button(class='btn')
+    button(class='btn continueVoice') 下一句
     br
     br
-    div
-        font(size="6" id="contentDis")
+    div(ondblclick="pauseOrResume1()")
+        font(size="6" id="contentDis" )
     br
     br
     select.selectpicker(id="myFilespd" onchange="myFileSpdChange()")

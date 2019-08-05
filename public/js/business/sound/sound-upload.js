@@ -1,3 +1,5 @@
+var notReadContents = [];
+var readedContents = [];
 $(".submitButton").on("click", function () {
 
     var data = {
@@ -28,6 +30,14 @@ $(".submitButton").on("click", function () {
     })
 })
 
+function pauseOrResume1(){
+    if(window.speechSynthesis.paused){
+        window.speechSynthesis.resume();
+    }else{
+        window.speechSynthesis.pause();
+    }
+}
+
 $(".translateButton").on("click", function () {
 
     var data = {
@@ -56,8 +66,7 @@ $('.selectpicker').selectpicker();
 function translateToENCN1(text) {
     var data = {
             content: text,
-        }
-    ;
+        };
     $.ajax({
         url: "/sound/translate",
         data: data,
@@ -73,26 +82,15 @@ function translateToENCN1(text) {
 
 
 $(".voiceButton").on("click", function () {
-    ;
     var speech = new SpeechSynthesisUtterance();
-
-    // speech.onstart = function(event) {
-    //     ;
-    //     console.log('The utterance started to be spoken.');
-    // };
-    // speech.onboundary = function(event) {
-    //     ;
-    //     console.log('The utterance started to be spoken.');
-    // };
-    // speech.onerror = function(event) {
-    //     ;
-    //     console.log('The utterance onerror to be spoken.');
-    // };
     if ($(".upload-content").val()) {
+        debugger;
         var contents = $(".upload-content").val().split(/[.,!\?。，？！]/);
         var index = 0;
         //设置朗读内容和属性
         speech.text = contents[index];
+        readedContents.push(contents.splice(0,1));
+        notReadContents = contents;
         // $("#contentDis").html(speech.text);
         translateToENCN1(speech.text);
         speech.volume = 1;
@@ -100,21 +98,82 @@ $(".voiceButton").on("click", function () {
         speech.rate = $("#speechSpdId").val();
         speech.pitch = 1;
 
-        speech.onend = function (event) {
-            index++;
-            if (index >= contents.length) {
-                return;
-            }
-            speech.text = contents[index];
+        if(speech.onend){
+            speech.onend = function (event) {
+                // index++;
+                if (!notReadContents.length) {
+                    return;
+                }
+                speech.text = contents[index];
+                readedContents.push(contents.splice(0,1));
+                notReadContents = contents;
 
-            // $("#contentDis").html(speech.text);
-            translateToENCN1(speech.text);
-            window.speechSynthesis.speak(speech);
+                // $("#contentDis").html(speech.text);
+                translateToENCN1(speech.text);
+                window.speechSynthesis.speak(speech);
+            }
+        }else{
+            layer.msg("speech deploy failed")
         }
+
 
         window.speechSynthesis.speak(speech);
     }
 
+})
+
+function goOnToNextSentence(speech1) {
+    var index = 0;
+    var contents = notReadContents;
+    speech1.text = contents[index];
+    //设置朗读内容和属性
+    readedContents.push(contents.splice(index, 1));
+    notReadContents = contents;
+
+    // $("#contentDis").html(speech.text);
+    translateToENCN1(speech1.text);
+    speech1.volume = 1;
+    debugger;
+    speech1.rate = $("#speechSpdId").val();
+    speech1.pitch = 1;
+
+    if (speech1.onend) {
+        speech1.onend = function (event) {
+            // index++;
+            if (!notReadContents.length) {
+                return;
+            }
+            speech1.text = contents[0];
+            readedContents.push(contents.splice(0, 1));
+            notReadContents = contents;
+
+            // $("#contentDis").html(speech.text);
+            translateToENCN1(speech1.text);
+            window.speechSynthesis.speak(speech1);
+        }
+    } else {
+        layer.msg("speech deploy failed")
+    }
+    window.speechSynthesis.speak(speech1);
+}
+
+$(".continueVoice").on("click",function(){
+    var speech1 = new SpeechSynthesisUtterance();
+    if(notReadContents){
+        goOnToNextSentence(speech1);
+    }
+})
+
+$(".previousVoice").on("click",function(){
+    var speech1 = new SpeechSynthesisUtterance();
+    if(readedContents && readedContents.length){
+        debugger;
+        notReadContents.splice(0,0,readedContents[readedContents.length-1])
+        readedContents.splice(readedContents.length-1,1)
+        notReadContents.splice(0,0,readedContents[readedContents.length-1])
+        readedContents.splice(readedContents.length-1,1)
+        goOnToNextSentence(new SpeechSynthesisUtterance())
+    }
 })
 
 $(".uploadFileButton").on("click", function () {
