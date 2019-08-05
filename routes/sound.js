@@ -393,7 +393,14 @@ function baiduTranslateMet(content) {
 
 router.post("/translateEnEn", function (req, res, next) {
     if (req.body && req.body.word) {
-        baiduTranslateMet(req, res);
+        async function translateToEn(){
+            let promise = await baiduTranslateMet(req, res);
+            if(promise){
+                res.end(promise);
+            }
+        }
+        translateToEn();
+
     }
 })
 

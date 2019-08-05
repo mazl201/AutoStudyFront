@@ -3,8 +3,20 @@ extends layout
 
 
 block content
+    div(class="modal fade bs-example-modal-lg" id="myModal" tabitem="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+        div(class="modal-dialog modal-lg")
+            div(class="modal-content")
+                div(class="modal-header")
+                    button(type="button" class="close" data-dismiss="modal" aria-hidden="true") &times
+                    p(class="modal-title" id="myModalLabel") 实时
+                div(class="modal-body" id="contentDiv" style="overflow:auto; height: 350px; width: 100%; border: 1px solid #999;background:#49998D;" ondblclick="pauseOrPlay()")
 
-    button(class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal") 大声读出来
+                div(class="modal-footer")
+                    button(type="button" class="btn" id="pauseAudio") 暂停
+                    button(type="button" class="btn" id="resumeAudio") 恢复
+                    button(type="button" class="btn btn-default" data-dismiss="modal") 关闭
+
+    //button(class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal") 大声读出来
 
     - var spdSelect = {"正常":"3","慢":"1","稍慢":"2","快":"4","加快":"5"}
     - var speechSpdSelect = {"正常":"1","慢":"0.8","稍慢":"0.9","快":"1.1","加快":"1.2"}
