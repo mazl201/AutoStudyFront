@@ -30,10 +30,10 @@ $(".submitButton").on("click", function () {
     })
 })
 
-function pauseOrResume1(){
-    if(window.speechSynthesis.paused){
+function pauseOrResume1() {
+    if (window.speechSynthesis.paused) {
         window.speechSynthesis.resume();
-    }else{
+    } else {
         window.speechSynthesis.pause();
     }
 }
@@ -53,9 +53,8 @@ $(".translateButton").on("click", function () {
         type: "POST",
         // context:null,
         success: function (res) {
-
-            if(res.indexOf("success") > -1){
-                window.location.href = "/sound/downloadTxt?path=" + res.replace("success","");
+            if (res.indexOf("success") > -1) {
+                window.location.href = "/sound/downloadTxt?path=" + res.replace("success", "");
             }
         }
     })
@@ -65,8 +64,8 @@ $('.selectpicker').selectpicker();
 
 function translateToENCN1(text) {
     var data = {
-            content: text,
-        };
+        content: text,
+    };
     $.ajax({
         url: "/sound/translate",
         data: data,
@@ -82,14 +81,13 @@ function translateToENCN1(text) {
 
 
 $(".voiceButton").on("click", function () {
-    var speech = new SpeechSynthesisUtterance();
+
     if ($(".upload-content").val()) {
         debugger;
         var contents = $(".upload-content").val().split(/[.,!\?。，？！]/);
         var index = 0;
-        //设置朗读内容和属性
-        speech.text = contents[index];
-        readedContents.push(contents.splice(0,1));
+        var speech = new SpeechSynthesisUtterance(contents[index]);
+        readedContents.push(contents.splice(0, 1));
         notReadContents = contents;
         // $("#contentDis").html(speech.text);
         translateToENCN1(speech.text);
@@ -98,22 +96,18 @@ $(".voiceButton").on("click", function () {
         speech.rate = $("#speechSpdId").val();
         speech.pitch = 1;
 
-        if(speech.onend){
-            speech.onend = function (event) {
-                // index++;
-                if (!notReadContents.length) {
-                    return;
-                }
-                speech.text = contents[index];
-                readedContents.push(contents.splice(0,1));
-                notReadContents = contents;
-
-                // $("#contentDis").html(speech.text);
-                translateToENCN1(speech.text);
-                window.speechSynthesis.speak(speech);
+        speech.onend = function (event) {
+            // index++;
+            if (!notReadContents.length) {
+                return;
             }
-        }else{
-            layer.msg("speech deploy failed")
+            speech.text = contents[index];
+            readedContents.push(contents.splice(0, 1));
+            notReadContents = contents;
+
+            // $("#contentDis").html(speech.text);
+            translateToENCN1(speech.text);
+            window.speechSynthesis.speak(speech);
         }
 
 
@@ -137,41 +131,37 @@ function goOnToNextSentence(speech1) {
     speech1.rate = $("#speechSpdId").val();
     speech1.pitch = 1;
 
-    if (speech1.onend) {
-        speech1.onend = function (event) {
-            // index++;
-            if (!notReadContents.length) {
-                return;
-            }
-            speech1.text = contents[0];
-            readedContents.push(contents.splice(0, 1));
-            notReadContents = contents;
-
-            // $("#contentDis").html(speech.text);
-            translateToENCN1(speech1.text);
-            window.speechSynthesis.speak(speech1);
+    speech1.onend = function (event) {
+        // index++;
+        if (!notReadContents.length) {
+            return;
         }
-    } else {
-        layer.msg("speech deploy failed")
+        speech1.text = contents[0];
+        readedContents.push(contents.splice(0, 1));
+        notReadContents = contents;
+
+        // $("#contentDis").html(speech.text);
+        translateToENCN1(speech1.text);
+        window.speechSynthesis.speak(speech1);
     }
     window.speechSynthesis.speak(speech1);
 }
 
-$(".continueVoice").on("click",function(){
+$(".continueVoice").on("click", function () {
     var speech1 = new SpeechSynthesisUtterance();
-    if(notReadContents){
+    if (notReadContents) {
         goOnToNextSentence(speech1);
     }
 })
 
-$(".previousVoice").on("click",function(){
+$(".previousVoice").on("click", function () {
     var speech1 = new SpeechSynthesisUtterance();
-    if(readedContents && readedContents.length){
+    if (readedContents && readedContents.length) {
         debugger;
-        notReadContents.splice(0,0,readedContents[readedContents.length-1])
-        readedContents.splice(readedContents.length-1,1)
-        notReadContents.splice(0,0,readedContents[readedContents.length-1])
-        readedContents.splice(readedContents.length-1,1)
+        notReadContents.splice(0, 0, readedContents[readedContents.length - 1])
+        readedContents.splice(readedContents.length - 1, 1)
+        notReadContents.splice(0, 0, readedContents[readedContents.length - 1])
+        readedContents.splice(readedContents.length - 1, 1)
         goOnToNextSentence(new SpeechSynthesisUtterance())
     }
 })
@@ -190,17 +180,15 @@ $(".uploadFileButton").on("click", function () {
             processData: false,
             contentType: false,
             success: function (res) {
-                if(res.indexOf("success") > -1){
-                    window.location.href = "/sound/downloadTxt?path=" + res.replace("success","");
+                if (res.indexOf("success") > -1) {
+                    window.location.href = "/sound/downloadTxt?path=" + res.replace("success", "");
                 }
             }
         })
     }
 })
 
-var inputFile = $("#input-id").fileinput({
-    'showUpload': true, 'previewFileType': 'any', 'uploadUrl': "/sound/uploadFile", "uploadExtraData": function () {
-
+var inputFile = $("#input-id").fileinput({'showUpload': true, 'previewFileType': 'any', 'uploadUrl': "/sound/uploadFile", "uploadExtraData": function () {
         return {spd: $("#myFilespd").val()}
     }
 });
