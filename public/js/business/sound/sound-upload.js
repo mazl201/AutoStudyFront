@@ -39,9 +39,10 @@ document.addEventListener("paste",function(e){
     debugger
     if (e.clipboardData.items) {
         // google-chrome
-        alert('support clipboardData.items(chrome ...)');
+
         ele = e.clipboardData.items
         for (var i = 0; i < ele.length; ++i) {
+            layer.msg('网页内容已复制');
             // if (ele[i].kind == 'file' && ele[i].type.indexOf('image/') !== -1) {
             //     var blob = ele[i].getAsFile();
             //     window.URL = window.URL || window.webkitURL;
