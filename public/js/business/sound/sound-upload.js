@@ -117,14 +117,16 @@ function translateToENCN2(text) {
         content: text,
     };
     $.ajax({
-        url: "/sound/translate",
+        url: "/sound/translateLayer",
         data: data,
         type: "POST",
         // context:null,
         success: function (res) {
+            debugger;
             if (res) {
                 layer.closeAll();
-                layer.msg(res, {icon: 6,time: -1,area: '100%',offset:'lt',btn: ['暂停','关闭'],yes:function(){
+                layer.msg("<span style=\"font-size:20px\">"+res+"</span>", {icon: 6,time: -1,area: '100%',offset:'lt',btn: ['暂停','关闭'],
+                    yes:function(){
                         if( window.speechSynthesis.paused){
                             window.speechSynthesis.resume()
                         }else{

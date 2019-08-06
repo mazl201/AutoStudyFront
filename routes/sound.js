@@ -269,7 +269,19 @@ router.post("/translate", function (req, res, next) {
 
         async function waitTranslateComplete(){
             let translateContent = await baiduTranslateMet(content);
-            res.end("<ul class=\"tab-p-modal\" size='6'>"+translateContent+"</ul><ul class='tab-p-modal-origin' size='6'>"+content+"</ul>");
+            res.end("<ul class=\"tab-p-modal\" size='5'>"+translateContent+"</ul><ul class='tab-p-modal-origin' size='4'>"+content+"</ul>");
+        }
+        waitTranslateComplete();
+    }
+})
+
+router.post("/translateLayer", function (req, res, next) {
+    if (req.body && req.body.content) {
+        var content = req.body.content;
+
+        async function waitTranslateComplete(){
+            let translateContent = await baiduTranslateMet(content);
+            res.end(translateContent+"<br>"+content);
         }
         waitTranslateComplete();
     }
