@@ -42,21 +42,9 @@ document.addEventListener("paste",function(e){
 
         ele = e.clipboardData.items
         for (var i = 0; i < ele.length; ++i) {
+            $("#contentDiv").html("");
+            $("#modalHideContent").html("");
             layer.msg('网页内容已复制');
-            // if (ele[i].kind == 'file' && ele[i].type.indexOf('image/') !== -1) {
-            //     var blob = ele[i].getAsFile();
-            //     window.URL = window.URL || window.webkitURL;
-            //     var blobUrl = window.URL.createObjectURL(blob);
-            //     console.log(blobUrl);
-            //
-            //     var new_img = document.createElement('img');
-            //     new_img.setAttribute('src', blobUrl);
-            //     var new_img_intro = document.createElement('p');
-            //     new_img_intro.innerHTML = 'the pasted img url(open it in new tab): <br /><a target="_blank" href="' + blobUrl + '">' + blobUrl + '</a>';
-            //
-            //     document.getElementById('editable').appendChild(new_img);
-            //     document.getElementById('editable').appendChild(new_img_intro);
-            // }
             if (ele[i].type == 'text/html') {
                 ele[i].getAsString(function(str){
                     $("#contentDiv").append(str)
@@ -136,7 +124,7 @@ function translateToENCN2(text) {
         success: function (res) {
             if (res) {
                 layer.closeAll();
-                layer.msg(res, {icon: 6,time: 20000,area: '100%',offset:'lt',btn: ['暂停','关闭'],yes:function(){
+                layer.msg(res, {icon: 6,time: -1,area: '100%',offset:'lt',btn: ['暂停','关闭'],yes:function(){
                         if( window.speechSynthesis.paused){
                             window.speechSynthesis.resume()
                         }else{
