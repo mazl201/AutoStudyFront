@@ -1,25 +1,3 @@
-html #layui_layer_skinspttradestylecss{
-  margin: 0;
-  padding: 0;
-  border: 0;
-  user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -webkit-user-select: none;
-}
-body div.layui-layer-class .layui-layer-title{
-  width: 100%;
-  height: 40px;
-  background: #EBF0FA;
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
-  content: "";
-  clear: both;
-  display: block;
-  box-sizing: border-box;
-  padding: 0;
-}.
-
 tab-h2 {
 
   color:#0059b2;
@@ -221,4 +199,32 @@ p::first-letter {
 
 #contentDiv{
   filter:alpha(Opacity=85);-moz-opacity:0.85;opacity: 0.85
+}
+
+body .winning-class {
+  background: url(/public/testPng.png) no-repeat;
+  border: none;
+}
+
+body .winning-class .layui-layer-content {
+  padding: 5rem 3rem 2rem 3rem;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  height: 1px;
+  background-color: #00a0e9;
+}
+
+body .winning-class .layui-layer-btn {
+  margin-top: 1rem;
+}
+
+body .winning-class .layui-layer-btn a {
+  background: #ff6a00;
+  border: 0px;
+}
+
+body .winning-class .layui-layer-btn .layui-layer-btn1 {
+  background: #afb611;
+  border: 0px;
 }

@@ -125,7 +125,7 @@ function translateToENCN2(text) {
             debugger;
             if (res) {
                 layer.closeAll();
-                layer.msg("<span style=\"font-size:20px\">"+res+"</span>", {icon: 6,time: -1,area: '100%',offset:'lt',btn: ['暂停','关闭'],
+                layer.msg("<span style=\"font-size:30px\">"+res+"</span>", {icon: 6,time: -1,area: '100%',offset:'lt',btn: ['暂停','关闭'],
                     yes:function(){
                         if( window.speechSynthesis.paused){
                             window.speechSynthesis.resume()
