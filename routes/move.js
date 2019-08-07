@@ -4,6 +4,8 @@ var fs = require("fs");
 var saveToQueue = require("../child/parent_merge_vedio");
 var rar = require("../utils/compress-rar");
 var compressing = require("compressing");
+const ffmpeg = require('ffmpeg')
+var childProcess = require("child_process");
 
 var paths = require("path");
 //加载redis
@@ -84,6 +86,121 @@ router.post("/mergeForVoice", function (req, res, next) {
         var scanFileDir = req.body.filePath;
         if(dirExists(req.body.fileDestPath)){
             groupAndOneByOne(scanFileDir,req.body.fileDestPath);
+        }
+    }
+})
+
+function transferToMpg(path, fileDestPath) {
+    var strings = fs.readdirSync(path);
+    // let dir = path.substring(0,path.lastIndexOf("\\")+1);
+    var result = [];
+    strings.forEach(function (data, index) {
+        if(isVedioFile(data)){
+            let suffix = data.substring(data.lastIndexOf("."),data.length);
+            var newFileName =data.split("@@@")[0]+"@@@"+data.split("@@@")[1]+"@@@"+ pad(parseInt(data.split("@@@")[2]),4)+ suffix;
+
+            fs.renameSync(path+"\\"+data,path+"\\"+newFileName);
+            var newFileNameFF = data.substring(0,data.lastIndexOf("\.")-1)+".mpg";
+
+            let stringSpawnSyncReturns = childProcess.spawnSync("ffmpeg",["-i",path+"\\"+newFileName,fileDestPath+"\\"+newFileNameFF,"-y"]);
+
+            if(stringSpawnSyncReturns.stderr){
+                var dataString = "";
+                for (var i = 0; i < stringSpawnSyncReturns.stderr.length; i++) {
+                    dataString += String.fromCharCode(stringSpawnSyncReturns.stderr[i]);
+                }
+
+                console.log(dataString);
+            }
+            if(stringSpawnSyncReturns.output){
+                var dataString = "";
+                for (var i = 0; i < stringSpawnSyncReturns.output.length; i++) {
+                    dataString += String.fromCharCode(stringSpawnSyncReturns.output[i]);
+                }
+
+                console.log(dataString);
+            }
+            console.log(data + "transfer to mpg");
+        }
+
+    })
+
+}
+
+router.post("/transferToMpg", function (req, res, next) {
+    if (req.body.filePath && req.body.fileDestPath) {
+        var scanFileDir = req.body.filePath;
+        if(dirExists(req.body.fileDestPath)){
+            transferToMpg(scanFileDir,req.body.fileDestPath);
+        }
+    }
+})
+
+function spawnMergeMutilFileToOne(eles, destDir) {
+    let fileName = readyToMergeArr[0].substring(readyToMergeArr[0].lastIndexOf("\\") + 1, readyToMergeArr[0].length);
+    let filePath = readyToMergeArr[0].substring(0, readyToMergeArr[0].lastIndexOf("\\") + 1);
+    if(destDir){
+        filePath = destDir+"\\";
+    }
+    let mergeFileName = filePath + "merge" + fileName;
+
+    var readyToMergeFileNames = "\"";
+    eles.forEach(function(fileReady){
+        readyToMergeFileNames = readyToMergeFileNames + fileReady +"|"
+    })
+    readyToMergeFileNames = readyToMergeFileNames.substring(0,readyToMergeFileNames.length-2)+"\"";
+
+
+    let childProcessWithoutNullStreams = childProcess.spawn("ffmpeg",["-i",readyToMergeFileNames,"-c","copy",mergeFileName]);
+    if(childProcessWithoutNullStreams.stderr){
+        var dataString = "";
+        for (var i = 0; i < childProcessWithoutNullStreams.stderr.length; i++) {
+            dataString += String.fromCharCode(childProcessWithoutNullStreams.stderr[i]);
+        }
+
+        console.log(dataString);
+    }
+    if(childProcessWithoutNullStreams.output){
+        var dataString = "";
+        for (var i = 0; i < childProcessWithoutNullStreams.output.length; i++) {
+            dataString += String.fromCharCode(childProcessWithoutNullStreams.output[i]);
+        }
+
+        console.log(dataString);
+    }
+    console.log("ffmpeg merge concat success");
+}
+
+function mergeByFFmpeg(path, fileDestPath) {
+    var strings = fs.readdirSync(path);
+    // let dir = path.substring(0,path.lastIndexOf("\\")+1);
+    var result = [];
+    strings.forEach(function (data, index) {
+        if(isVedioFile(data)){
+            let suffix = data.substring(data.lastIndexOf("."),data.length);
+            var dirName = data.split("@@@")[0]+suffix;
+            if (result[dirName]) {
+                result[dirName].push(path +"\\"+ data)
+            } else {
+                result[dirName] = new Array();
+                result[dirName].push(path +"\\"+ data);
+            }
+        }
+
+    })
+    for (var i in result) {
+        // saveToQueue(result[i], destDir);
+
+        //test append file to one
+        spawnMergeMutilFileToOne(result[i],destDir);
+    }
+}
+
+router.post("/ffmpegToMerge", function (req, res, next) {
+    if (req.body.filePath && req.body.fileDestPath) {
+        var scanFileDir = req.body.filePath;
+        if(dirExists(req.body.fileDestPath)){
+            mergeByFFmpeg(scanFileDir,req.body.fileDestPath);
         }
     }
 })
