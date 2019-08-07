@@ -151,7 +151,7 @@ function spawnMergeMutilFileToOne(eles, destDir) {
     readyToMergeFileNames = readyToMergeFileNames.substring(0, readyToMergeFileNames.length - 1) + "\"";
 
 
-    let childProcessWithoutNullStreams = childProcess.spawn("ffmpeg", ["-i", readyToMergeFileNames, "-c","-y", "copy", mergeFileName]);
+    let childProcessWithoutNullStreams = childProcess.spawnSync("ffmpeg", ["-i", readyToMergeFileNames, "-c","-y", "copy", mergeFileName]);
     if (childProcessWithoutNullStreams.stderr) {
         var dataString = "";
         for (var i = 0; i < childProcessWithoutNullStreams.stderr.length; i++) {
