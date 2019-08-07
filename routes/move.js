@@ -146,7 +146,7 @@ function spawnMergeMutilFileToOne(eles, destDir) {
 
     var readyToMergeFileNames = "\"concat:";
     eles.forEach(function (fileReady) {
-        readyToMergeFileNames = readyToMergeFileNames + fileReady + "|"
+        readyToMergeFileNames = readyToMergeFileNames + fileReady + "\|"
     })
     readyToMergeFileNames = readyToMergeFileNames.substring(0, readyToMergeFileNames.length - 1) + "\"";
 
