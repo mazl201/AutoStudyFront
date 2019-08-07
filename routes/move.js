@@ -84,8 +84,8 @@ function dirExists(dir) {
 router.post("/mergeForVoice", function (req, res, next) {
     if (req.body.filePath && req.body.fileDestPath) {
         var scanFileDir = req.body.filePath;
-        if(dirExists(req.body.fileDestPath)){
-            groupAndOneByOne(scanFileDir,req.body.fileDestPath);
+        if (dirExists(req.body.fileDestPath)) {
+            groupAndOneByOne(scanFileDir, req.body.fileDestPath);
         }
     }
 })
@@ -95,16 +95,16 @@ function transferToMpg(path, fileDestPath) {
     // let dir = path.substring(0,path.lastIndexOf("\\")+1);
     var result = [];
     strings.forEach(function (data, index) {
-        if(isVedioFile(data)){
-            let suffix = data.substring(data.lastIndexOf("."),data.length);
-            var newFileName =data.split("@@@")[0]+"@@@"+data.split("@@@")[1]+"@@@"+ pad(parseInt(data.split("@@@")[2]),4)+ suffix;
+        if (isVedioFile(data)) {
+            let suffix = data.substring(data.lastIndexOf("."), data.length);
+            var newFileName = data.split("@@@")[0] + "@@@" + data.split("@@@")[1] + "@@@" + pad(parseInt(data.split("@@@")[2]), 4) + suffix;
 
-            fs.renameSync(path+"\\"+data,path+"\\"+newFileName);
-            var newFileNameFF = data.substring(0,data.lastIndexOf("\.")-1)+".mpg";
+            fs.renameSync(path + "\\" + data, path + "\\" + newFileName);
+            var newFileNameFF = data.substring(0, data.lastIndexOf("\.") - 1) + ".mpg";
 
-            let stringSpawnSyncReturns = childProcess.spawnSync("ffmpeg",["-i",path+"\\"+newFileName,fileDestPath+"\\"+newFileNameFF,"-y"]);
+            let stringSpawnSyncReturns = childProcess.spawnSync("ffmpeg", ["-i", path + "\\" + newFileName, fileDestPath + "\\" + newFileNameFF, "-y"]);
 
-            if(stringSpawnSyncReturns.stderr){
+            if (stringSpawnSyncReturns.stderr) {
                 var dataString = "";
                 for (var i = 0; i < stringSpawnSyncReturns.stderr.length; i++) {
                     dataString += String.fromCharCode(stringSpawnSyncReturns.stderr[i]);
@@ -112,7 +112,7 @@ function transferToMpg(path, fileDestPath) {
 
                 console.log(dataString);
             }
-            if(stringSpawnSyncReturns.output){
+            if (stringSpawnSyncReturns.output) {
                 var dataString = "";
                 for (var i = 0; i < stringSpawnSyncReturns.output.length; i++) {
                     dataString += String.fromCharCode(stringSpawnSyncReturns.output[i]);
@@ -130,29 +130,29 @@ function transferToMpg(path, fileDestPath) {
 router.post("/transferToMpg", function (req, res, next) {
     if (req.body.filePath && req.body.fileDestPath) {
         var scanFileDir = req.body.filePath;
-        if(dirExists(req.body.fileDestPath)){
-            transferToMpg(scanFileDir,req.body.fileDestPath);
+        if (dirExists(req.body.fileDestPath)) {
+            transferToMpg(scanFileDir, req.body.fileDestPath);
         }
     }
 })
 
 function spawnMergeMutilFileToOne(eles, destDir) {
-    let fileName = readyToMergeArr[0].substring(readyToMergeArr[0].lastIndexOf("\\") + 1, readyToMergeArr[0].length);
-    let filePath = readyToMergeArr[0].substring(0, readyToMergeArr[0].lastIndexOf("\\") + 1);
-    if(destDir){
-        filePath = destDir+"\\";
+    let fileName = eles[0].substring(eles[0].lastIndexOf("\\") + 1, eles[0].length);
+    let filePath = eles[0].substring(0, eles[0].lastIndexOf("\\") + 1);
+    if (destDir) {
+        filePath = destDir + "\\";
     }
     let mergeFileName = filePath + "merge" + fileName;
 
-    var readyToMergeFileNames = "\"";
-    eles.forEach(function(fileReady){
-        readyToMergeFileNames = readyToMergeFileNames + fileReady +"|"
+    var readyToMergeFileNames = "\"concat:";
+    eles.forEach(function (fileReady) {
+        readyToMergeFileNames = readyToMergeFileNames + fileReady + "|"
     })
-    readyToMergeFileNames = readyToMergeFileNames.substring(0,readyToMergeFileNames.length-2)+"\"";
+    readyToMergeFileNames = readyToMergeFileNames.substring(0, readyToMergeFileNames.length - 1) + "\"";
 
 
-    let childProcessWithoutNullStreams = childProcess.spawn("ffmpeg",["-i",readyToMergeFileNames,"-c","copy",mergeFileName]);
-    if(childProcessWithoutNullStreams.stderr){
+    let childProcessWithoutNullStreams = childProcess.spawn("ffmpeg", ["-i", readyToMergeFileNames, "-c","-y", "copy", mergeFileName]);
+    if (childProcessWithoutNullStreams.stderr) {
         var dataString = "";
         for (var i = 0; i < childProcessWithoutNullStreams.stderr.length; i++) {
             dataString += String.fromCharCode(childProcessWithoutNullStreams.stderr[i]);
@@ -160,7 +160,7 @@ function spawnMergeMutilFileToOne(eles, destDir) {
 
         console.log(dataString);
     }
-    if(childProcessWithoutNullStreams.output){
+    if (childProcessWithoutNullStreams.output) {
         var dataString = "";
         for (var i = 0; i < childProcessWithoutNullStreams.output.length; i++) {
             dataString += String.fromCharCode(childProcessWithoutNullStreams.output[i]);
@@ -176,14 +176,14 @@ function mergeByFFmpeg(path, fileDestPath) {
     // let dir = path.substring(0,path.lastIndexOf("\\")+1);
     var result = [];
     strings.forEach(function (data, index) {
-        if(isVedioFile(data)){
-            let suffix = data.substring(data.lastIndexOf("."),data.length);
-            var dirName = data.split("@@@")[0]+suffix;
+        if (isVedioFile(data)) {
+            let suffix = data.substring(data.lastIndexOf("."), data.length);
+            var dirName = data.split("@@@")[0] + suffix;
             if (result[dirName]) {
-                result[dirName].push(path +"\\"+ data)
+                result[dirName].push(path + "\\" + data)
             } else {
                 result[dirName] = new Array();
-                result[dirName].push(path +"\\"+ data);
+                result[dirName].push(path + "\\" + data);
             }
         }
 
@@ -192,50 +192,50 @@ function mergeByFFmpeg(path, fileDestPath) {
         // saveToQueue(result[i], destDir);
 
         //test append file to one
-        spawnMergeMutilFileToOne(result[i],destDir);
+        spawnMergeMutilFileToOne(result[i], fileDestPath);
     }
 }
 
 router.post("/ffmpegToMerge", function (req, res, next) {
     if (req.body.filePath && req.body.fileDestPath) {
         var scanFileDir = req.body.filePath;
-        if(dirExists(req.body.fileDestPath)){
-            mergeByFFmpeg(scanFileDir,req.body.fileDestPath);
+        if (dirExists(req.body.fileDestPath)) {
+            mergeByFFmpeg(scanFileDir, req.body.fileDestPath);
         }
     }
 })
 
-function restoreFileName(data,path) {
+function restoreFileName(data, path) {
     if (data.lastIndexOf("avi") > -1) {
-        fs.renameSync(path+data,path+data.replace("avi","")+".avi");
+        fs.renameSync(path + data, path + data.replace("avi", "") + ".avi");
     } else if (data.lastIndexOf("mp4") > -1) {
-        fs.renameSync(path+data,path+data.replace("mp4","")+".mp4");
+        fs.renameSync(path + data, path + data.replace("mp4", "") + ".mp4");
     } else if (data.lastIndexOf("wmv") > -1) {
-        fs.renameSync(path+data,path+data.replace("wmv","")+".wmv");
+        fs.renameSync(path + data, path + data.replace("wmv", "") + ".wmv");
     } else if (data.lastIndexOf("flv") > -1) {
-        fs.renameSync(path+data,path+data.replace("flv","")+".flv");
+        fs.renameSync(path + data, path + data.replace("flv", "") + ".flv");
     } else if (data.lastIndexOf("mov") > -1) {
-        fs.renameSync(path+data,path+data.replace("mov","")+".mov");
+        fs.renameSync(path + data, path + data.replace("mov", "") + ".mov");
     } else if (data.lastIndexOf("rmvb") > -1) {
-        fs.renameSync(path+data,path+data.replace("rmvb","")+".rmvb");
+        fs.renameSync(path + data, path + data.replace("rmvb", "") + ".rmvb");
     } else if (data.lastIndexOf("rm") > -1) {
-        fs.renameSync(path+data,path+data.replace("rm","")+".rm");
+        fs.renameSync(path + data, path + data.replace("rm", "") + ".rm");
     } else if (data.lastIndexOf("3gp") > -1) {
-        fs.renameSync(path+data,path+data.replace("3gp","")+".3gp");
+        fs.renameSync(path + data, path + data.replace("3gp", "") + ".3gp");
     } else if (data.lastIndexOf("asf") > -1) {
-        fs.renameSync(path+data,path+data.replace("asf","")+".asf");
+        fs.renameSync(path + data, path + data.replace("asf", "") + ".asf");
     } else if (data.lastIndexOf("mkv") > -1) {
-        fs.renameSync(path+data,path+data.replace("mkv","")+".mkv");
+        fs.renameSync(path + data, path + data.replace("mkv", "") + ".mkv");
     } else if (data.lastIndexOf("f4v") > -1) {
-        fs.renameSync(path+data,path+data.replace("f4v","")+".f4v");
+        fs.renameSync(path + data, path + data.replace("f4v", "") + ".f4v");
     } else if (data.lastIndexOf("mp4") > -1) {
-        fs.renameSync(path+data,path+data.replace("mp4","")+".mp4");
+        fs.renameSync(path + data, path + data.replace("mp4", "") + ".mp4");
     } else if (data.lastIndexOf("webm") > -1) {
-        fs.renameSync(path+data,path+data.replace("webm","")+".webm");
+        fs.renameSync(path + data, path + data.replace("webm", "") + ".webm");
     } else if (data.lastIndexOf("qsv") > -1) {
-        fs.renameSync(path+data,path+data.replace("qsv","")+".qsv");
+        fs.renameSync(path + data, path + data.replace("qsv", "") + ".qsv");
     } else if (data.lastIndexOf("swf") > -1) {
-        fs.renameSync(path+data,path+data.replace("swf","")+".swf");
+        fs.renameSync(path + data, path + data.replace("swf", "") + ".swf");
     }
 }
 
@@ -245,30 +245,30 @@ function splitIntoBySuffix(path, destDir) {
     var result = [];
     var suffixs = new Array();
     strings.forEach(function (data, index) {
-        if(isVedioFile(data)){
+        if (isVedioFile(data)) {
 
             // restoreFileName(data,path+"\\");
 
-            let suffix = data.substring(data.lastIndexOf("."),data.length);
-            var newFileName =data.split("@@@")[0]+"@@@"+data.split("@@@")[1]+"@@@"+ pad(parseInt(data.split("@@@")[2]),4)+ suffix;
+            let suffix = data.substring(data.lastIndexOf("."), data.length);
+            var newFileName = data.split("@@@")[0] + "@@@" + data.split("@@@")[1] + "@@@" + pad(parseInt(data.split("@@@")[2]), 4) + suffix;
 
-            fs.renameSync(path+"\\"+data,path+"\\"+newFileName);
+            fs.renameSync(path + "\\" + data, path + "\\" + newFileName);
             var dirName = suffix;
             if (result[dirName]) {
-                result[dirName].push(path +"\\"+ newFileName)
+                result[dirName].push(path + "\\" + newFileName)
             } else {
                 suffixs.push(dirName)
                 result[dirName] = new Array();
-                result[dirName].push(path +"\\"+ newFileName);
+                result[dirName].push(path + "\\" + newFileName);
             }
         }
 
     })
     for (var suf in suffixs) {
         var dontainedDir = result[suffixs[suf]];
-        for(var j in dontainedDir){
-            if(dirExists(destDir+"\\"+suffixs[suf])){
-                fs.copyFileSync(dontainedDir[j],destDir+"\\"+suffixs[suf]+"\\"+dontainedDir[j].substring(dontainedDir[j].lastIndexOf("\\"),dontainedDir[j].length));
+        for (var j in dontainedDir) {
+            if (dirExists(destDir + "\\" + suffixs[suf])) {
+                fs.copyFileSync(dontainedDir[j], destDir + "\\" + suffixs[suf] + "\\" + dontainedDir[j].substring(dontainedDir[j].lastIndexOf("\\"), dontainedDir[j].length));
             }
         }
     }
@@ -277,28 +277,28 @@ function splitIntoBySuffix(path, destDir) {
 router.post("/mergeBySuffix", function (req, res, next) {
     if (req.body.filePath && req.body.fileDestPath) {
         var scanFileDir = req.body.filePath;
-        if(dirExists(req.body.fileDestPath)){
-            splitIntoBySuffix(scanFileDir,req.body.fileDestPath);
+        if (dirExists(req.body.fileDestPath)) {
+            splitIntoBySuffix(scanFileDir, req.body.fileDestPath);
         }
     }
 })
 
-function groupAndOneByOne(path,destDir) {
+function groupAndOneByOne(path, destDir) {
     var strings = fs.readdirSync(path);
     // let dir = path.substring(0,path.lastIndexOf("\\")+1);
     var result = [];
     strings.forEach(function (data, index) {
-        if(isVedioFile(data)){
-            let suffix = data.substring(data.lastIndexOf("."),data.length);
-            var newFileName =data.split("@@@")[0]+"@@@"+data.split("@@@")[1]+"@@@"+ pad(parseInt(data.split("@@@")[2]),4)+ suffix;
+        if (isVedioFile(data)) {
+            let suffix = data.substring(data.lastIndexOf("."), data.length);
+            var newFileName = data.split("@@@")[0] + "@@@" + data.split("@@@")[1] + "@@@" + pad(parseInt(data.split("@@@")[2]), 4) + suffix;
 
-            fs.renameSync(path+"\\"+data,path+"\\"+newFileName);
-            var dirName = data.split("@@@")[0]+suffix;
+            fs.renameSync(path + "\\" + data, path + "\\" + newFileName);
+            var dirName = data.split("@@@")[0] + suffix;
             if (result[dirName]) {
-                result[dirName].push(path +"\\"+ newFileName)
+                result[dirName].push(path + "\\" + newFileName)
             } else {
                 result[dirName] = new Array();
-                result[dirName].push(path +"\\"+ newFileName);
+                result[dirName].push(path + "\\" + newFileName);
             }
         }
 
@@ -307,7 +307,7 @@ function groupAndOneByOne(path,destDir) {
         // saveToQueue(result[i], destDir);
 
         //test append file to one
-        multiVedioMergeToOneFileSync(result[i],destDir);
+        multiVedioMergeToOneFileSync(result[i], destDir);
     }
 
 
@@ -317,13 +317,13 @@ function multiVedioMergeToOneFileSync(readyToMergeArr, destDir) {
     //建立 合并原文件
     let fileName = readyToMergeArr[0].substring(readyToMergeArr[0].lastIndexOf("\\") + 1, readyToMergeArr[0].length);
     let filePath = readyToMergeArr[0].substring(0, readyToMergeArr[0].lastIndexOf("\\") + 1);
-    if(destDir){
-        filePath = destDir+"\\";
+    if (destDir) {
+        filePath = destDir + "\\";
     }
     let fileFileName = filePath + "merge" + fileName;
 
-    readyToMergeArr.forEach(function(filePathEvery){
-        fs.appendFileSync(fileFileName,fs.readFileSync(filePathEvery))
+    readyToMergeArr.forEach(function (filePathEvery) {
+        fs.appendFileSync(fileFileName, fs.readFileSync(filePathEvery))
     })
 
 }
@@ -583,8 +583,8 @@ function multiVedioMergeToOneFile(readyToMergeArr, destDir) {
     //建立 合并原文件
     let fileName = readyToMergeArr[0].substring(readyToMergeArr[0].lastIndexOf("\\") + 1, readyToMergeArr[0].length);
     let filePath = readyToMergeArr[0].substring(0, readyToMergeArr[0].lastIndexOf("\\") + 1);
-    if(destDir){
-        filePath = destDir+"\\";
+    if (destDir) {
+        filePath = destDir + "\\";
     }
     let mergeStream = fs.createWriteStream(filePath + "merge" + fileName);
 
@@ -642,6 +642,8 @@ function isVedioFile(fileOrDirName) {
             } else if (suffix == "f4v") {
                 return true;
             } else if (suffix == "rmhd") {
+                return true;
+            } else if (suffix == "mpg") {
                 return true;
             } else if (suffix == "webm") {
                 return true;

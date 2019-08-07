@@ -52,7 +52,7 @@ $(".submitFileTransfer2").click(function() {
         // url: "/move/mergeBySuffix" ,//url
         // url: "/move/transferToMpg" ,//url
         url: "/move/ffmpegToMerge" ,//url
-        data: $('#formId1').serialize(),
+        data: $('#formId2').serialize(),
         success: function (result) {
             console.log(result);//打印服务端返回的数据(调试用)
             if (result.resultCode == 200) {
