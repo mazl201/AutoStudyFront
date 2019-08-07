@@ -187,11 +187,30 @@ function groupAndOneByOne(path,destDir) {
 
     })
     for (var i in result) {
-        saveToQueue(result[i], destDir);
+        // saveToQueue(result[i], destDir);
+
+        //test append file to one
+        multiVedioMergeToOneFileSync(result[i],destDir);
     }
 
 
 }
+
+function multiVedioMergeToOneFileSync(readyToMergeArr, destDir) {
+    //建立 合并原文件
+    let fileName = readyToMergeArr[0].substring(readyToMergeArr[0].lastIndexOf("\\") + 1, readyToMergeArr[0].length);
+    let filePath = readyToMergeArr[0].substring(0, readyToMergeArr[0].lastIndexOf("\\") + 1);
+    if(destDir){
+        filePath = destDir+"\\";
+    }
+    let fileFileName = filePath + "merge" + fileName;
+
+    readyToMergeArr.forEach(function(filePathEvery){
+        fs.appendFileSync(fileFileName,fs.readFileSync(filePathEvery))
+    })
+
+}
+
 
 router.post("/finallyRMVedio", function (req, res, next) {
     if (req.body.filePath && req.body.fileDestPath) {
