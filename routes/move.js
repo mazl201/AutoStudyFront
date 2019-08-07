@@ -152,6 +152,7 @@ function spawnMergeMutilFileToOne(eles, destDir) {
 
 
     let childProcessWithoutNullStreams = childProcess.spawnSync("ffmpeg", ["-i", readyToMergeFileNames, "-c","-y", "copy", mergeFileName]);
+    let execText = childProcess.execSync("ffmpeg -i \"concat:F:\\mpgAfternoon\\2019-07-305@@@10@@@000.mpg|F:\\mpgAfternoon\\2019-07-305@@@11@@@000.mpg|F:\\mpgAfternoon\\2019-07-305@@@12@@@000.mpg|F:\\mpgAfternoon\\2019-07-305@@@13@@@000.mpg|F:\\mpgAfternoon\\2019-07-305@@@14@@@000.mpg|F:\\mpgAfternoon\\2019-07-305@@@15@@@000.mpg|F:\\mpgAfternoon\\2019-07-305@@@16@@@000.mpg|F:\\mpgAfternoon\\2019-07-305@@@17@@@000.mpg|F:\\mpgAfternoon\\2019-07-305@@@18@@@001.mpg|F:\\mpgAfternoon\\2019-07-305@@@19@@@001.mpg|F:\\mpgAfternoon\\2019-07-305@@@1@@@000.mpg|F:\\mpgAfternoon\\2019-07-305@@@20@@@001.mpg|F:\\mpgAfternoon\\2019-07-305@@@2@@@000.mpg|F:\\mpgAfternoon\\2019-07-305@@@2@@@001.mpg|F:\\mpgAfternoon\\2019-07-305@@@3@@@000.mpg|F:\\mpgAfternoon\\2019-07-305@@@3@@@001.mpg|F:\\mpgAfternoon\\2019-07-305@@@4@@@000.mpg|F:\\mpgAfternoon\\2019-07-305@@@4@@@001.mpg|F:\\mpgAfternoon\\2019-07-305@@@5@@@000.mpg|F:\\mpgAfternoon\\2019-07-305@@@5@@@001.mpg|F:\\mpgAfternoon\\2019-07-305@@@6@@@000.mpg\" -c copy F:\\nodeTestMergeFFm\\123node.mpg\n")
     if (childProcessWithoutNullStreams.stderr) {
         var dataString = "";
         for (var i = 0; i < childProcessWithoutNullStreams.stderr.length; i++) {
