@@ -57,8 +57,7 @@ $(".submitFileTransfer2").click(function() {
             console.log(result);//打印服务端返回的数据(调试用)
             if (result.resultCode == 200) {
                 alert("SUCCESS");
-            }
-            ;
+            };
         },
         error : function() {
             alert("异常！");

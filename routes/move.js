@@ -100,21 +100,28 @@ function transferToMpg(path, fileDestPath) {
             var newFileName = data.split("@@@")[0] + "@@@" + data.split("@@@")[1] + "@@@" + pad(parseInt(data.split("@@@")[2]), 4) + suffix;
 
             let originFilePath = path + "\\" + newFileName;
-            fs.renameSync(path + "\\" + data,originFilePath );
+            fs.renameSync(path + "\\" + data, originFilePath);
             var newFileNameFF = data.substring(0, data.lastIndexOf("\.") - 1) + ".mpg";
 
             let stringSpawnSyncReturns = "";
-            if( suffix.indexOf("mkv") > -1 || suffix.indexOf("rm") > -1 || suffix.indexOf("rmvb") > -1 || suffix.indexOf("avi") > -1){
+            if (suffix.indexOf("mkv") > -1 || suffix.indexOf("rm") > -1 || suffix.indexOf("rmvb") > -1 || suffix.indexOf("avi") > -1) {
                 newFileNameFF = data.substring(0, data.lastIndexOf("\.") - 1) + ".mp4";
                 // ffmpeg -i 1.mp4 -vcodec copy -acodec copy -vbsf h264_mp4toannexb 1.ts
-                stringSpawnSyncReturns = childProcess.spawnSync("ffmpeg",["-i",originFilePath,fileDestPath + "\\" + newFileNameFF, "-y"]);
+                let stringSpawnSyncReturnss = childProcess.spawnSync("ffmpeg", ["-i", originFilePath, fileDestPath + "\\" + newFileNameFF, "-y"]);
+
+                if (stringSpawnSyncReturnss.stderr) {
+                    var dataString = "";
+                    for (var i = 0; i < stringSpawnSyncReturnss.stderr.length; i++) {
+                        dataString += String.fromCharCode(stringSpawnSyncReturnss.stderr[i]);
+                    }
+                    console.log(dataString);
+                }
 
                 originFilePath = fileDestPath + "\\" + newFileNameFF;
                 newFileNameFF = data.substring(0, data.lastIndexOf("\.") - 1) + ".ts";
             }
-
             // let stringSpawnSyncReturns = childProcess.spawnSync("ffmpeg", ["-i",originFilePath, fileDestPath + "\\" + newFileNameFF, "-y"]);
-            stringSpawnSyncReturns = childProcess.spawnSync("ffmpeg", ["-i",originFilePath,"-y","-vcodec","copy","-acodec","copy","-vbsf","h264_mp4toannexb",fileDestPath + "\\" + newFileNameFF, "-y"]);
+            stringSpawnSyncReturns = childProcess.spawnSync("ffmpeg", ["-i", originFilePath, "-y", "-vcodec", "copy", "-acodec", "copy", "-vbsf", "h264_mp4toannexb", fileDestPath + "\\" + newFileNameFF, "-y"]);
 
             if (stringSpawnSyncReturns.stderr) {
                 var dataString = "";
@@ -163,28 +170,32 @@ function spawnMergeMutilFileToOne(eles, destDir) {
     readyToMergeFileNames = readyToMergeFileNames.substring(0, readyToMergeFileNames.length - 1) + "\"";
 
 
-    let childProcessWithoutNullStreams = childProcess.spawnSync("ffmpeg", ["-i", readyToMergeFileNames,"-y", "-c", "copy", mergeFileName]);
+    let childProcessWithoutNullStreams = childProcess.spawnSync("ffmpeg", ["-i", readyToMergeFileNames, "-y", "-c", "copy", mergeFileName]);
 
-    var execTransfer = "ffmpeg "+"-i"+" "+readyToMergeFileNames+" -y"+" -c"+" copy"+" "+mergeFileName;
-    let execText1 = childProcess.execSync(execTransfer)
-    let execText = childProcess.execSync("ffmpeg -i \"concat:F:\\mpgAfternoon\\2019-07-305@@@10@@@000.mpg|F:\\mpgAfternoon\\2019-07-305@@@11@@@000.mpg|F:\\mpgAfternoon\\2019-07-305@@@12@@@000.mpg|F:\\mpgAfternoon\\2019-07-305@@@13@@@000.mpg|F:\\mpgAfternoon\\2019-07-305@@@14@@@000.mpg|F:\\mpgAfternoon\\2019-07-305@@@15@@@000.mpg|F:\\mpgAfternoon\\2019-07-305@@@16@@@000.mpg|F:\\mpgAfternoon\\2019-07-305@@@17@@@000.mpg|F:\\mpgAfternoon\\2019-07-305@@@18@@@001.mpg|F:\\mpgAfternoon\\2019-07-305@@@19@@@001.mpg|F:\\mpgAfternoon\\2019-07-305@@@1@@@000.mpg|F:\\mpgAfternoon\\2019-07-305@@@20@@@001.mpg|F:\\mpgAfternoon\\2019-07-305@@@2@@@000.mpg|F:\\mpgAfternoon\\2019-07-305@@@2@@@001.mpg|F:\\mpgAfternoon\\2019-07-305@@@3@@@000.mpg|F:\\mpgAfternoon\\2019-07-305@@@3@@@001.mpg|F:\\mpgAfternoon\\2019-07-305@@@4@@@000.mpg|F:\\mpgAfternoon\\2019-07-305@@@4@@@001.mpg|F:\\mpgAfternoon\\2019-07-305@@@5@@@000.mpg|F:\\mpgAfternoon\\2019-07-305@@@5@@@001.mpg|F:\\mpgAfternoon\\2019-07-305@@@6@@@000.mpg\" -c copy F:\\nodeTestMergeFFm\\123node.mpg\n")
-    if (childProcessWithoutNullStreams.stderr) {
-        var dataString = "";
-        for (var i = 0; i < childProcessWithoutNullStreams.stderr.length; i++) {
-            dataString += String.fromCharCode(childProcessWithoutNullStreams.stderr[i]);
+    var execTransfer = "ffmpeg " + "-i" + " " + readyToMergeFileNames + " -y" + " -c" + " copy" + " " + mergeFileName;
+    try {
+        let execText1 = childProcess.execSync(execTransfer);
+        if (childProcessWithoutNullStreams.stderr) {
+            var dataString = "";
+            for (var i = 0; i < childProcessWithoutNullStreams.stderr.length; i++) {
+                dataString += String.fromCharCode(childProcessWithoutNullStreams.stderr[i]);
+            }
+
+            console.log(dataString);
         }
+        if (childProcessWithoutNullStreams.output) {
+            var dataString = "";
+            for (var i = 0; i < childProcessWithoutNullStreams.output.length; i++) {
+                dataString += String.fromCharCode(childProcessWithoutNullStreams.output[i]);
+            }
 
-        console.log(dataString);
-    }
-    if (childProcessWithoutNullStreams.output) {
-        var dataString = "";
-        for (var i = 0; i < childProcessWithoutNullStreams.output.length; i++) {
-            dataString += String.fromCharCode(childProcessWithoutNullStreams.output[i]);
+            console.log(dataString);
         }
-
-        console.log(dataString);
+        console.log("ffmpeg merge concat success");
+    } catch (e) {
+        console.log(e);
     }
-    console.log("ffmpeg merge concat success");
+
 }
 
 function mergeByFFmpeg(path, fileDestPath) {
