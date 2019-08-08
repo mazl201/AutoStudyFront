@@ -99,10 +99,22 @@ function transferToMpg(path, fileDestPath) {
             let suffix = data.substring(data.lastIndexOf("."), data.length);
             var newFileName = data.split("@@@")[0] + "@@@" + data.split("@@@")[1] + "@@@" + pad(parseInt(data.split("@@@")[2]), 4) + suffix;
 
-            fs.renameSync(path + "\\" + data, path + "\\" + newFileName);
+            let originFilePath = path + "\\" + newFileName;
+            fs.renameSync(path + "\\" + data,originFilePath );
             var newFileNameFF = data.substring(0, data.lastIndexOf("\.") - 1) + ".mpg";
 
-            let stringSpawnSyncReturns = childProcess.spawnSync("ffmpeg", ["-i", path + "\\" + newFileName, fileDestPath + "\\" + newFileNameFF, "-y"]);
+            let stringSpawnSyncReturns = "";
+            if( suffix.indexOf("mkv") > -1 || suffix.indexOf("rm") > -1 || suffix.indexOf("rmvb") > -1 || suffix.indexOf("avi") > -1){
+                newFileNameFF = data.substring(0, data.lastIndexOf("\.") - 1) + ".mp4";
+                // ffmpeg -i 1.mp4 -vcodec copy -acodec copy -vbsf h264_mp4toannexb 1.ts
+                stringSpawnSyncReturns = childProcess.spawnSync("ffmpeg",["-i",originFilePath,fileDestPath + "\\" + newFileNameFF, "-y"]);
+
+                originFilePath = fileDestPath + "\\" + newFileNameFF;
+                newFileNameFF = data.substring(0, data.lastIndexOf("\.") - 1) + ".ts";
+            }
+
+            // let stringSpawnSyncReturns = childProcess.spawnSync("ffmpeg", ["-i",originFilePath, fileDestPath + "\\" + newFileNameFF, "-y"]);
+            stringSpawnSyncReturns = childProcess.spawnSync("ffmpeg", ["-i",originFilePath,"-y","-vcodec","copy","-acodec","copy","-vbsf","h264_mp4toannexb",fileDestPath + "\\" + newFileNameFF, "-y"]);
 
             if (stringSpawnSyncReturns.stderr) {
                 var dataString = "";
@@ -180,7 +192,8 @@ function mergeByFFmpeg(path, fileDestPath) {
     // let dir = path.substring(0,path.lastIndexOf("\\")+1);
     var result = [];
     strings.forEach(function (data, index) {
-        if (isVedioFile(data)) {
+        //选择支持 合并的 格式
+        if (canMergeToOneVedio(data)) {
             let suffix = data.substring(data.lastIndexOf("."), data.length);
             var dirName = data.split("@@@")[0] + suffix;
             if (result[dirName]) {
@@ -617,6 +630,24 @@ function multiVedioMergeToOneFile(readyToMergeArr, destDir) {
     main();
 }
 
+function canMergeToOneVedio(fileOrDirName) {
+    if (fileOrDirName) {
+        let lastDotIndexOf = fileOrDirName.lastIndexOf("\.")
+        if (lastDotIndexOf) {
+            let suffix = fileOrDirName.substring(lastDotIndexOf + 1, fileOrDirName.length).toLowerCase();
+            if (suffix == "ts") {
+                return true;
+            } else if (suffix == "mpg") {
+                return true;
+            }
+            return false;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+}
 
 function isVedioFile(fileOrDirName) {
     if (fileOrDirName) {
