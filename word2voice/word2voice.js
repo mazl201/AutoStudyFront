@@ -257,18 +257,18 @@ function splitAndTranslate2voice(filename, index, pathImg, splitConten, spd, cal
             filename = "undefined";
         }
         var updateFileName = "";
-        if (filename.indexOf("@@") > -1) {
+        if (filename.indexOf("item") > -1) {
             updateFileName = filename;
-            filename = filename.split("@@")[0];
+            filename = filename.split("item")[0];
         } else {
-            updateFileName = filename + "@@" + pad(index, 6);
+            updateFileName = filename + "item" + pad(index, 6);
             updateFileName = updateFileName + "  " + dateformat(new Date(), "yyyy-mm-dd HH:MM:ss");
         }
 
         let demo = async function () {
             if (pathImg) {
                 let nowIndex = await redisClient.getNowDayIncr();
-                updateFileName = filename + "@@" + pad(nowIndex, 6);
+                updateFileName = filename + "item" + pad(nowIndex, 6);
                 console.log(nowIndex);
             }
             //配置参数

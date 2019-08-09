@@ -460,7 +460,7 @@ $(".retryTranslate").on("click", function () {
         type: "POST",
         success: function (res) {
             if (res) {
-                $(nowRetry).parent().append("<audio src=\"mp3_download?id=" + res + "\" name=\"temperarory  2019-06-30 13:55:29.mp3\" controls=\"\">undefined@@000000  2019-06-30 13:55:29.mp3</audio>");
+                $(nowRetry).parent().append("<audio src=\"mp3_download?id=" + res + "\" name=\"temperarory  2019-06-30 13:55:29.mp3\" controls=\"\">undefineditem000000  2019-06-30 13:55:29.mp3</audio>");
                 // $(nowRetry).remove();
                 var find = $(nowRetry).parent().find("audio");
                 initAudioClick1(find);

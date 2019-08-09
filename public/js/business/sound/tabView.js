@@ -10,6 +10,9 @@
 //     })
 // })
 
+var noSleep = new NoSleep();
+debugger;
+noSleep.enable();
 $('.counter-value').each(function () {
     $(this).prop('Counter', 0).animate({
         Counter: $(this).text()
@@ -64,6 +67,7 @@ function showFullScreen1() {
 //全屏按钮上调用的方法
 function showFullScreen2() {
     var elm = document.getElementById("mp3AlterIframe");
+
     launchFullscreen(elm);
 }
 
@@ -140,5 +144,9 @@ function exitFullscreen() {
 //         }
 //     }, false);
 // }
+
+$(".eternal").click(function(){
+    noSleep.enable();
+})
 
 var nowExternalDiv = $("#footerDivContent");

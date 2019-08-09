@@ -650,8 +650,8 @@ router.post("/retry_baidu_api_down", function (req, res, next) {
         }
 
         var filename = req.body.filename.trim().split(/\s+/g)[0];
-        if (filename.indexOf("@@") > -1) {
-            filename = filename.split("@@")[0]
+        if (filename.indexOf("item") > -1) {
+            filename = filename.split("item")[0]
         }
         word2voice(req.body.content, 3, 3, filename, 1, null, callBack);
     }
